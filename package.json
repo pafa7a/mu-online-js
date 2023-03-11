@@ -1,0 +1,9 @@
+{
+  "name": "mu-online-js",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start-cs": "node ./CS/index.js"
+  }
+}

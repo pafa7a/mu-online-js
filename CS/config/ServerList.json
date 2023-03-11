@@ -1,0 +1,30 @@
+[
+  {
+    "id": 0,
+    "name": "GameServer",
+    "IP": "127.0.0.1",
+    "port": 55901,
+    "show": true
+  },
+  {
+    "id": 1,
+    "name": "GameServer2",
+    "IP": "127.0.0.1",
+    "port": 55902,
+    "show": true
+  },
+  {
+    "id": 20,
+    "name": "GameServer3",
+    "IP": "127.0.0.1",
+    "port": 55901,
+    "show": true
+  },
+  {
+    "id": 21,
+    "name": "GameServerCS",
+    "IP": "127.0.0.1",
+    "port": 55901,
+    "show": false
+  }
+]

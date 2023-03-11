@@ -1,0 +1,21 @@
+{
+  "name": "mu-online-js-cs",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "debug": "set DEBUG=true && node --inspect index.js",
+    "test": "mocha test"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0"
+  },
+  "mocha": {
+    "timeout": 1000
+  },
+  "dependencies": {
+    "import-fresh": "^3.3.0",
+    "mock-fs": "^5.2.0"
+  }
+}
