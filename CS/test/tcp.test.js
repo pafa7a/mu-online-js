@@ -18,14 +18,9 @@ describe('TCP Socket Server', () => {
             "name": "GameServer",
             "IP": "127.0.0.1",
             "port": 55901,
-            "show": true
-          },
-          {
-            "id": 1,
-            "name": "GameServer2",
-            "IP": "127.0.0.1",
-            "port": 55902,
-            "show": false
+            "show": true,
+            "state": 1,
+            "userTotal": 20
           }
         ]
       )
