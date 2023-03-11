@@ -1,10 +1,10 @@
 const {loadGameServersList, gameServersList} = require('../utils/loadGameServersList');
 const {startServer, stopServer} = require('../utils/udp');
-const byteToNiceHex = require("../utils/byteToNiceHex");
 const assert = require('assert');
 const mock = require('mock-fs');
 const dgram = require("dgram");
 
+let client;
 describe('UDP Socket Server', () => {
   before(() => {
     // Mock the file system to provide a fake implementation of config/ServerList.json
@@ -27,11 +27,14 @@ describe('UDP Socket Server', () => {
   beforeEach(done => {
     // Start the UDP server on port 44405.
     startServer(55557);
+    client = dgram.createSocket('udp4');
     done();
   });
 
   afterEach(() => {
-    // Close the TCP server.
+    // Close the client connection.
+    client.close();
+    // Close the UDP server.
     stopServer();
   });
 
@@ -41,7 +44,6 @@ describe('UDP Socket Server', () => {
   });
 
   it('should store the GameServer info in memory', done => {
-    const client = dgram.createSocket('udp4');
     // Send the "gameServerInfo" message to the server
     const message = Buffer.from([0xC1, 0x10, 0x01, 0xCC, 0x00, 0x00, 0x00, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE8, 0x03]);
     // send the message to the server on port 55557

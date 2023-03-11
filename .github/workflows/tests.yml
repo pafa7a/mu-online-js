@@ -14,12 +14,12 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies
+      - name: Install ConnectServer dependencies
         run: |
           cd CS
           yarn
 
-      - name: Run tests
+      - name: Run ConnectServer tests
         run: |
           cd CS
           yarn test
