@@ -1,4 +1,4 @@
-name: Node.js CI
+name: ConnectServer unit tests
 
 on: [push, pull_request]
 
