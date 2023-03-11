@@ -1,4 +1,4 @@
-name: ConnectServer unit tests
+name: ConnectServer tests
 
 on: [push, pull_request]
 
