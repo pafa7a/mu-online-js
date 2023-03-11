@@ -5,7 +5,6 @@ const byteToNiceHex = require("../utils/byteToNiceHex");
 const assert = require('assert');
 const mock = require('mock-fs');
 
-
 describe('TCP Socket Server', () => {
   let client;
 

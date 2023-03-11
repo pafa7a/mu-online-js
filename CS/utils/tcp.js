@@ -80,10 +80,6 @@ const startServer = port => {
     console.log(`Server Error: ${error.message}`);
   });
 
-  tcpServer.on("close", () => {
-    console.log(`Stopping the server.`);
-  });
-
   tcpServer.listen(port, () => {
     console.log(`TCP socket server is running on port: ${port}`);
   });
@@ -103,7 +99,7 @@ const serverListResponse = (data, socket) => {
 const serverInfoResponse = (data, socket) => {
   const serverId = data.readUIntLE(4, 2);
   gameServersList.forEach(gameServer => {
-    if (gameServer.id === serverId) {
+    if (gameServer.id === serverId && gameServer.state) {
       let buffer = Buffer.from([0xC1, 0x00, 0xF4, 0x03]);
       const IPBuffer = Buffer.alloc(16)
       IPBuffer.write(gameServer['IP']);
@@ -119,10 +115,10 @@ const serverInfoResponse = (data, socket) => {
 const getServerListResponseBufferAndLength = () => {
   const gsBuffers = [];
   gameServersList.forEach(gameServer => {
-    if (gameServer.show) {
+    if (gameServer.show && gameServer.state) {
       const buffer = Buffer.alloc(4);
       buffer.writeUIntLE(gameServer.id, 0, 2);
-      buffer.writeUIntBE(20, 2, 1);
+      buffer.writeUIntBE(gameServer.userTotal, 2, 1);
       buffer.writeUIntBE(0xC1, 3, 1);
       gsBuffers.push(buffer);
     }
