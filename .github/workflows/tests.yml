@@ -1,0 +1,25 @@
+name: Node.js CI
+
+on: [push, pull_request]
+
+jobs:
+  test-CS:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: |
+          cd CS
+          yarn
+
+      - name: Run tests
+        run: |
+          cd CS
+          yarn test
