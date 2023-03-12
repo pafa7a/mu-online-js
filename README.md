@@ -1,6 +1,9 @@
 # MuOnline Server on JavaScript
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 [![ConnectServer tests](https://github.com/pafa7a/mu-online-js/actions/workflows/connect-server-tests.yml/badge.svg)](https://github.com/pafa7a/mu-online-js/actions/workflows/connect-server-tests.yml)
+
+[![JoinServer tests](https://github.com/pafa7a/mu-online-js/actions/workflows/join-server-tests.yml/badge.svg)](https://github.com/pafa7a/mu-online-js/actions/workflows/join-server-tests.yml)
 
 This project aims to create a full javascript based MuOnline server that can be used across all OS (Windows, Linux, Mac)
 

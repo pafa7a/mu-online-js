@@ -4,6 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start-cs": "node ./ConnectServer/index.js"
-  }
+    "start-cs": "node ./ConnectServer/index.js",
+    "start-js": "node ./JoinServer/index.js",
+    "test-all": "cd ConnectServer && yarn test && cd ../JoinServer && yarn test"
+  },
+  "dependencies": {}
 }

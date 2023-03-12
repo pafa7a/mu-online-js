@@ -1,7 +1,5 @@
 const net = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
-const protocol = require('./protocol')
-const {gameServersList} = require('./loadGameServersList');
 
 let tcpServer;
 const tcpSockets = new Map();
@@ -14,23 +12,36 @@ const startServer = port => {
     if (process.env.DEBUG) {
       console.log(`New client connected. IP: ${socket.remoteAddress}`);
     }
-    // send Hello
-    sendData(socket, protocol.sayHello, 'sayHello');
 
     socket.on("data", (data) => {
       let handler;
       switch (data[0]) {
         case 0xC1:
           switch (data[2]) {
-            case 0xF4:
-              switch (data[3]) {
-                case 0x03:
-                  handler = serverInfoResponse;
-                  break;
-                case 0x06:
-                  handler = serverListResponse;
-                  break;
-              }
+            case 0x00:
+              // game server info receive
+              handler = gameServerInfoReceive
+              break;
+            case 0x01:
+              // connect account receive
+              break;
+            case 0x02:
+              // disconnect account receive
+              break;
+            case 0x03:
+              // map server move receive
+              break;
+            case 0x04:
+              // map server move auth receive
+              break;
+            case 0x05:
+              // account level receive
+              break;
+            case 0x06:
+              // account level receive 2
+              break;
+            case 0x30:
+              // account already connected receive
               break;
           }
           break;
@@ -44,7 +55,7 @@ const startServer = port => {
     socket.on("end", () => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
-      console.log("Client disconnected");
+      console.log("GameServer disconnected");
     });
 
     socket.on("error", (error) => {
@@ -65,15 +76,8 @@ const startServer = port => {
   });
 }
 
-const serverListResponse = (data, socket) => {
-  let buffer = Buffer.from([0xC2, 0x00, 0x00, 0xF4, 0x06, 0x00, 0x00]);
-
-  const gsList = getServerListResponseBufferAndLength();
-  buffer = Buffer.concat([buffer, gsList.buffer]);
-
-  buffer.writeUIntBE(gsList.count, 5, 2);
-  buffer[2] = buffer.length;
-  sendData(socket, buffer, 'serverListResponse');
+const stopServer = () => {
+  tcpServer.close();
 }
 
 /**
@@ -109,52 +113,23 @@ const onReceive = (socket, data, handler) => {
 }
 
 /**
- * Handles serverInfoResponse request coming from GS.
+ * Handles GameServerInfo request coming from GS.
  * @param {Buffer} data
  * @param {Socket} socket
  */
-const serverInfoResponse = (data, socket) => {
-  const serverId = data.readUIntLE(4, 2);
-  gameServersList.forEach(gameServer => {
-    if (gameServer.id === serverId && gameServer.state) {
-      let buffer = Buffer.from([0xC1, 0x00, 0xF4, 0x03]);
-      const IPBuffer = Buffer.alloc(16)
-      IPBuffer.write(gameServer['IP']);
-      const portBuffer = Buffer.alloc(2);
-      portBuffer.writeUIntLE(gameServer.port, 0, 2);
-      buffer = Buffer.concat([buffer, IPBuffer, portBuffer]);
-      buffer[1] = buffer.length;
-      sendData(socket, buffer, 'serverListResponse');
-    }
-  })
-}
-
-const getServerListResponseBufferAndLength = () => {
-  const gsBuffers = [];
-  gameServersList.forEach(gameServer => {
-    if (gameServer.show && gameServer.state) {
-      const buffer = Buffer.alloc(4);
-      buffer.writeUIntLE(gameServer.id, 0, 2);
-      buffer.writeUIntBE(gameServer.userTotal, 2, 1);
-      buffer.writeUIntBE(0xC1, 3, 1);
-      gsBuffers.push(buffer);
-    }
-  });
-  return {
-    buffer: Buffer.concat(gsBuffers),
-    count: gsBuffers.length
+const gameServerInfoReceive = (data, socket) => {
+  const gameServerInfo = {
+    serverType: data.readUInt8(3),
+    serverPort: data.readUIntLE(4, 2),
+    serverName: data.toString('utf8', 6, 56).replace(/\x00.*$/g, ''),
+    serverCode: data.readUIntLE(56, 2),
+    socket
   }
-}
-
-const stopServer = () => {
-  tcpServer.close();
+  console.log(gameServerInfo)
 }
 
 module.exports = {
   startServer,
   tcpSockets,
-  serverListResponse,
-  stopServer,
-  sendData,
-  onReceive
+  stopServer
 }

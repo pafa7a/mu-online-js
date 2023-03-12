@@ -1,5 +1,5 @@
-# MuOnline ConnectServer on Javascript
-This is an implementation of the MuOnline ConnectServer in JavaScript.
+# MuOnline JoinServer on Javascript
+This is an implementation of the MuOnline JoinServer in JavaScript.
 
 ## Requirements
 * Node.js (v12 or newer)

@@ -1,7 +1,7 @@
 const net = require('net');
-const {loadGameServersList} = require('../utils/loadGameServersList');
-const {startServer, stopServer} = require('../utils/tcp');
-const byteToNiceHex = require("../utils/byteToNiceHex");
+const {loadGameServersList} = require('./../utils/loadGameServersList');
+const {startServer, stopServer} = require('./../utils/tcp');
+const byteToNiceHex = require("./../utils/byteToNiceHex");
 const assert = require('assert');
 const mock = require('mock-fs');
 
