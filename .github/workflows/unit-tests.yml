@@ -3,14 +3,14 @@ name: Unit tests
 on: [push, pull_request]
 
 jobs:
-  test-ConnectServer:
+  ConnectServer:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
 
@@ -24,14 +24,14 @@ jobs:
           cd ConnectServer
           yarn test
 
-  test-JoinServer:
+  JoinServer:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
 
