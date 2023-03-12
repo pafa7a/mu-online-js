@@ -16,10 +16,10 @@ jobs:
 
       - name: Install ConnectServer dependencies
         run: |
-          cd CS
+          cd ConnectServer
           yarn
 
       - name: Run ConnectServer tests
         run: |
-          cd CS
+          cd ConnectServer
           yarn test

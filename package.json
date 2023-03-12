@@ -4,6 +4,6 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start-cs": "node ./CS/index.js"
+    "start-cs": "node ./ConnectServer/index.js"
   }
 }
