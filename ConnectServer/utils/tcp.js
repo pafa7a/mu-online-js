@@ -124,7 +124,7 @@ const serverInfoResponse = (data, socket) => {
       portBuffer.writeUIntLE(gameServer.port, 0, 2);
       buffer = Buffer.concat([buffer, IPBuffer, portBuffer]);
       buffer[1] = buffer.length;
-      sendData(socket, buffer, 'serverListResponse');
+      sendData(socket, buffer, 'serverInfoResponse');
     }
   })
 }
