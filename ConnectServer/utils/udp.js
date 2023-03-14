@@ -1,10 +1,10 @@
-const dgram = require('dgram');
+const { createSocket } = require('dgram');
 const byteToNiceHex = require("./byteToNiceHex");
 const {addGameServer} = require("./loadGameServersList");
 
 let udpServer;
 const startServer = port => {
-  udpServer = dgram.createSocket('udp4');
+  udpServer = createSocket('udp4');
   udpServer.on('message', (data) => {
     let handler;
     switch (data[0]) {

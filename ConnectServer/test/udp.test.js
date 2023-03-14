@@ -2,7 +2,7 @@ const {loadGameServersList, gameServersList} = require('../utils/loadGameServers
 const {startServer, stopServer} = require('../utils/udp');
 const assert = require('assert');
 const mock = require('mock-fs');
-const dgram = require("dgram");
+const { createSocket } = require("dgram");
 
 let client;
 describe('UDP Socket Server', () => {
@@ -27,7 +27,7 @@ describe('UDP Socket Server', () => {
   beforeEach(done => {
     // Start the UDP server on port 44405.
     startServer(55557);
-    client = dgram.createSocket('udp4');
+    client = createSocket('udp4');
     done();
   });
 

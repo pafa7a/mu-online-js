@@ -1,4 +1,4 @@
-const net = require('net');
+const { connect } = require('net');
 const {loadGameServersList} = require('./../utils/loadGameServersList');
 const {startServer, stopServer} = require('./../utils/tcp');
 const byteToNiceHex = require("./../utils/byteToNiceHex");
@@ -33,7 +33,7 @@ describe('TCP Socket Server', () => {
     startServer(44405);
 
     // Connect to the server with a client socket
-    client = net.connect({port: 44405}, () => {
+    client = connect({port: 44405}, () => {
       console.log('Client connected');
     });
 

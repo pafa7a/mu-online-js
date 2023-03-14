@@ -1,4 +1,4 @@
-const net = require('net');
+const { createServer } = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
 const protocol = require('./protocol')
 const {gameServersList} = require('./loadGameServersList');
@@ -7,7 +7,7 @@ let tcpServer;
 const tcpSockets = new Map();
 
 const startServer = port => {
-  tcpServer = net.createServer((socket) => {
+  tcpServer = createServer((socket) => {
     // Store the socket in map.
     tcpSockets.set(socket, true);
 

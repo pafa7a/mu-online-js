@@ -1,4 +1,4 @@
-const net = require('net');
+const { connect } = require('net');
 const {startServer, stopServer} = require('../utils/tcp');
 
 describe('TCP Socket Server', () => {
@@ -13,7 +13,7 @@ describe('TCP Socket Server', () => {
     startServer(55970);
 
     // Connect to the server with a client socket
-    client = net.connect({port: 55970}, () => {
+    client = connect({port: 55970}, () => {
       console.log('Client connected');
     });
     done();
