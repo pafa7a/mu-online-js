@@ -1,8 +1,8 @@
-const net = require('net');
-const {startServer, stopServer} = require('../utils/tcp');
+import {startServer, stopServer} from "../src/utils/tcp";
+import {connect, Socket} from "net";
 
 describe('TCP Socket Server', () => {
-  let client;
+  let client: Socket;
 
   before(() => {
 
@@ -13,7 +13,7 @@ describe('TCP Socket Server', () => {
     startServer(55970);
 
     // Connect to the server with a client socket
-    client = net.connect({port: 55970}, () => {
+    client = connect({port: 55970}, () => {
       console.log('Client connected');
     });
     done();

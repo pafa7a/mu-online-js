@@ -1,18 +1,24 @@
 {
   "name": "mu-online-js-js",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js",
-    "debug": "set DEBUG=true && node --inspect index.js",
-    "test": "mocha test",
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "debug": "set DEBUG=true && node --inspect src/index.ts",
+    "debug-ts": "set DEBUG=true && ts-node src/index.ts",
+    "test": "mocha --require ts-node/register --recursive 'test/**/*.test.ts'",
     "coverage": "nyc yarn test"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.15.2",
     "mocha": "^10.2.0",
     "mock-fs": "^5.2.0",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
   },
   "mocha": {
     "timeout": 1000

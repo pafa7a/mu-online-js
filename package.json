@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start-cs": "node ./ConnectServer/index.js",
-    "start-js": "node ./JoinServer/index.js",
+    "start-js": "node JoinServer/src/index.ts",
     "test-all": "cd ConnectServer && yarn test && cd ../JoinServer && yarn test"
   },
   "dependencies": {}

@@ -1,11 +1,12 @@
-const net = require('net');
-const byteToNiceHex = require('./byteToNiceHex');
+import {createServer, Server, Socket} from "net";
+import byteToNiceHex from "./byteToNiceHex";
+import ErrnoException = NodeJS.ErrnoException;
 
-let tcpServer;
+let tcpServer: Server;
 const tcpSockets = new Map();
 
-const startServer = port => {
-  tcpServer = net.createServer((socket) => {
+const startServer = (port: number) => {
+  tcpServer = createServer((socket: Socket) => {
     // Store the socket in map.
     tcpSockets.set(socket, true);
 
@@ -13,8 +14,8 @@ const startServer = port => {
       console.log(`New client connected. IP: ${socket.remoteAddress}`);
     }
 
-    socket.on("data", (data) => {
-      let handler;
+    socket.on("data", (data: Buffer) => {
+      let handler: Function = () => {};
       switch (data[0]) {
         case 0xC1:
           switch (data[2]) {
@@ -58,7 +59,7 @@ const startServer = port => {
       console.log("GameServer disconnected");
     });
 
-    socket.on("error", (error) => {
+    socket.on("error", (error: ErrnoException) => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
       if (error?.code !== 'ECONNRESET') {
@@ -80,13 +81,7 @@ const stopServer = () => {
   tcpServer.close();
 }
 
-/**
- * Helper function that logs the bytes in HEX format upon sending data.
- * @param {Socket} socket
- * @param {Object} data
- * @param {String} description
- */
-const sendData = (socket, data, description = '') => {
+const sendData = (socket: Socket, data: Buffer, description: string = '') => {
   const buffer = Buffer.from(data);
   socket.write(buffer);
   if (process.env.DEBUG) {
@@ -94,13 +89,7 @@ const sendData = (socket, data, description = '') => {
   }
 }
 
-/**
- * Helper function that logs the bytes in HEX format upon receive.
- * @param {Socket} socket
- * @param {Object} data
- * @param {Function | String} handler
- */
-const onReceive = (socket, data, handler) => {
+const onReceive = (socket: Socket, data: Buffer, handler: Function) => {
   const hexString = byteToNiceHex(data);
   let handlerName = 'Unknown';
   if (typeof handler === 'function') {
@@ -112,12 +101,7 @@ const onReceive = (socket, data, handler) => {
   }
 }
 
-/**
- * Handles GameServerInfo request coming from GS.
- * @param {Buffer} data
- * @param {Socket} socket
- */
-const gameServerInfoReceive = (data, socket) => {
+const gameServerInfoReceive = (data: Buffer, socket: Socket) => {
   const gameServerInfo = {
     serverType: data.readUInt8(3),
     serverPort: data.readUIntLE(4, 2),
@@ -128,7 +112,7 @@ const gameServerInfoReceive = (data, socket) => {
   console.log(gameServerInfo)
 }
 
-module.exports = {
+export {
   startServer,
   tcpSockets,
   stopServer
