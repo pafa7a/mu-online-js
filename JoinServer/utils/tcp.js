@@ -40,6 +40,18 @@ const startServer = port => {
             case 0x06:
               // account level receive 2
               break;
+            case 0x10:
+              // GJMapServerMoveCancelRecv
+              break;
+            case 0x11:
+              // GJAccountLevelSaveRecv
+              break;
+            case 0x12:
+              // GJAccountLockSaveRecv
+              break;
+            case 0x20:
+              handler = gameServerUserInfoReceive
+              break;
             case 0x30:
               // account already connected receive
               break;
@@ -123,9 +135,23 @@ const gameServerInfoReceive = (data, socket) => {
     serverPort: data.readUIntLE(4, 2),
     serverName: data.toString('utf8', 6, 56).replace(/\x00.*$/g, ''),
     serverCode: data.readUIntLE(56, 2),
-    socket
+    internalId: socket.remotePort
   }
   console.log(gameServerInfo)
+}
+
+/**
+ * Handles GameServerUserInfo request coming from GS.
+ * @param {Buffer} data
+ * @param {Socket} socket
+ */
+const gameServerUserInfoReceive = (data, socket) => {
+  const gameServerUserInfo = {
+    userCount: data.readUIntLE(4, 2),
+    maxUserCount: data.readUIntLE(6, 2),
+    internalId: socket.remotePort
+  }
+  console.log(gameServerUserInfo)
 }
 
 module.exports = {

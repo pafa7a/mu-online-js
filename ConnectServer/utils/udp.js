@@ -1,11 +1,13 @@
-const { createSocket } = require('dgram');
+const {createSocket} = require('dgram');
 const byteToNiceHex = require("./byteToNiceHex");
-const {addGameServer} = require("./loadGameServersList");
+const {addGameServer, gameServersList} = require("./loadGameServersList");
+const CLIENT_TIMEOUT = 10000;
 
+let intervalId;
 let udpServer;
 const startServer = port => {
   udpServer = createSocket('udp4');
-  udpServer.on('message', (data) => {
+  udpServer.on('message', (data, remoteInfo) => {
     let handler;
     switch (data[0]) {
       case 0xC1:
@@ -18,7 +20,7 @@ const startServer = port => {
     }
     udpServer.onReceive(data, handler);
     if (handler) {
-      handler(data, udpServer);
+      handler(data, remoteInfo.address, remoteInfo.port);
     }
   });
 
@@ -40,10 +42,11 @@ const startServer = port => {
 }
 
 const stopServer = () => {
+  clearInterval(intervalId);
   udpServer.close();
 }
 
-const gameServerInfoHandler = (data, socket) => {
+const gameServerInfoHandler = (data, address, port) => {
   const serverInfo = {
     serverCode: data.readUintLE(4, 2),
     userTotal: data.readUintLE(6, 1),
@@ -52,8 +55,25 @@ const gameServerInfoHandler = (data, socket) => {
     pcPointCount: data.readUintLE(12, 2),
     maxUserCount: data.readUintLE(14, 2),
   }
-  addGameServer(serverInfo);
+  addGameServer(serverInfo, address, port);
 }
+
+/**
+ * Check periodically if the GameServer is still running.
+ */
+intervalId = setInterval(() => {
+  const now = Date.now();
+  gameServersList.forEach(server => {
+    // If the server was ever connected.
+    if (server.port && server.address && server.lastMessageTime) {
+      // Check if the last message was received for more than the timeout limit.
+      if (now - server.lastMessageTime > CLIENT_TIMEOUT) {
+        server.state = 0;
+        server.address = server.port = server.lastMessageTime = undefined;
+      }
+    }
+  })
+}, 5000);
 
 module.exports = {
   startServer,
