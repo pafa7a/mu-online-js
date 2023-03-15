@@ -45,7 +45,7 @@ const stopServer = () => {
 
 const gameServerInfoHandler = (data, socket) => {
   const serverInfo = {
-    serverCode: data.readUintLE(4, 1),
+    serverCode: data.readUintLE(4, 2),
     userTotal: data.readUintLE(6, 1),
     userCount: data.readUintLE(8, 2),
     accountCount: data.readUintLE(10, 2),
