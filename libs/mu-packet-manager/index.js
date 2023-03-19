@@ -1,5 +1,3 @@
-const structs = require("./structs");
-
 /**
  * Creates a new Packet object.
  * @constructor
@@ -67,6 +65,18 @@ Packet.prototype.toObject = function () {
   return this.obj;
 };
 
+/**
+ * Decodes a packet based on the given type and stores the result in the provided object.
+ *
+ * @method decodeByType
+ * @memberof Packet.prototype
+ *
+ * @param {string} type - The type of data to decode. Valid values are 'byte' and 'word'.
+ * @param {string} key - The key to store the decoded data in the object.
+ * @param {Object} objectToStore - The object to store the decoded data in.
+ *
+ * @returns {void}
+ */
 Packet.prototype.decodeByType = function (type, key, objectToStore) {
   switch (type) {
     case 'byte':
@@ -111,6 +121,12 @@ Packet.prototype.toBuffer = function (obj) {
   return this.buf;
 };
 
+/**
+ * Encodes a value based on the provided data type and writes it to the buffer.
+ *
+ * @param {string} type - The data type of the value to encode.
+ * @param {number} value - The value to encode.
+ */
 Packet.prototype.encodeByType = function (type, value) {
   switch (type) {
     case 'byte':
@@ -130,6 +146,14 @@ Packet.prototype.encodeByType = function (type, value) {
   }
 };
 
+/**
+ * Calculates the size of the buffer required to store the provided struct.
+ *
+ * @param {object} struct - An object representing the structure of the data to be encoded.
+ * Each key in the object represents a field in the structure, and its value is the data type of the field.
+ * If the data type is an object, it is assumed to represent a sub-structure, and its length is counted as 1 byte.
+ * @returns {number} - The total size, in bytes, required to store the provided struct.
+ */
 Packet.prototype.calculateBufferSize = function(struct) {
   let size = 0;
   for (let key in struct) {
@@ -162,8 +186,7 @@ Packet.prototype.calculateBufferSize = function(struct) {
  * @returns {object} The available structures.
  */
 Packet.getStructs = function () {
-  const structs = require('./structs');
-  return structs;
+  return require('./structs');
 };
 
 /**
