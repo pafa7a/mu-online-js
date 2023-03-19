@@ -18,27 +18,28 @@ const startServer = port => {
         }
         break;
     }
-    udpServer.onReceive(data, handler);
+    onReceive(data, handler);
     if (handler) {
       handler(data, remoteInfo.address, remoteInfo.port);
     }
   });
 
-  udpServer.onReceive = (data, handler) => {
-    const hexString = byteToNiceHex(data);
-    let handlerName = 'Unknown';
-    if (typeof handler === 'function') {
-      handlerName = handler.name;
-    }
-
-    if (process.env.DEBUG_UDP) {
-      console.log(`Received [${handlerName}]:`, hexString);
-    }
-  }
 
   udpServer.bind(port, () => {
     console.log('UDP server listening on port 55557');
   });
+}
+
+const onReceive = (data, handler) => {
+  const hexString = byteToNiceHex(data);
+  let handlerName = 'Unknown';
+  if (typeof handler === 'function') {
+    handlerName = handler.name;
+  }
+
+  if (process.env.DEBUG_UDP && handlerName === 'Unknown') {
+    console.log(`Received [${handlerName}]:`, hexString);
+  }
 }
 
 const stopServer = () => {
@@ -65,11 +66,11 @@ intervalId = setInterval(() => {
   const now = Date.now();
   gameServersList.forEach(server => {
     // If the server was ever connected.
-    if (server.port && server.address && server.lastMessageTime) {
+    if (server.internalPort && server.address && server.lastMessageTime) {
       // Check if the last message was received for more than the timeout limit.
       if (now - server.lastMessageTime > CLIENT_TIMEOUT) {
         server.state = 0;
-        server.address = server.port = server.lastMessageTime = undefined;
+        server.address = server.internalPort = server.lastMessageTime = undefined;
       }
     }
   })

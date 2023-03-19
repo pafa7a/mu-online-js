@@ -9,11 +9,11 @@ const loadGameServersList = () => {
 const addGameServer = (data, address, port) => {
   gameServersList.forEach(server => {
     if (server.id === data.serverCode) {
-      if (!server.address || !server.port || !server.state) {
+      if (!server.address || !server.internalPort || !server.state) {
         server.address = address;
-        server.port = port;
+        server.internalPort = port;
         server.state = 1;
-        console.log(`GameServer connected. Name: "${server.name}"; ServerCode: "${server.id}; Address: ${address}; Port: ${port}"`);
+        console.log(`GameServer connected. Name: "${server.name}"; ServerCode: "${server.id}; InternalAddress: ${server.address}; InternalPort: ${server.internalPort}"`);
       }
       server.userTotal = data.userTotal;
       server.userCount = data.userCount;

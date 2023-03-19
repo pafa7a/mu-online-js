@@ -23,7 +23,7 @@ const startServer = port => {
               handler = gameServerInfoReceive
               break;
             case 0x01:
-              // connect account receive
+              handler = gameServerConnectAccountReceive
               break;
             case 0x02:
               // disconnect account receive
@@ -152,6 +152,31 @@ const gameServerUserInfoReceive = (data, socket) => {
     internalId: socket.remotePort
   }
   console.log(gameServerUserInfo)
+}
+
+
+/**
+ * Handles GameServerConnectAccountReceive request coming from GS.
+ * @param {Buffer} data
+ * @param {Socket} socket
+ */
+const gameServerConnectAccountReceive = (data, socket) => {
+  //C1 2C 01 CC 28 23 70 61 66 61 37 61 00 00 00 00 00 31 32 33 00 00 00 00 00 00 00 00 31 32 37 2E 30 2E 30 2E 31 00 FE FE FE FE FE FE
+  const connectAccountInfo = {
+    index: data.readUIntLE(4, 2),
+    account: data.toString('utf8', 6, 17).replace(/\x00.*$/g, ''),
+    password: data.toString('utf8', 17, 28).replace(/\x00.*$/g, ''),
+    ipAddress: data.toString('utf8', 28, 53).replace(/\x00.*$/g, '')
+  }
+  console.log(connectAccountInfo)
+  const buffer = Buffer.alloc(62);
+  buffer.writeUInt8(0xC1, 0)
+  buffer.writeUInt8(buffer.length, 1)
+  buffer.writeUInt8(0x01, 2)
+  buffer.writeUInt16LE(connectAccountInfo.index, 4)
+  buffer.write(connectAccountInfo.account, 6, 11)
+  buffer.writeUInt8(0, 31)
+  sendData(socket, buffer, 'send login result')
 }
 
 module.exports = {
