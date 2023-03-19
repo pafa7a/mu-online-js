@@ -1,6 +1,9 @@
 const {createSocket} = require('dgram');
 const byteToNiceHex = require("./byteToNiceHex");
 const {addGameServer, gameServersList} = require("./loadGameServersList");
+const packetManager = require('mu-packet-manager');
+const structs = packetManager.getStructs();
+
 const CLIENT_TIMEOUT = 10000;
 
 let intervalId;
@@ -13,7 +16,7 @@ const startServer = port => {
       case 0xC1:
         switch (data[2]) {
           case 0x01:
-            handler = gameServerInfoHandler;
+            handler = CSGameServerInfoHandler;
             break;
         }
         break;
@@ -47,15 +50,10 @@ const stopServer = () => {
   udpServer.close();
 }
 
-const gameServerInfoHandler = (data, address, port) => {
-  const serverInfo = {
-    serverCode: data.readUintLE(4, 2),
-    userTotal: data.readUintLE(6, 1),
-    userCount: data.readUintLE(8, 2),
-    accountCount: data.readUintLE(10, 2),
-    pcPointCount: data.readUintLE(12, 2),
-    maxUserCount: data.readUintLE(14, 2),
-  }
+const CSGameServerInfoHandler = (data, address, port) => {
+  const serverInfo = new packetManager().fromBuffer(data)
+    .useStruct(structs.CSGameServerInfo)
+    .toObject();
   addGameServer(serverInfo, address, port);
 }
 

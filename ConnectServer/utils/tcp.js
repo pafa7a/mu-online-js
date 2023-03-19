@@ -2,10 +2,15 @@ const { createServer } = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
 const protocol = require('./protocol')
 const {gameServersList} = require('./loadGameServersList');
+const packetManager = require('mu-packet-manager');
+const structs = packetManager.getStructs();
 
 let tcpServer;
 const tcpSockets = new Map();
 
+/**
+ * @typedef {import('net').Socket} Socket
+ */
 const startServer = port => {
   tcpServer = createServer((socket) => {
     // Store the socket in map.
@@ -14,8 +19,19 @@ const startServer = port => {
     if (process.env.DEBUG) {
       console.log(`New client connected. IP: ${socket.remoteAddress}`);
     }
-    // send Hello
-    sendData(socket, protocol.sayHello, 'sayHello');
+
+    // Send the init packet to Main.
+    const messageStruct = {
+      header: {
+        index: 0xC1,
+        size: 'auto',
+        subCode: 0x00,
+      },
+      result: 1,
+    }
+    const initMessageBuffer = new packetManager()
+      .useStruct(structs.CSMainSendInitPacket).toBuffer(messageStruct);
+    sendData(socket, initMessageBuffer, 'CSMainSendInitPacket');
 
     socket.on("data", (data) => {
       let handler;
@@ -66,6 +82,7 @@ const startServer = port => {
 }
 
 const serverListResponse = (data, socket) => {
+  //@TODO: use the new struct lib.
   let buffer = Buffer.from([0xC2, 0x00, 0x00, 0xF4, 0x06, 0x00, 0x00]);
 
   const gsList = getServerListResponseBufferAndLength();
@@ -114,6 +131,7 @@ const onReceive = (socket, data, handler) => {
  * @param {Socket} socket
  */
 const serverInfoResponse = (data, socket) => {
+  //@TODO: use the new struct lib.
   const serverId = data.readUIntLE(4, 2);
   gameServersList.forEach(gameServer => {
     if (gameServer.id === serverId && gameServer.state) {
@@ -130,6 +148,7 @@ const serverInfoResponse = (data, socket) => {
 }
 
 const getServerListResponseBufferAndLength = () => {
+  //@TODO: use the new struct lib.
   const gsBuffers = [];
   gameServersList.forEach(gameServer => {
     if (gameServer.show && gameServer.state) {

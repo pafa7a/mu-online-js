@@ -3,6 +3,8 @@ const {startServer, stopServer} = require('../utils/udp');
 const assert = require('assert');
 const mock = require('mock-fs');
 const { createSocket } = require("dgram");
+const packetManager = require('mu-packet-manager');
+const structs = packetManager.getStructs();
 
 let client;
 describe('UDP Socket Server', () => {
@@ -44,8 +46,21 @@ describe('UDP Socket Server', () => {
   });
 
   it('should store the GameServer info in memory', done => {
-    // Send the "gameServerInfo" message to the server
-    const message = Buffer.from([0xC1, 0x10, 0x01, 0xCC, 0x00, 0x00, 0x00, 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE8, 0x03]);
+    const messageStruct = {
+      header: {
+        type: 0xC1,
+        size: 'auto',
+        headCode: 0x01,
+      },
+      serverCode: 0,
+      userTotal: 0,
+      userCount: 0,
+      accountCount: 0,
+      pcPointCount: 0,
+      maxUserCount: 1000,
+    }
+    const message = new packetManager()
+      .useStruct(structs.CSGameServerInfo).toBuffer(messageStruct);
     // send the message to the server on port 55557
     client.send(message, 0, message.length, 55557, '127.0.0.1');
     setTimeout(() => {

@@ -130,6 +130,7 @@ const onReceive = (socket, data, handler) => {
  * @param {Socket} socket
  */
 const gameServerInfoReceive = (data, socket) => {
+  //@TODO: use the new struct lib.
   const gameServerInfo = {
     serverType: data.readUInt8(3),
     serverPort: data.readUIntLE(4, 2),
@@ -146,6 +147,7 @@ const gameServerInfoReceive = (data, socket) => {
  * @param {Socket} socket
  */
 const gameServerUserInfoReceive = (data, socket) => {
+  //@TODO: use the new struct lib.
   const gameServerUserInfo = {
     userCount: data.readUIntLE(4, 2),
     maxUserCount: data.readUIntLE(6, 2),
@@ -161,7 +163,7 @@ const gameServerUserInfoReceive = (data, socket) => {
  * @param {Socket} socket
  */
 const gameServerConnectAccountReceive = (data, socket) => {
-  //C1 2C 01 CC 28 23 70 61 66 61 37 61 00 00 00 00 00 31 32 33 00 00 00 00 00 00 00 00 31 32 37 2E 30 2E 30 2E 31 00 FE FE FE FE FE FE
+  //@TODO: use the new struct lib.
   const connectAccountInfo = {
     index: data.readUIntLE(4, 2),
     account: data.toString('utf8', 6, 17).replace(/\x00.*$/g, ''),

@@ -4,6 +4,8 @@ const {startServer, stopServer} = require('./../utils/tcp');
 const byteToNiceHex = require("./../utils/byteToNiceHex");
 const assert = require('assert');
 const mock = require('mock-fs');
+const packetManager = require('mu-packet-manager');
+const structs = packetManager.getStructs();
 
 describe('TCP Socket Server', () => {
   let client;
@@ -59,7 +61,16 @@ describe('TCP Socket Server', () => {
 
   it('should respond with server list when receiving the requestServerList request', done => {
     // Send the "server list" message to the server
-    const message = Buffer.from([0xC1, 0x04, 0xF4, 0x06, 0x00, 0x00]);
+    const messageStruct = {
+      header: {
+        type: 0xC1,
+        size: 'auto',
+        headCode: 0xF4,
+        subCode: 0x06,
+      },
+    }
+    const message = new packetManager()
+      .useStruct(structs.MainCSSendServerListRequest).toBuffer(messageStruct);
     client.write(message);
 
     // Wait for the server to send the server list response
@@ -67,6 +78,7 @@ describe('TCP Socket Server', () => {
       console.log(`Received data from server: ${byteToNiceHex(data)}`);
 
       // Verify that the response is correct
+      //@TODO: use the new struct lib.
       const expectedResponse = Buffer.from([0xC2, 0x00, 0x0B, 0xF4, 0x06, 0x00, 0x01, 0x00, 0x00, 0x14, 0xC1]);
       assert.deepStrictEqual(data, expectedResponse);
 
@@ -76,6 +88,7 @@ describe('TCP Socket Server', () => {
 
   it('should respond with server info when receiving the correct message for server with ID 0', done => {
     // Send the "server info" message to the server
+    //@TODO: use the new struct lib.
     const message = Buffer.from([0xC1, 0x06, 0xF4, 0x03, 0x00, 0x00]);
     client.write(message);
 

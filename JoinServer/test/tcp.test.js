@@ -31,6 +31,7 @@ describe('TCP Socket Server', () => {
   });
 
   it('should add the gameserver to the global GS list when receiving the serverInfoSend request', done => {
+    //@TODO: use the new struct lib.
     // Send the "server list" message to the server
     let buf = Buffer.alloc(58).fill(0xFE);
     buf.writeUInt8(0xC1, 0); //header type
