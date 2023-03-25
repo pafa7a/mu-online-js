@@ -1,0 +1,13 @@
+{
+  "name": "mu-online-js-db",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "install": "node install/index.js",
+    "install-dummy-data": "node install/dummy.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.2.0"
+  }
+}
