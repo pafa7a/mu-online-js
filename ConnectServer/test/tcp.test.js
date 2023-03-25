@@ -77,28 +77,63 @@ describe('TCP Socket Server', () => {
     client.once('data', (data) => {
       console.log(`Received data from server: ${byteToNiceHex(data)}`);
 
-      // Verify that the response is correct
-      //@TODO: use the new struct lib.
-      const expectedResponse = Buffer.from([0xC2, 0x00, 0x0B, 0xF4, 0x06, 0x00, 0x01, 0x00, 0x00, 0x14, 0xC1]);
-      assert.deepStrictEqual(data, expectedResponse);
+      // Verify that the response is correct.
+      const messageStruct = {
+        header: {
+          type: 0xC2,
+          size: 'auto',
+          headCode: 0xF4,
+          subCode: 0x06,
+        },
+        serverCount: 1,
+        serverLoadInfo: [{
+          serverId: 0,
+          loadPercentage: 20
+        }]
+      }
+      const expectedResponseBuffer = new packetManager()
+        .useStruct(structs.CSServerListResponse).toBuffer(messageStruct);
+      assert.deepStrictEqual(data, expectedResponseBuffer);
 
       done();
     });
   });
 
   it('should respond with server info when receiving the correct message for server with ID 0', done => {
-    // Send the "server info" message to the server
-    //@TODO: use the new struct lib.
-    const message = Buffer.from([0xC1, 0x06, 0xF4, 0x03, 0x00, 0x00]);
-    client.write(message);
+    // Send the "server info" message to the server.
+    // Request info for server 0.
+    const messageStruct = {
+      header: {
+        type: 0xC1,
+        size: 'auto',
+        headCode: 0xF4,
+        subCode: 0x03,
+      },
+      serverId: 0,
+    }
+    const messageBuffer = new packetManager()
+      .useStruct(structs.MainCSServerInfoRequest).toBuffer(messageStruct);
+    client.write(messageBuffer);
 
     // Wait for the server to send the server info response
     client.once('data', (data) => {
       console.log(`Received data from server: ${byteToNiceHex(data)}`);
 
-      // Verify that the response is correct
-      const expectedResponse = Buffer.from([0xC1, 0x16, 0xF4, 0x03, 0x31, 0x32, 0x37, 0x2E, 0x30, 0x2E, 0x30, 0x2E, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5D, 0xDA]);
-      assert.deepStrictEqual(data, expectedResponse);
+      const responseStruct = {
+        header: {
+          type: 0xC1,
+          size: 'auto',
+          headCode: 0xF4,
+          subCode: 0x03,
+        },
+        serverAddress: '127.0.0.1',
+        serverPort: '55901',
+      }
+      const expectedResponseBuffer = new packetManager()
+        .useStruct(structs.CSMainCSServerInfoResponse).toBuffer(responseStruct);
+
+      // Verify that the response is correct.
+      assert.deepStrictEqual(data, expectedResponseBuffer);
 
       done();
     });

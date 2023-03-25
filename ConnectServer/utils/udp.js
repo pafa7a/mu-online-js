@@ -1,6 +1,6 @@
 const {createSocket} = require('dgram');
 const byteToNiceHex = require("./byteToNiceHex");
-const {addGameServer, gameServersList} = require("./loadGameServersList");
+const {addGameServer, gameServersList, removeGameServer} = require("./loadGameServersList");
 const packetManager = require('mu-packet-manager');
 const structs = packetManager.getStructs();
 
@@ -67,8 +67,7 @@ intervalId = setInterval(() => {
     if (server.internalPort && server.address && server.lastMessageTime) {
       // Check if the last message was received for more than the timeout limit.
       if (now - server.lastMessageTime > CLIENT_TIMEOUT) {
-        server.state = 0;
-        server.address = server.internalPort = server.lastMessageTime = undefined;
+        removeGameServer(server);
       }
     }
   })

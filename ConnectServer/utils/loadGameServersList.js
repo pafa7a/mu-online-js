@@ -22,8 +22,15 @@ const addGameServer = (data, address, port) => {
   })
 }
 
+const removeGameServer = server => {
+  server.state = 0;
+  server.address = server.internalPort = server.lastMessageTime = undefined;
+  console.log(`GameServer disconnected. Name: "${server.name}"; ServerCode: "${server.id}`);
+}
+
 module.exports = {
   loadGameServersList,
   gameServersList,
-  addGameServer
+  addGameServer,
+  removeGameServer
 }

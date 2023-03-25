@@ -82,7 +82,10 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
     case 'byte':
       objectToStore[key] = this.buf.readUInt8(this.currentOffset);
       this.currentOffset++;
-      this.lastType = 'byte';
+      break;
+    case 'arrayPadding':
+      objectToStore[key] = 0xC1;
+      this.currentOffset++;
       break;
     case 'word':
       if (this.lastType !== 'word') {
@@ -90,9 +93,26 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
       }
       objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
       this.currentOffset += 2;
-      this.lastType = 'word';
+      break;
+    case 'wordLE':
+      objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'shortBE':
+    case 'short':
+      objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
+      this.currentOffset++;
+      break;
+    case 'shortLE':
+      objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
+      this.currentOffset++;
+      break;
+    case 'char(16)':
+      objectToStore[key] = this.buf.toString('utf8', this.currentOffset, 16);
+      this.currentOffset++;
       break;
   }
+  this.lastType = type;
 }
 
 /**
@@ -102,17 +122,25 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
  */
 Packet.prototype.toBuffer = function (obj) {
   if (obj?.header?.size) {
-    obj.header.size = this.calculateBufferSize(this.structure);
+    obj.header.size = this.calculateBufferSize(this.structure, obj);
   }
   this.obj = obj;
   this.buf = Buffer.alloc(obj.header.size);
   const encodeObject = (object, structure, parentKey = '') => {
     for (let key in structure) {
       const type = structure[key];
-      const fullKey = parentKey ? `${parentKey}.${key}` : key;
+      const fullKey = parentKey ? parentKey : key;
       if (typeof type === 'object') {
-        encodeObject(object[key], type, fullKey);
-      } else {
+        if (Array.isArray(type)) {
+          for (let i = 0; i < object[fullKey].length; i++) {
+            encodeObject(object[key][i], type[0], `${fullKey}.${i}`);
+          }
+        }
+        else {
+          encodeObject(object[key], type, fullKey);
+        }
+      }
+      else {
         this.encodeByType(type, object[key]);
       }
     }
@@ -125,14 +153,17 @@ Packet.prototype.toBuffer = function (obj) {
  * Encodes a value based on the provided data type and writes it to the buffer.
  *
  * @param {string} type - The data type of the value to encode.
- * @param {number} value - The value to encode.
+ * @param {number|string} value - The value to encode.
  */
 Packet.prototype.encodeByType = function (type, value) {
   switch (type) {
     case 'byte':
       this.buf.writeUInt8(value, this.currentOffset);
       this.currentOffset++;
-      this.lastType = 'byte';
+      break;
+    case 'arrayPadding':
+      this.buf.writeUInt8(0xC1, this.currentOffset);
+      this.currentOffset++;
       break;
     case 'word':
       if (this.lastType !== 'word') {
@@ -141,9 +172,27 @@ Packet.prototype.encodeByType = function (type, value) {
       }
       this.buf.writeUInt16LE(value, this.currentOffset);
       this.currentOffset += 2;
-      this.lastType = 'word';
+      break;
+    case 'wordLE':
+      this.buf.writeUIntLE(value, this.currentOffset, 2);
+      this.currentOffset += 2;
+      break;
+    case 'shortBE':
+    case 'short':
+      this.buf.writeUInt16BE(value, this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'shortLE':
+      this.buf.writeUInt16LE(value, this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'char(16)':
+      this.buf.write(value, this.currentOffset, 16, 'utf8');
+      this.currentOffset += 16;
       break;
   }
+
+  this.lastType = type;
 };
 
 /**
@@ -153,29 +202,48 @@ Packet.prototype.encodeByType = function (type, value) {
  * Each key in the object represents a field in the structure, and its value is the data type of the field.
  * If the data type is an object, it is assumed to represent a sub-structure, and its length is counted as 1 byte.
  * @returns {number} - The total size, in bytes, required to store the provided struct.
+ * @param {object} obj
  */
-Packet.prototype.calculateBufferSize = function(struct) {
+Packet.prototype.calculateBufferSize = function(struct, obj) {
   let size = 0;
   for (let key in struct) {
     const type = struct[key];
     if (typeof type === 'object') {
-      size += Object.keys(type).length;
-      this.lastType = 'byte';
+      if (Array.isArray(obj[key])) {
+       for (let i = 0; i < obj[key].length; i++) {
+         size += this.calculateBufferSize(type, obj);
+       }
+      }
+      else {
+        size += this.calculateBufferSize(type, obj);
+      }
     }
     else {
       switch (type) {
         case 'byte':
+        case 'arrayPadding':
           size += 1;
-          this.lastType = 'byte';
           break;
         case 'word':
           if (this.lastType !== 'word') {
             size++;
           }
           size += 2;
-          this.lastType = 'word';
+          break;
+        case 'wordLE':
+          size += 2;
+          break;
+        case 'short':
+        case 'shortBE':
+        case 'shortLE':
+          size += 2;
+          break;
+        case 'char(16)':
+          size += 16;
           break;
       }
+
+      this.lastType = type;
     }
   }
   return size;

@@ -23,7 +23,7 @@ const startServer = port => {
     // Send the init packet to Main.
     const messageStruct = {
       header: {
-        index: 0xC1,
+        type: 0xC1,
         size: 'auto',
         subCode: 0x00,
       },
@@ -82,15 +82,21 @@ const startServer = port => {
 }
 
 const serverListResponse = (data, socket) => {
-  //@TODO: use the new struct lib.
-  let buffer = Buffer.from([0xC2, 0x00, 0x00, 0xF4, 0x06, 0x00, 0x00]);
-
-  const gsList = getServerListResponseBufferAndLength();
-  buffer = Buffer.concat([buffer, gsList.buffer]);
-
-  buffer.writeUIntBE(gsList.count, 5, 2);
-  buffer[2] = buffer.length;
-  sendData(socket, buffer, 'serverListResponse');
+  // Send the "server list" message to the server
+  const list = getActiveServerList();
+  const messageStruct = {
+    header: {
+      type: 0xC2,
+      size: 'auto',
+      headCode: 0xF4,
+      subCode: 0x06,
+    },
+    serverCount: list.length,
+    serverLoadInfo: list
+  }
+  const message = new packetManager()
+    .useStruct(structs.CSServerListResponse).toBuffer(messageStruct);
+  sendData(socket, message, 'serverListResponse');
 }
 
 /**
@@ -131,38 +137,40 @@ const onReceive = (socket, data, handler) => {
  * @param {Socket} socket
  */
 const serverInfoResponse = (data, socket) => {
-  //@TODO: use the new struct lib.
-  const serverId = data.readUIntLE(4, 2);
+  const received = new packetManager().fromBuffer(data)
+    .useStruct(structs.MainCSServerInfoRequest).toObject();
+  const serverId = received?.serverId;
   gameServersList.forEach(gameServer => {
     if (gameServer.id === serverId && gameServer.state) {
-      let buffer = Buffer.from([0xC1, 0x00, 0xF4, 0x03]);
-      const IPBuffer = Buffer.alloc(16)
-      IPBuffer.write(gameServer['IP']);
-      const portBuffer = Buffer.alloc(2);
-      portBuffer.writeUIntLE(gameServer.port, 0, 2);
-      buffer = Buffer.concat([buffer, IPBuffer, portBuffer]);
-      buffer[1] = buffer.length;
-      sendData(socket, buffer, 'serverInfoResponse');
+      const messageStruct = {
+        header: {
+          type: 0xC1,
+          size: 'auto',
+          headCode: 0xF4,
+          subCode: 0x03,
+        },
+        serverAddress: gameServer['IP'],
+        serverPort: gameServer.port,
+      };
+
+      const messageBuffer = new packetManager()
+        .useStruct(structs.CSMainCSServerInfoResponse).toBuffer(messageStruct);
+      sendData(socket, messageBuffer, 'serverInfoResponse');
     }
   })
 }
 
-const getServerListResponseBufferAndLength = () => {
-  //@TODO: use the new struct lib.
-  const gsBuffers = [];
+const getActiveServerList = () => {
+  const list = [];
   gameServersList.forEach(gameServer => {
     if (gameServer.show && gameServer.state) {
-      const buffer = Buffer.alloc(4);
-      buffer.writeUIntLE(gameServer.id, 0, 2);
-      buffer.writeUIntBE(gameServer.userTotal, 2, 1);
-      buffer.writeUIntBE(0xC1, 3, 1);
-      gsBuffers.push(buffer);
+      list.push({
+        serverId: gameServer.id,
+        loadPercentage: gameServer.userTotal
+      });
     }
   });
-  return {
-    buffer: Buffer.concat(gsBuffers),
-    count: gsBuffers.length
-  }
+  return list;
 }
 
 const stopServer = () => {
