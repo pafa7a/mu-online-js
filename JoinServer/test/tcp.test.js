@@ -2,7 +2,6 @@ const { connect } = require('net');
 const {startServer, stopServer} = require('../utils/tcp');
 const packetManager = require('mu-packet-manager');
 const structs = packetManager.getStructs();
-const byteToNiceHex = require("./../utils/byteToNiceHex");
 const assert = require("assert");
 
 describe('TCP Socket Server', () => {
