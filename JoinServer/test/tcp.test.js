@@ -1,5 +1,9 @@
 const { connect } = require('net');
 const {startServer, stopServer} = require('../utils/tcp');
+const packetManager = require('mu-packet-manager');
+const structs = packetManager.getStructs();
+const byteToNiceHex = require("./../utils/byteToNiceHex");
+const assert = require("assert");
 
 describe('TCP Socket Server', () => {
   let client;
@@ -31,20 +35,67 @@ describe('TCP Socket Server', () => {
   });
 
   it('should add the gameserver to the global GS list when receiving the serverInfoSend request', done => {
-    //@TODO: use the new struct lib.
-    // Send the "server list" message to the server
-    let buf = Buffer.alloc(58).fill(0xFE);
-    buf.writeUInt8(0xC1, 0); //header type
-    buf.writeUInt8(0x3A, 1); // header size
-    buf.writeUInt8(0x00, 2); // header head code
-    buf.writeUInt8(1, 3); // type
-    buf.writeUIntLE(55901, 4, 2); // server port
-    buf.write("MuEMU\x00", 6, 50) // server name followed by 0x00 that indicates end of the string.
-    buf.writeUIntLE(0, 56, 2); // server code
-
-    client.write(buf);
+    const messageStruct = {
+      header: {
+        type: 0xC1,
+        size: 'auto',
+        headCode: 0x00,
+      },
+      serverType: 1,
+      serverPort: 55901,
+      serverName: 'MuEMU',
+      serverCode: 0
+    };
+    const messageBuffer = new packetManager()
+      .useStruct(structs.GSJSServerInfoSend).toBuffer(messageStruct);
+    client.write(messageBuffer);
     //@TODO: Check if the server info is stored correctly in memory.
+
     done();
+  });
+
+  it('should return invalid login attempt', done => {
+    const messageStruct = {
+      header: {
+        type: 0xC1,
+        size: 'auto',
+        headCode: 0x01,
+      },
+      playerIndex: 9000,
+      account: 'pafa7a',
+      password: '1234test',
+      ipAddress: '127.0.0.1',
+    };
+    const messageBuffer = new packetManager()
+      .useStruct(structs.GSJSConnectAccountSend).toBuffer(messageStruct);
+    client.write(messageBuffer);
+
+    // Wait for the server to send the login response
+    client.once('data', (data) => {
+
+      const responseStruct = {
+        header: {
+          type: 0xC1,
+          size: 'auto',
+          headCode: 0x01,
+        },
+        playerIndex: 9000,
+        account: 'pafa7a',
+        personalCode: '1234',
+        result: 0,
+        blockCode: 0,
+        accountLevel: 0,
+        accountExpireDate: 'someexpire',
+        lock: 0,
+      }
+      const expectedResponseBuffer = new packetManager()
+        .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct);
+
+      // Verify that the response is correct.
+      assert.deepStrictEqual(data, expectedResponseBuffer);
+
+      done();
+    });
   });
 
 });

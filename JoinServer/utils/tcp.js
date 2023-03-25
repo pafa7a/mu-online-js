@@ -1,5 +1,7 @@
 const { createServer } = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
+const packetManager = require('mu-packet-manager');
+const structs = packetManager.getStructs();
 
 let tcpServer;
 const tcpSockets = new Map();
@@ -130,12 +132,13 @@ const onReceive = (socket, data, handler) => {
  * @param {Socket} socket
  */
 const gameServerInfoReceive = (data, socket) => {
-  //@TODO: use the new struct lib.
+  const serverInfo = new packetManager().fromBuffer(data)
+    .useStruct(structs.GSJSServerInfoSend).toObject();
   const gameServerInfo = {
-    serverType: data.readUInt8(3),
-    serverPort: data.readUIntLE(4, 2),
-    serverName: data.toString('utf8', 6, 56).replace(/\x00.*$/g, ''),
-    serverCode: data.readUIntLE(56, 2),
+    serverType: serverInfo.serverType,
+    serverPort: serverInfo.serverPort,
+    serverName: serverInfo.serverName,
+    serverCode: serverInfo.serverCode,
     internalId: socket.remotePort
   }
   console.log(gameServerInfo)
@@ -147,15 +150,16 @@ const gameServerInfoReceive = (data, socket) => {
  * @param {Socket} socket
  */
 const gameServerUserInfoReceive = (data, socket) => {
-  //@TODO: use the new struct lib.
+  const serverUserInfo = new packetManager().fromBuffer(data)
+    .useStruct(structs.GSJSUserInfoSend).toObject();
+
   const gameServerUserInfo = {
-    userCount: data.readUIntLE(4, 2),
-    maxUserCount: data.readUIntLE(6, 2),
+    userCount: serverUserInfo.currentUserCount,
+    maxUserCount: serverUserInfo.maxUserCount,
     internalId: socket.remotePort
   }
   console.log(gameServerUserInfo)
 }
-
 
 /**
  * Handles GameServerConnectAccountReceive request coming from GS.
@@ -163,22 +167,29 @@ const gameServerUserInfoReceive = (data, socket) => {
  * @param {Socket} socket
  */
 const gameServerConnectAccountReceive = (data, socket) => {
-  //@TODO: use the new struct lib.
-  const connectAccountInfo = {
-    index: data.readUIntLE(4, 2),
-    account: data.toString('utf8', 6, 17).replace(/\x00.*$/g, ''),
-    password: data.toString('utf8', 17, 28).replace(/\x00.*$/g, ''),
-    ipAddress: data.toString('utf8', 28, 53).replace(/\x00.*$/g, '')
+  const accountInfo = new packetManager().fromBuffer(data)
+    .useStruct(structs.GSJSConnectAccountSend).toObject();
+  console.log(accountInfo)
+
+  const responseStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0x01,
+    },
+    playerIndex: accountInfo.playerIndex,
+    account: accountInfo.account,
+    personalCode: '1234',
+    result: 0,
+    blockCode: 0,
+    accountLevel: 0,
+    accountExpireDate: 'someexpire',
+    lock: 0,
   }
-  console.log(connectAccountInfo)
-  const buffer = Buffer.alloc(62);
-  buffer.writeUInt8(0xC1, 0)
-  buffer.writeUInt8(buffer.length, 1)
-  buffer.writeUInt8(0x01, 2)
-  buffer.writeUInt16LE(connectAccountInfo.index, 4)
-  buffer.write(connectAccountInfo.account, 6, 11)
-  buffer.writeUInt8(0, 31)
-  sendData(socket, buffer, 'send login result')
+
+  const responseBuffer = new packetManager()
+    .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct)
+  sendData(socket, responseBuffer, 'send login result')
 }
 
 module.exports = {

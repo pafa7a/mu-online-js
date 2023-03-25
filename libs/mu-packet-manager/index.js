@@ -94,8 +94,12 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
       objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
       this.currentOffset += 2;
       break;
-    case 'wordLE':
+    case 'wordBE':
       objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'wordLE':
+      objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
       this.currentOffset += 2;
       break;
     case 'shortBE':
@@ -107,10 +111,18 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
       objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
       this.currentOffset++;
       break;
-    case 'char(16)':
-      objectToStore[key] = this.buf.toString('utf8', this.currentOffset, 16);
-      this.currentOffset++;
+    case 'dword':
+      objectToStore[key] = this.buf.readUInt32LE(this.currentOffset);
+      this.currentOffset += 4;
       break;
+  }
+
+  // Handle chars.
+  const match = type.match(/^char\((\d+)\)$/);
+  if (match) {
+    const length = parseInt(match[1]);
+    objectToStore[key] = this.buf.toString('utf8', this.currentOffset, this.currentOffset+length).replace(/\x00.*$/g, '');
+    this.currentOffset += length;
   }
   this.lastType = type;
 }
@@ -177,6 +189,10 @@ Packet.prototype.encodeByType = function (type, value) {
       this.buf.writeUIntLE(value, this.currentOffset, 2);
       this.currentOffset += 2;
       break;
+    case 'wordBE':
+      this.buf.writeUIntBE(value, this.currentOffset, 2);
+      this.currentOffset += 2;
+      break;
     case 'shortBE':
     case 'short':
       this.buf.writeUInt16BE(value, this.currentOffset);
@@ -186,10 +202,17 @@ Packet.prototype.encodeByType = function (type, value) {
       this.buf.writeUInt16LE(value, this.currentOffset);
       this.currentOffset += 2;
       break;
-    case 'char(16)':
-      this.buf.write(value, this.currentOffset, 16, 'utf8');
-      this.currentOffset += 16;
+    case 'dword':
+      this.buf.writeUInt32LE(value, this.currentOffset);
+      this.currentOffset += 4;
       break;
+  }
+  // Handle chars.
+  const match = type.match(/^char\((\d+)\)$/);
+  if (match) {
+    const length = parseInt(match[1]);
+    this.buf.write(value, this.currentOffset, length, 'utf8');
+    this.currentOffset += length;
   }
 
   this.lastType = type;
@@ -231,6 +254,7 @@ Packet.prototype.calculateBufferSize = function(struct, obj) {
           size += 2;
           break;
         case 'wordLE':
+        case 'wordBE':
           size += 2;
           break;
         case 'short':
@@ -238,9 +262,15 @@ Packet.prototype.calculateBufferSize = function(struct, obj) {
         case 'shortLE':
           size += 2;
           break;
-        case 'char(16)':
-          size += 16;
+        case 'dword':
+          size += 4;
           break;
+      }
+      // Handle chars.
+      const match = type.match(/^char\((\d+)\)$/);
+      if (match) {
+        const length = parseInt(match[1]);
+        size += length;
       }
 
       this.lastType = type;

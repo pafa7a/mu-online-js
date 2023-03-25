@@ -1,6 +1,5 @@
 const { createServer } = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
-const protocol = require('./protocol')
 const {gameServersList} = require('./loadGameServersList');
 const packetManager = require('mu-packet-manager');
 const structs = packetManager.getStructs();
