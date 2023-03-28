@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "import-fresh": "^3.3.0",
-    "mu-packet-manager": "file:../libs/mu-packet-manager"
+    "mu-packet-manager": "file:../libs/mu-packet-manager",
+    "mu-db": "file:../Database"
   }
 }

@@ -38,6 +38,5 @@ const config = require('./../config/db');
 
   await db.query(createMembStatTableQuery);
 
-
   await db.end();
 })();

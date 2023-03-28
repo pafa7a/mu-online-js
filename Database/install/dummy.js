@@ -7,7 +7,9 @@ const db = require('./../index');
     ['banned', 'banned', '34567890123456', 1],
   ];
 
-  const insertInMembInfoQuery = `INSERT INTO MEMB_INFO ( memb___id, memb__pwd, sno__numb, bloc_code )
-  VALUES ?`;
+  const insertInMembInfoQuery = `INSERT INTO MEMB_INFO (memb___id, memb__pwd, sno__numb, bloc_code)
+                                 VALUES ?`;
   await db(insertInMembInfoQuery, [dummyDataForMembInfo]);
+
+  process.exit();
 })();

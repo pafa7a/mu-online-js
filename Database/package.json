@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "install": "node install/index.js",
-    "install-dummy-data": "node install/dummy.js"
+    "install-db": "node install/index.js",
+    "install-dummy-data": "node --inspect install/dummy.js"
   },
   "dependencies": {
     "mysql2": "^3.2.0"

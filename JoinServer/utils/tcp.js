@@ -6,6 +6,9 @@ const structs = packetManager.getStructs();
 let tcpServer;
 const tcpSockets = new Map();
 
+/**
+ * @typedef {import('net').Socket} Socket
+ */
 const startServer = port => {
   tcpServer = createServer((socket) => {
     // Store the socket in map.
