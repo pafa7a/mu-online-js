@@ -1,6 +1,6 @@
 const { createServer } = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
-const packetManager = require('mu-packet-manager');
+const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
 
 let tcpServer;

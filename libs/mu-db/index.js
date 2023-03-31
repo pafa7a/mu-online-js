@@ -35,17 +35,4 @@ const query = (sql, values = []) => {
   });
 };
 
-/**
- * Example usage
- */
-//const sql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
-// const values = [username, email, password];
-//
-// query(sql, values)
-//   .then(results => {
-//     console.log(results);
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
 module.exports = query;

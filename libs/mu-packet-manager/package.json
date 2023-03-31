@@ -1,6 +1,6 @@
 {
-  "name": "mu-packet-manager",
-  "version": "1.0.0",
+  "name": "@mu-online-js/mu-packet-manager",
+  "version": "0.0.1",
   "description": "MuPacketManager",
   "main": "index.js"
 }

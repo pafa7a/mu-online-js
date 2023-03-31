@@ -4,7 +4,7 @@ const {startServer, stopServer} = require('./../utils/tcp');
 const byteToNiceHex = require("./../utils/byteToNiceHex");
 const assert = require('assert');
 const mock = require('mock-fs');
-const packetManager = require('mu-packet-manager');
+const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
 
 describe('TCP Socket Server', () => {

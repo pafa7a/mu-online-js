@@ -1,7 +1,7 @@
 const {createSocket} = require('dgram');
 const byteToNiceHex = require("./byteToNiceHex");
 const {addGameServer, gameServersList, removeGameServer} = require("./loadGameServersList");
-const packetManager = require('mu-packet-manager');
+const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
 
 const CLIENT_TIMEOUT = 10000;

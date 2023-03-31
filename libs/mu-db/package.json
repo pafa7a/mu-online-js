@@ -1,5 +1,5 @@
 {
-  "name": "mu-online-js-db",
+  "name": "@mu-online-js/mu-db",
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",

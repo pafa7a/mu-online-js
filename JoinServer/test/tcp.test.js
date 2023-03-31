@@ -1,6 +1,6 @@
 const { connect } = require('net');
 const {startServer, stopServer} = require('../utils/tcp');
-const packetManager = require('mu-packet-manager');
+const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
 const assert = require("assert");
 

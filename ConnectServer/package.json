@@ -18,7 +18,7 @@
     "timeout": 1000000
   },
   "dependencies": {
-    "import-fresh": "^3.3.0",
-    "mu-packet-manager": "file:../libs/mu-packet-manager"
+    "@mu-online-js/mu-packet-manager": "^0.0.1",
+    "import-fresh": "^3.3.0"
   }
 }
