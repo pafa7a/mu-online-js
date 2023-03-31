@@ -10,11 +10,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: muonline
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
     volumes:
       - ./mysql-data:/var/lib/mysql
-      - ./libs/mu-db/install/docker-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./.docker-files/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   connectserver:
     build:
