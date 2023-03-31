@@ -50,9 +50,11 @@ const message = new packetManager()
 You can also convert a buffer to an object like this:
 
 ```javascript
-const data = Buffer;/* a buffer received from the client/server */;
-const messageObj = new packetManager().fromBuffer(data)
-  .useStruct(structs.CSServerListResponse).toObject();
+const data = Buffer;/* a buffer received from the client/server */
+const messageObj = new packetManager()
+  .fromBuffer(data)
+  .useStruct(structs.CSServerListResponse)
+  .toObject();
 ```
 
 ## Contributing
