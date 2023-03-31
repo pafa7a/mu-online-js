@@ -12,7 +12,7 @@ This guide describes two ways of starting the server. Use Docker, if you just wa
 2. Execute `docker-compose up -d` in the root directory of the repo
 
 This will spin-up three docker containers - MySQL, ConnectServer and JoinServer.
-MySQL will automatically create the database MuOnline and will create the required tables with sample data. ALl that is defined in .docker-files/mysql/init.sql.
+MySQL will automatically create the database MuOnline and will create the required tables with sample data. All that is defined in .docker-files/mysql/init.sql.
 
 You can access the database from your local machine as usual. The only thing that you need to know is that the MySQL port is forwarded to `3307`.
 
