@@ -36,14 +36,19 @@ You can define your packet structure using an object and convert it to a buffer 
 ```javascript
 const messageStruct = {
   header: {
-    type: 0xC1,
+    type: 0xC2,
     size: 'auto',
     headCode: 0xF4,
     subCode: 0x06,
   },
+  serverCount: 1,
+  serverLoadInfo: [{
+    serverId: 0,
+    loadPercentage: 20
+  }]
 }
 const message = new packetManager()
-  .useStruct(structs.MainCSSendServerListRequest)
+  .useStruct(structs.CSServerListResponse)
   .toBuffer(messageStruct);
 ```
 

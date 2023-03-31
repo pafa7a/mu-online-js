@@ -1,8 +1,21 @@
 {
   "name": "@mu-online-js/mu-packet-manager",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "It allows you to define packet structures in a single place and easily convert between buffer and object representations of these structures.",
   "main": "index.js",
   "license": "MIT",
-  "repository": "https://github.com/pafa7a/mu-online-js"
+  "repository": "https://github.com/pafa7a/mu-online-js",
+  "keywords": [
+    "MU Online",
+    "Packet Manager",
+    "Networking",
+    "Game Servers",
+    "JavaScript",
+    "Node.js",
+    "MMO",
+    "MMORPG",
+    "Online Gaming",
+    "Data Serialization",
+    "Network Protocols"
+  ]
 }
