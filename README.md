@@ -26,7 +26,7 @@ Example command to connect to the MySQL server inside the container:
 3. Install MySQL following the guide here: https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/
 4. Navigate to ConnectServer directory using your terminal and execute `yarn install`
 5. Then execute `yarn start`
-6. Repeat steps 3 & 4 for the JoinServer as well 
+6. Repeat steps 4 & 5 for the JoinServer as well 
 7. Navigate to `libs/mu-db` and execute the following commands:
 ```bash
 yarn install
