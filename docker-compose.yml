@@ -2,15 +2,19 @@ version: '3.7'
 
 services:
   mysql:
-    image: mysql:5.7
-    command: --default-authentication-plugin=mysql_native_password
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password --init-file /docker-entrypoint-initdb.d/init.sql
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
     ports:
       - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: muonline
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
     volumes:
       - ./mysql-data:/var/lib/mysql
+      - ./libs/mu-db/install/docker-init.sql:/docker-entrypoint-initdb.d/init.sql
 
   connectserver:
     build:
