@@ -1,7 +1,7 @@
 {
   "name": "@mu-online-js/mu-packet-manager",
-  "version": "0.0.2",
-  "description": "MuPacketManager",
+  "version": "0.0.3",
+  "description": "It allows you to define packet structures in a single place and easily convert between buffer and object representations of these structures.",
   "main": "index.js",
   "license": "MIT",
   "repository": "https://github.com/pafa7a/mu-online-js"
