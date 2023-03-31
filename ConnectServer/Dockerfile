@@ -8,6 +8,9 @@ COPY package.json yarn.lock ./
 # Copy the rest of the application files into the container
 COPY . .
 
+# Install all prod dependencies
+RUN yarn install --prod
+
 # Expose the necessary ports
 EXPOSE 44405
 EXPOSE 55557
