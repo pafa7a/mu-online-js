@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "repository": "https://github.com/pafa7a/mu-online-js",
   "scripts": {
     "start-cs": "node ./ConnectServer/index.js",
     "start-js": "node ./JoinServer/index.js",

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "repository": "https://github.com/pafa7a/mu-online-js",
   "scripts": {
     "start": "node index.js",
     "debug": "set DEBUG=true && node --inspect index.js",
@@ -17,7 +18,7 @@
     "timeout": 1000
   },
   "dependencies": {
-    "@mu-online-js/mu-packet-manager": "^0.0.1",
+    "@mu-online-js/mu-packet-manager": "^0.0.2",
     "import-fresh": "^3.3.0"
   }
 }

@@ -1,8 +1,9 @@
 {
   "name": "@mu-online-js/mu-db",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "license": "MIT",
+  "repository": "https://github.com/pafa7a/mu-online-js",
   "scripts": {
     "install-db": "node install/index.js",
     "install-dummy-data": "node --inspect install/dummy.js"

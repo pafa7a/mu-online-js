@@ -1,6 +1,8 @@
 {
   "name": "@mu-online-js/mu-packet-manager",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "MuPacketManager",
-  "main": "index.js"
+  "main": "index.js",
+  "license": "MIT",
+  "repository": "https://github.com/pafa7a/mu-online-js"
 }
