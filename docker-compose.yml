@@ -21,7 +21,7 @@ services:
     restart: always
     ports:
       - "44405:44405"
-      - "55557:55557"
+      - "55557:55557/udp"
 
   joinserver:
     build:
