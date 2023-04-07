@@ -22,6 +22,8 @@ services:
     ports:
       - "44405:44405"
       - "55557:55557/udp"
+    volumes:
+      - ./ConnectServer:/app
 
   joinserver:
     build:
@@ -32,6 +34,8 @@ services:
       - mysql
     ports:
       - "55970:55970"
+    volumes:
+      - ./JoinServer:/app
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
