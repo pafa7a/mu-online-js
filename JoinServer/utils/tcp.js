@@ -6,6 +6,22 @@ const structs = packetManager.getStructs();
 let tcpServer;
 const tcpSockets = new Map();
 
+const HEAD_CODES = {
+  C1: 0xC1,
+  GAME_SERVER_INFO_RECEIVE: 0x00,
+  GAME_SERVER_CONNECT_ACCOUNT_RECEIVE: 0x01,
+  DISCONNECT_ACCOUNT_RECEIVE: 0x02,
+  MAP_SERVER_MOVE_RECEIVE: 0x03,
+  MAP_SERVER_MOVE_AUTH_RECEIVE: 0x04,
+  ACCOUNT_LEVEL_RECEIVE: 0x05,
+  ACCOUNT_LEVEL_RECEIVE_2: 0x06,
+  GJ_MAP_SERVER_MOVE_CANCEL_RECV: 0x10,
+  GJ_ACCOUNT_LEVEL_SAVE_RECV: 0x11,
+  GJ_ACCOUNT_LOCK_SAVE_RECV: 0x12,
+  GAME_SERVER_USER_INFO_RECEIVE: 0x20,
+  ACCOUNT_ALREADY_CONNECTED_RECEIVE: 0x30,
+};
+
 /**
  * @typedef {import('net').Socket} Socket
  */
@@ -19,55 +35,54 @@ const startServer = port => {
     }
 
     socket.on("data", (data) => {
-      let handler;
-      switch (data[0]) {
-        case 0xC1:
-          switch (data[2]) {
-            case 0x00:
-              // game server info receive
-              handler = gameServerInfoReceive
-              break;
-            case 0x01:
-              handler = gameServerConnectAccountReceive
-              break;
-            case 0x02:
-              // disconnect account receive
-              break;
-            case 0x03:
-              // map server move receive
-              break;
-            case 0x04:
-              // map server move auth receive
-              break;
-            case 0x05:
-              // account level receive
-              break;
-            case 0x06:
-              // account level receive 2
-              break;
-            case 0x10:
-              // GJMapServerMoveCancelRecv
-              break;
-            case 0x11:
-              // GJAccountLevelSaveRecv
-              break;
-            case 0x12:
-              // GJAccountLockSaveRecv
-              break;
-            case 0x20:
-              handler = gameServerUserInfoReceive
-              break;
-            case 0x30:
-              // account already connected receive
-              break;
-          }
+  let handler;
+  switch (data[0]) {
+    case HEAD_CODES.C1:
+      switch (data[2]) {
+        case HEAD_CODES.GAME_SERVER_INFO_RECEIVE:
+          handler = gameServerInfoReceive;
+          break;
+        case HEAD_CODES.GAME_SERVER_CONNECT_ACCOUNT_RECEIVE:
+          handler = gameServerConnectAccountReceive;
+          break;
+        case HEAD_CODES.DISCONNECT_ACCOUNT_RECEIVE:
+          // disconnect account receive
+          break;
+        case HEAD_CODES.MAP_SERVER_MOVE_RECEIVE:
+          // map server move receive
+          break;
+        case HEAD_CODES.MAP_SERVER_MOVE_AUTH_RECEIVE:
+          // map server move auth receive
+          break;
+        case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE:
+          // account level receive
+          break;
+        case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE_2:
+          // account level receive 2
+          break;
+        case HEAD_CODES.GJ_MAP_SERVER_MOVE_CANCEL_RECV:
+          // GJMapServerMoveCancelRecv
+          break;
+        case HEAD_CODES.GJ_ACCOUNT_LEVEL_SAVE_RECV:
+          // GJAccountLevelSaveRecv
+          break;
+        case HEAD_CODES.GJ_ACCOUNT_LOCK_SAVE_RECV:
+          // GJAccountLockSaveRecv
+          break;
+        case HEAD_CODES.GAME_SERVER_USER_INFO_RECEIVE:
+          handler = gameServerUserInfoReceive;
+          break;
+        case HEAD_CODES.ACCOUNT_ALREADY_CONNECTED_RECEIVE:
+          // account already connected receive
           break;
       }
-      onReceive(socket, data, handler);
-      if (handler) {
-        handler(data, socket);
-      }
-    });
+      break;
+  }
+  onReceive(socket, data, handler);
+  if (handler) {
+    handler(data, socket);
+  }
+});
 
     socket.on("end", () => {
       // Remove the socket from the map.
