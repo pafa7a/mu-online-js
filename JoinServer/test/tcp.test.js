@@ -81,7 +81,7 @@ describe('TCP Socket Server', () => {
         playerIndex: 9000,
         account: 'pafa7a',
         personalCode: '1234',
-        result: 0,
+        result: 2,
         blockCode: 0,
         accountLevel: 0,
         accountExpireDate: 'someexpire',

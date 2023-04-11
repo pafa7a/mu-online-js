@@ -1,10 +1,27 @@
 const { createServer } = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
-const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = packetManager.getStructs();
+const gameServerConnectAccountReceive = require('./handlers/gameServerConnectAccountReceive');
+const gameServerInfoReceive = require('./handlers/gameServerInfoReceive');
+const gameServerUserInfoReceive = require('./handlers/gameServerUserInfoReceive');
 
 let tcpServer;
 const tcpSockets = new Map();
+
+const HEAD_CODES = {
+  C1: 0xC1,
+  GAME_SERVER_INFO_RECEIVE: 0x00,
+  GAME_SERVER_CONNECT_ACCOUNT_RECEIVE: 0x01,
+  DISCONNECT_ACCOUNT_RECEIVE: 0x02,
+  MAP_SERVER_MOVE_RECEIVE: 0x03,
+  MAP_SERVER_MOVE_AUTH_RECEIVE: 0x04,
+  ACCOUNT_LEVEL_RECEIVE: 0x05,
+  ACCOUNT_LEVEL_RECEIVE_2: 0x06,
+  GJ_MAP_SERVER_MOVE_CANCEL_RECEIVE: 0x10,
+  GJ_ACCOUNT_LEVEL_SAVE_RECEIVE: 0x11,
+  GJ_ACCOUNT_LOCK_SAVE_RECEIVE: 0x12,
+  GAME_SERVER_USER_INFO_RECEIVE: 0x20,
+  ACCOUNT_ALREADY_CONNECTED_RECEIVE: 0x30,
+};
 
 /**
  * @typedef {import('net').Socket} Socket
@@ -21,43 +38,42 @@ const startServer = port => {
     socket.on("data", (data) => {
       let handler;
       switch (data[0]) {
-        case 0xC1:
+        case HEAD_CODES.C1:
           switch (data[2]) {
-            case 0x00:
-              // game server info receive
-              handler = gameServerInfoReceive
+            case HEAD_CODES.GAME_SERVER_INFO_RECEIVE:
+              handler = gameServerInfoReceive;
               break;
-            case 0x01:
-              handler = gameServerConnectAccountReceive
+            case HEAD_CODES.GAME_SERVER_CONNECT_ACCOUNT_RECEIVE:
+              handler = gameServerConnectAccountReceive;
               break;
-            case 0x02:
+            case HEAD_CODES.DISCONNECT_ACCOUNT_RECEIVE:
               // disconnect account receive
               break;
-            case 0x03:
+            case HEAD_CODES.MAP_SERVER_MOVE_RECEIVE:
               // map server move receive
               break;
-            case 0x04:
+            case HEAD_CODES.MAP_SERVER_MOVE_AUTH_RECEIVE:
               // map server move auth receive
               break;
-            case 0x05:
+            case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE:
               // account level receive
               break;
-            case 0x06:
+            case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE_2:
               // account level receive 2
               break;
-            case 0x10:
-              // GJMapServerMoveCancelRecv
+            case HEAD_CODES.GJ_MAP_SERVER_MOVE_CANCEL_RECEIVE:
+              // GJMapServerMoveCancelReceive
               break;
-            case 0x11:
-              // GJAccountLevelSaveRecv
+            case HEAD_CODES.GJ_ACCOUNT_LEVEL_SAVE_RECEIVE:
+              // GJAccountLevelSaveReceive
               break;
-            case 0x12:
-              // GJAccountLockSaveRecv
+            case HEAD_CODES.GJ_ACCOUNT_LOCK_SAVE_RECEIVE:
+              // GJAccountLockSaveReceive
               break;
-            case 0x20:
-              handler = gameServerUserInfoReceive
+            case HEAD_CODES.GAME_SERVER_USER_INFO_RECEIVE:
+              handler = gameServerUserInfoReceive;
               break;
-            case 0x30:
+            case HEAD_CODES.ACCOUNT_ALREADY_CONNECTED_RECEIVE:
               // account already connected receive
               break;
           }
@@ -65,7 +81,7 @@ const startServer = port => {
       }
       onReceive(socket, data, handler);
       if (handler) {
-        handler(data, socket);
+        handler(data, socket, sendData);
       }
     });
 
@@ -127,72 +143,6 @@ const onReceive = (socket, data, handler) => {
   if (process.env.DEBUG) {
     console.log(`Received [${handlerName}]:`, hexString);
   }
-}
-
-/**
- * Handles GameServerInfo request coming from GS.
- * @param {Buffer} data
- * @param {Socket} socket
- */
-const gameServerInfoReceive = (data, socket) => {
-  const serverInfo = new packetManager().fromBuffer(data)
-    .useStruct(structs.GSJSServerInfoSend).toObject();
-  const gameServerInfo = {
-    serverType: serverInfo.serverType,
-    serverPort: serverInfo.serverPort,
-    serverName: serverInfo.serverName,
-    serverCode: serverInfo.serverCode,
-    internalId: socket.remotePort
-  }
-  console.log(gameServerInfo)
-}
-
-/**
- * Handles GameServerUserInfo request coming from GS.
- * @param {Buffer} data
- * @param {Socket} socket
- */
-const gameServerUserInfoReceive = (data, socket) => {
-  const serverUserInfo = new packetManager().fromBuffer(data)
-    .useStruct(structs.GSJSUserInfoSend).toObject();
-
-  const gameServerUserInfo = {
-    userCount: serverUserInfo.currentUserCount,
-    maxUserCount: serverUserInfo.maxUserCount,
-    internalId: socket.remotePort
-  }
-  console.log(gameServerUserInfo)
-}
-
-/**
- * Handles GameServerConnectAccountReceive request coming from GS.
- * @param {Buffer} data
- * @param {Socket} socket
- */
-const gameServerConnectAccountReceive = (data, socket) => {
-  const accountInfo = new packetManager().fromBuffer(data)
-    .useStruct(structs.GSJSConnectAccountSend).toObject();
-  console.log(accountInfo)
-
-  const responseStruct = {
-    header: {
-      type: 0xC1,
-      size: 'auto',
-      headCode: 0x01,
-    },
-    playerIndex: accountInfo.playerIndex,
-    account: accountInfo.account,
-    personalCode: '1234',
-    result: 0,
-    blockCode: 0,
-    accountLevel: 0,
-    accountExpireDate: 'someexpire',
-    lock: 0,
-  }
-
-  const responseBuffer = new packetManager()
-    .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct)
-  sendData(socket, responseBuffer, 'send login result')
 }
 
 module.exports = {
