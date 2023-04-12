@@ -1,10 +1,10 @@
-const importFresh = require("import-fresh");
+const importFresh = require('import-fresh');
 let gameServersList = [];
 
 const loadGameServersList = () => {
   const serverList = importFresh('../config/ServerList.json');
   gameServersList.splice(0, gameServersList.length, ...serverList);
-}
+};
 
 const addGameServer = (data, address, port) => {
   gameServersList.forEach(server => {
@@ -19,18 +19,18 @@ const addGameServer = (data, address, port) => {
       server.userCount = data.userCount;
       server.lastMessageTime = Date.now();
     }
-  })
-}
+  });
+};
 
 const removeGameServer = server => {
   server.state = 0;
   server.address = server.internalPort = server.lastMessageTime = undefined;
   console.log(`GameServer disconnected. Name: "${server.name}"; ServerCode: "${server.id}`);
-}
+};
 
 module.exports = {
   loadGameServersList,
   gameServersList,
   addGameServer,
   removeGameServer
-}
+};

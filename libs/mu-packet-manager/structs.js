@@ -16,7 +16,7 @@ const standardHeader = {
     size: 'byte',
     headCode: 'byte',
   }
-}
+};
 
 /**
  * The extended packet header structure with subCode.
@@ -29,7 +29,7 @@ const subCodeHeader = {
     headCode: 'byte',
     subCode: 'byte',
   }
-}
+};
 
 /**
  * The extended packet header structure with 2 bytes of length.
@@ -42,7 +42,7 @@ const subCodeHeaderWithShortLength = {
     headCode: 'byte',
     subCode: 'byte',
   }
-}
+};
 
 /**
  * The structure for the PMSG_SERVER_INIT_SEND packet in CS.
@@ -96,7 +96,7 @@ const CSServerListResponse = {
 const MainCSServerInfoRequest = {
   ...subCodeHeader,
   serverId: 'shortLE'
-}
+};
 
 /**
  * The structure for the PMSG_SERVER_INFO_SEND packet in CS.
@@ -106,7 +106,7 @@ const CSMainCSServerInfoResponse = {
   ...subCodeHeader,
   serverAddress: 'char(16)',
   serverPort: 'wordLE',
-}
+};
 
 /**
  * The structure for the SDHP_JOIN_SERVER_INFO_SEND packet from GS.
@@ -118,7 +118,7 @@ const GSJSServerInfoSend = {
   serverPort: 'wordLE',
   serverName: 'char(50)',
   serverCode: 'wordLE'
-}
+};
 
 /**
  * The structure for the SDHP_SERVER_USER_INFO_SEND packet from GS.
@@ -128,7 +128,7 @@ const GSJSUserInfoSend = {
   ...standardHeader,
   currentUserCount: 'word',
   maxUserCount: 'word',
-}
+};
 
 /**
  * The structure for the SDHP_CONNECT_ACCOUNT_SEND packet from GS.
@@ -140,7 +140,7 @@ const GSJSConnectAccountSend = {
   account: 'char(11)',
   password: 'char(11)',
   ipAddress: 'char(16)',
-}
+};
 
 /**
  * The structure for the SDHP_CONNECT_ACCOUNT_RECV packet from JS.
@@ -156,7 +156,7 @@ const JSGSConnectAccountSend = {
   accountLevel: 'word',
   accountExpireDate: 'char(20)',
   lock: 'dword',
-}
+};
 
 const structures = {
   standardHeader,

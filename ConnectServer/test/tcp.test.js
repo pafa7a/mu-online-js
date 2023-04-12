@@ -1,7 +1,7 @@
 const { connect } = require('net');
 const {loadGameServersList} = require('./../utils/loadGameServersList');
 const {startServer, stopServer} = require('./../utils/tcp');
-const byteToNiceHex = require("./../utils/byteToNiceHex");
+const byteToNiceHex = require('./../utils/byteToNiceHex');
 const assert = require('assert');
 const mock = require('mock-fs');
 const packetManager = require('@mu-online-js/mu-packet-manager');
@@ -16,13 +16,13 @@ describe('TCP Socket Server', () => {
       'config/ServerList.json': JSON.stringify(
         [
           {
-            "id": 0,
-            "name": "GameServer",
-            "IP": "127.0.0.1",
-            "port": 55901,
-            "show": true,
-            "state": 1,
-            "userTotal": 20
+            'id': 0,
+            'name': 'GameServer',
+            'IP': '127.0.0.1',
+            'port': 55901,
+            'show': true,
+            'state': 1,
+            'userTotal': 20
           }
         ]
       )
@@ -68,7 +68,7 @@ describe('TCP Socket Server', () => {
         headCode: 0xF4,
         subCode: 0x06,
       },
-    }
+    };
     const message = new packetManager()
       .useStruct(structs.MainCSSendServerListRequest).toBuffer(messageStruct);
     client.write(message);
@@ -90,7 +90,7 @@ describe('TCP Socket Server', () => {
           serverId: 0,
           loadPercentage: 20
         }]
-      }
+      };
       const expectedResponseBuffer = new packetManager()
         .useStruct(structs.CSServerListResponse).toBuffer(messageStruct);
       assert.deepStrictEqual(data, expectedResponseBuffer);
@@ -110,7 +110,7 @@ describe('TCP Socket Server', () => {
         subCode: 0x03,
       },
       serverId: 0,
-    }
+    };
     const messageBuffer = new packetManager()
       .useStruct(structs.MainCSServerInfoRequest).toBuffer(messageStruct);
     client.write(messageBuffer);
@@ -128,7 +128,7 @@ describe('TCP Socket Server', () => {
         },
         serverAddress: '127.0.0.1',
         serverPort: '55901',
-      }
+      };
       const expectedResponseBuffer = new packetManager()
         .useStruct(structs.CSMainCSServerInfoResponse).toBuffer(responseStruct);
 

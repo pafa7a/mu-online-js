@@ -2,7 +2,7 @@ const {loadGameServersList, gameServersList} = require('../utils/loadGameServers
 const {startServer, stopServer} = require('../utils/udp');
 const assert = require('assert');
 const mock = require('mock-fs');
-const { createSocket } = require("dgram");
+const { createSocket } = require('dgram');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
 
@@ -14,11 +14,11 @@ describe('UDP Socket Server', () => {
       'config/ServerList.json': JSON.stringify(
         [
           {
-            "id": 0,
-            "name": "GameServer",
-            "IP": "127.0.0.1",
-            "port": 55901,
-            "show": true
+            'id': 0,
+            'name': 'GameServer',
+            'IP': '127.0.0.1',
+            'port': 55901,
+            'show': true
           }
         ]
       )
@@ -58,7 +58,7 @@ describe('UDP Socket Server', () => {
       accountCount: 0,
       pcPointCount: 0,
       maxUserCount: 1000,
-    }
+    };
     const message = new packetManager()
       .useStruct(structs.CSGameServerInfo).toBuffer(messageStruct);
     // send the message to the server on port 55557
@@ -66,6 +66,6 @@ describe('UDP Socket Server', () => {
     setTimeout(() => {
       assert.strictEqual(gameServersList[0].state, 1);
       done();
-    }, 15)
+    }, 15);
   });
 });

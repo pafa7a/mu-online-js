@@ -2,7 +2,7 @@ const { connect } = require('net');
 const {startServer, stopServer} = require('../utils/tcp');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
-const assert = require("assert");
+const assert = require('assert');
 
 describe('TCP Socket Server', () => {
   let client;
@@ -86,7 +86,7 @@ describe('TCP Socket Server', () => {
         accountLevel: 0,
         accountExpireDate: 'someexpire',
         lock: 0,
-      }
+      };
       const expectedResponseBuffer = new packetManager()
         .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct);
 

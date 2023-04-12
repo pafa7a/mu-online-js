@@ -9,7 +9,7 @@ const config = require('./../config/db');
   });
 
   // Create the MuOnline database.
-  await db.query(`CREATE DATABASE IF NOT EXISTS ??;`, [config.MuOnlineDB]);
+  await db.query('CREATE DATABASE IF NOT EXISTS ??;', [config.MuOnlineDB]);
 
   // Switch to the MuOnline database.
   await db.query(`USE ${config.MuOnlineDB};`);

@@ -35,49 +35,49 @@ const startServer = port => {
       console.log(`New client connected. IP: ${socket.remoteAddress}`);
     }
 
-    socket.on("data", (data) => {
+    socket.on('data', (data) => {
       let handler;
       switch (data[0]) {
-        case HEAD_CODES.C1:
-          switch (data[2]) {
-            case HEAD_CODES.GAME_SERVER_INFO_RECEIVE:
-              handler = gameServerInfoReceive;
-              break;
-            case HEAD_CODES.GAME_SERVER_CONNECT_ACCOUNT_RECEIVE:
-              handler = gameServerConnectAccountReceive;
-              break;
-            case HEAD_CODES.DISCONNECT_ACCOUNT_RECEIVE:
-              // disconnect account receive
-              break;
-            case HEAD_CODES.MAP_SERVER_MOVE_RECEIVE:
-              // map server move receive
-              break;
-            case HEAD_CODES.MAP_SERVER_MOVE_AUTH_RECEIVE:
-              // map server move auth receive
-              break;
-            case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE:
-              // account level receive
-              break;
-            case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE_2:
-              // account level receive 2
-              break;
-            case HEAD_CODES.GJ_MAP_SERVER_MOVE_CANCEL_RECEIVE:
-              // GJMapServerMoveCancelReceive
-              break;
-            case HEAD_CODES.GJ_ACCOUNT_LEVEL_SAVE_RECEIVE:
-              // GJAccountLevelSaveReceive
-              break;
-            case HEAD_CODES.GJ_ACCOUNT_LOCK_SAVE_RECEIVE:
-              // GJAccountLockSaveReceive
-              break;
-            case HEAD_CODES.GAME_SERVER_USER_INFO_RECEIVE:
-              handler = gameServerUserInfoReceive;
-              break;
-            case HEAD_CODES.ACCOUNT_ALREADY_CONNECTED_RECEIVE:
-              // account already connected receive
-              break;
-          }
+      case HEAD_CODES.C1:
+        switch (data[2]) {
+        case HEAD_CODES.GAME_SERVER_INFO_RECEIVE:
+          handler = gameServerInfoReceive;
           break;
+        case HEAD_CODES.GAME_SERVER_CONNECT_ACCOUNT_RECEIVE:
+          handler = gameServerConnectAccountReceive;
+          break;
+        case HEAD_CODES.DISCONNECT_ACCOUNT_RECEIVE:
+          // disconnect account receive
+          break;
+        case HEAD_CODES.MAP_SERVER_MOVE_RECEIVE:
+          // map server move receive
+          break;
+        case HEAD_CODES.MAP_SERVER_MOVE_AUTH_RECEIVE:
+          // map server move auth receive
+          break;
+        case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE:
+          // account level receive
+          break;
+        case HEAD_CODES.ACCOUNT_LEVEL_RECEIVE_2:
+          // account level receive 2
+          break;
+        case HEAD_CODES.GJ_MAP_SERVER_MOVE_CANCEL_RECEIVE:
+          // GJMapServerMoveCancelReceive
+          break;
+        case HEAD_CODES.GJ_ACCOUNT_LEVEL_SAVE_RECEIVE:
+          // GJAccountLevelSaveReceive
+          break;
+        case HEAD_CODES.GJ_ACCOUNT_LOCK_SAVE_RECEIVE:
+          // GJAccountLockSaveReceive
+          break;
+        case HEAD_CODES.GAME_SERVER_USER_INFO_RECEIVE:
+          handler = gameServerUserInfoReceive;
+          break;
+        case HEAD_CODES.ACCOUNT_ALREADY_CONNECTED_RECEIVE:
+          // account already connected receive
+          break;
+        }
+        break;
       }
       onReceive(socket, data, handler);
       if (handler) {
@@ -85,13 +85,13 @@ const startServer = port => {
       }
     });
 
-    socket.on("end", () => {
+    socket.on('end', () => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
-      console.log("GameServer disconnected");
+      console.log('GameServer disconnected');
     });
 
-    socket.on("error", (error) => {
+    socket.on('error', (error) => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
       if (error?.code !== 'ECONNRESET') {
@@ -100,18 +100,18 @@ const startServer = port => {
     });
 
   });
-  tcpServer.on("error", (error) => {
+  tcpServer.on('error', (error) => {
     console.log(`Server Error: ${error.message}`);
   });
 
   tcpServer.listen(port, () => {
     console.log(`TCP socket server is running on port: ${port}`);
   });
-}
+};
 
 const stopServer = () => {
   tcpServer.close();
-}
+};
 
 /**
  * Helper function that logs the bytes in HEX format upon sending data.
@@ -125,7 +125,7 @@ const sendData = (socket, data, description = '') => {
   if (process.env.DEBUG) {
     console.log(`Sent [${description}]:`, byteToNiceHex(data));
   }
-}
+};
 
 /**
  * Helper function that logs the bytes in HEX format upon receive.
@@ -143,10 +143,10 @@ const onReceive = (socket, data, handler) => {
   if (process.env.DEBUG) {
     console.log(`Received [${handlerName}]:`, hexString);
   }
-}
+};
 
 module.exports = {
   startServer,
   tcpSockets,
   stopServer
-}
+};

@@ -37,6 +37,6 @@ const init = () => {
   setTimeout(() => {
     rl.prompt();
   }, 150);
-}
+};
 
 module.exports = init;

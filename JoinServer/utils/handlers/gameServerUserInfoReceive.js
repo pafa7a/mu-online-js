@@ -5,9 +5,8 @@ const structs = packetManager.getStructs();
  * Handles GameServerUserInfo request coming from GS.
  * @param {Buffer} data
  * @param {Socket} socket
- * @param {function} sendData
  */
-const gameServerUserInfoReceive = (data, socket, sendData) => {
+const gameServerUserInfoReceive = (data, socket) => {
   const serverUserInfo = new packetManager().fromBuffer(data)
     .useStruct(structs.GSJSUserInfoSend).toObject();
 
@@ -15,8 +14,8 @@ const gameServerUserInfoReceive = (data, socket, sendData) => {
     userCount: serverUserInfo.currentUserCount,
     maxUserCount: serverUserInfo.maxUserCount,
     internalId: socket.remotePort
-  }
-  console.log(gameServerUserInfo)
-}
+  };
+  console.log(gameServerUserInfo);
+};
 
 module.exports = gameServerUserInfoReceive;

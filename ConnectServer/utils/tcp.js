@@ -27,28 +27,28 @@ const startServer = port => {
         subCode: 0x00,
       },
       result: 1,
-    }
+    };
     const initMessageBuffer = new packetManager()
       .useStruct(structs.CSMainSendInitPacket).toBuffer(messageStruct);
     sendData(socket, initMessageBuffer, 'CSMainSendInitPacket');
 
-    socket.on("data", (data) => {
+    socket.on('data', (data) => {
       let handler;
       switch (data[0]) {
-        case 0xC1:
-          switch (data[2]) {
-            case 0xF4:
-              switch (data[3]) {
-                case 0x03:
-                  handler = serverInfoResponse;
-                  break;
-                case 0x06:
-                  handler = serverListResponse;
-                  break;
-              }
-              break;
+      case 0xC1:
+        switch (data[2]) {
+        case 0xF4:
+          switch (data[3]) {
+          case 0x03:
+            handler = serverInfoResponse;
+            break;
+          case 0x06:
+            handler = serverListResponse;
+            break;
           }
           break;
+        }
+        break;
       }
       onReceive(socket, data, handler);
       if (handler) {
@@ -56,13 +56,13 @@ const startServer = port => {
       }
     });
 
-    socket.on("end", () => {
+    socket.on('end', () => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
-      console.log("Client disconnected");
+      console.log('Client disconnected');
     });
 
-    socket.on("error", (error) => {
+    socket.on('error', (error) => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
       if (error?.code !== 'ECONNRESET') {
@@ -71,14 +71,14 @@ const startServer = port => {
     });
 
   });
-  tcpServer.on("error", (error) => {
+  tcpServer.on('error', (error) => {
     console.log(`Server Error: ${error.message}`);
   });
 
   tcpServer.listen(port, () => {
     console.log(`TCP socket server is running on port: ${port}`);
   });
-}
+};
 
 const serverListResponse = (data, socket) => {
   // Send the "server list" message to the server
@@ -92,11 +92,11 @@ const serverListResponse = (data, socket) => {
     },
     serverCount: list.length,
     serverLoadInfo: list
-  }
+  };
   const message = new packetManager()
     .useStruct(structs.CSServerListResponse).toBuffer(messageStruct);
   sendData(socket, message, 'serverListResponse');
-}
+};
 
 /**
  * Helper function that logs the bytes in HEX format upon sending data.
@@ -110,7 +110,7 @@ const sendData = (socket, data, description = '') => {
   if (process.env.DEBUG) {
     console.log(`Sent [${description}]:`, byteToNiceHex(data));
   }
-}
+};
 
 /**
  * Helper function that logs the bytes in HEX format upon receive.
@@ -128,7 +128,7 @@ const onReceive = (socket, data, handler) => {
   if (process.env.DEBUG) {
     console.log(`Received [${handlerName}]:`, hexString);
   }
-}
+};
 
 /**
  * Handles serverInfoResponse request coming from GS.
@@ -156,8 +156,8 @@ const serverInfoResponse = (data, socket) => {
         .useStruct(structs.CSMainCSServerInfoResponse).toBuffer(messageStruct);
       sendData(socket, messageBuffer, 'serverInfoResponse');
     }
-  })
-}
+  });
+};
 
 const getActiveServerList = () => {
   const list = [];
@@ -170,11 +170,11 @@ const getActiveServerList = () => {
     }
   });
   return list;
-}
+};
 
 const stopServer = () => {
   tcpServer.close();
-}
+};
 
 module.exports = {
   startServer,
@@ -183,4 +183,4 @@ module.exports = {
   stopServer,
   sendData,
   onReceive
-}
+};

@@ -10,7 +10,7 @@ const structs = packetManager.getStructs();
 const gameServerConnectAccountReceive = (data, socket, sendData) => {
   const accountInfo = new packetManager().fromBuffer(data)
     .useStruct(structs.GSJSConnectAccountSend).toObject();
-  console.log(accountInfo)
+  console.log(accountInfo);
 
   // CProtocolSend::RecvLoginNew from main source ProtocolSend.cpp.
   const loginMessageMapping = {
@@ -33,7 +33,7 @@ const gameServerConnectAccountReceive = (data, socket, sendData) => {
     LOG_IN_FAIL_POINT_DATE: 16,
     LOG_IN_FAIL_POINT_HOUR: 17,
     LOG_IN_FAIL_INVALID_IP: 18,
-  }
+  };
 
   const responseStruct = {
     header: {
@@ -49,11 +49,11 @@ const gameServerConnectAccountReceive = (data, socket, sendData) => {
     accountLevel: 0,
     accountExpireDate: 'someexpire',
     lock: 0,
-  }
+  };
 
   const responseBuffer = new packetManager()
-    .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct)
-  sendData(socket, responseBuffer, 'send login result')
-}
+    .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct);
+  sendData(socket, responseBuffer, 'send login result');
+};
 
 module.exports = gameServerConnectAccountReceive;
