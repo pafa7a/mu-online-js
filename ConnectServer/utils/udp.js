@@ -1,21 +1,26 @@
 const {createSocket} = require('dgram');
 const byteToNiceHex = require('./byteToNiceHex');
-const {addGameServer, gameServersList, removeGameServer} = require('./loadGameServersList');
-const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = packetManager.getStructs();
+const {gameServersList, removeGameServer} = require('./loadGameServersList');
+const CSGameServerInfoHandler = require('./handlers/CSGameServerInfoHandler');
 
 const CLIENT_TIMEOUT = 10000;
 
 let intervalId;
 let udpServer;
+
+const HEAD_CODES = {
+  C1: 0xC1,
+  GS_GAME_SERVER_INFO_HANDLER: 0x01,
+};
+
 const startServer = port => {
   udpServer = createSocket('udp4');
   udpServer.on('message', (data, remoteInfo) => {
     let handler;
     switch (data[0]) {
-    case 0xC1:
+    case HEAD_CODES.C1:
       switch (data[2]) {
-      case 0x01:
+      case HEAD_CODES.GS_GAME_SERVER_INFO_HANDLER:
         handler = CSGameServerInfoHandler;
         break;
       }
@@ -26,8 +31,7 @@ const startServer = port => {
       handler(data, remoteInfo.address, remoteInfo.port);
     }
   });
-
-
+  
   udpServer.bind(port, () => {
     console.log('UDP server listening on port 55557');
   });
@@ -48,13 +52,6 @@ const onReceive = (data, handler) => {
 const stopServer = () => {
   clearInterval(intervalId);
   udpServer.close();
-};
-
-const CSGameServerInfoHandler = (data, address, port) => {
-  const serverInfo = new packetManager().fromBuffer(data)
-    .useStruct(structs.CSGameServerInfo)
-    .toObject();
-  addGameServer(serverInfo, address, port);
 };
 
 /**
