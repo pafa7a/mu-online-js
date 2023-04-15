@@ -1,5 +1,7 @@
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
+const loginMessage = require('../enums/loginMessage');
+const db = require('@mu-online-js/mu-db');
 
 /**
  * Handles GameServerConnectAccountReceive request coming from GS.
@@ -7,33 +9,31 @@ const structs = packetManager.getStructs();
  * @param {Socket} socket
  * @param {function} sendData
  */
-const gameServerConnectAccountReceive = (data, socket, sendData) => {
+const gameServerConnectAccountReceive = async (data, socket, sendData) => {
   const accountInfo = new packetManager().fromBuffer(data)
     .useStruct(structs.GSJSConnectAccountSend).toObject();
   console.log(accountInfo);
 
-  // CProtocolSend::RecvLoginNew from main source ProtocolSend.cpp.
-  const loginMessageMapping = {
-    LOG_IN_FAIL_PASSWORD: 0,
-    LOG_IN_SUCCESS: 1,
-    LOG_IN_FAIL_ID: 2,
-    LOG_IN_FAIL_ID_CONNECTED: 3,
-    LOG_IN_FAIL_SERVER_BUSY: 4,
-    LOG_IN_FAIL_ID_BLOCK: 5,
-    LOG_IN_FAIL_VERSION: 6,
-    LOG_IN_FAIL_CONNECT: 7,
-    LOG_IN_FAIL_ERROR: 8,
-    LOG_IN_FAIL_NO_PAYMENT_INFO: 9,
-    LOG_IN_FAIL_USER_TIME1: 10,
-    LOG_IN_FAIL_USER_TIME2: 11,
-    LOG_IN_FAIL_PC_TIME1: 12,
-    LOG_IN_FAIL_PC_TIME2: 13,
-    LOG_IN_FAIL_ONLY_OVER_15: 14,
-    LOG_IN_FAIL_CHARGED_CHANNEL: 15,
-    LOG_IN_FAIL_POINT_DATE: 16,
-    LOG_IN_FAIL_POINT_HOUR: 17,
-    LOG_IN_FAIL_INVALID_IP: 18,
-  };
+  /**
+   * Results of a database query to retrieve account information.
+   * @typedef {Object} DbMembInfoResponseItem
+   * @property {number} memb_guid - The unique ID of the account.
+   * @property {string} memb___id - The account username.
+   * @property {string} memb__pwd - The account password.
+   * @property {string} sno__numb - The account personal code.
+   * @property {number} bloc_code - The account block code.
+   *
+   * @typedef {DbMembInfoResponseItem[]} DbMembInfoResponse
+   */
+
+  /**
+   * The result of the database query to retrieve account information.
+   * @type {DbMembInfoResponse}
+   */
+  const dbResult = await db('SELECT * FROM memb_info WHERE memb___id = ? AND memb__pwd = ?', [
+    accountInfo.account,
+    accountInfo.password
+  ]);
 
   const responseStruct = {
     header: {
@@ -43,13 +43,25 @@ const gameServerConnectAccountReceive = (data, socket, sendData) => {
     },
     playerIndex: accountInfo.playerIndex,
     account: accountInfo.account,
-    personalCode: '1234',
-    result: loginMessageMapping.LOG_IN_FAIL_ID,
+    personalCode: '',
+    result: loginMessage.LOG_IN_FAIL_ID,
     blockCode: 0,
     accountLevel: 0,
-    accountExpireDate: 'someexpire',
+    accountExpireDate: '',
     lock: 0,
   };
+
+  if (dbResult.length) {
+    const [dbAccount] = dbResult;
+    //@TODO: create db table with IP blacklist and check if the IP is there.
+    if (dbAccount.bloc_code === 1) {
+      responseStruct.result = loginMessage.LOG_IN_FAIL_ID_BLOCK;
+    }
+    else {
+      responseStruct.result = loginMessage.LOG_IN_SUCCESS;
+      responseStruct.personalCode = dbAccount.sno__numb;
+    }
+  }
 
   const responseBuffer = new packetManager()
     .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct);
