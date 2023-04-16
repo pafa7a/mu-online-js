@@ -41,3 +41,11 @@ services:
       MYSQL_PORT: 3306
       MYSQL_USER: root
       MYSQL_PASSWORD: root
+
+  web-admin:
+    build:
+      context: ./WebServer/mu-web-admin
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"

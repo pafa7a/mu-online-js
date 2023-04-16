@@ -1,5 +1,5 @@
 const readline = require('readline');
-const {serverListResponse, tcpSockets} = require('./tcp');
+const {serverListResponse, tcpSockets, sendData} = require('./tcp');
 const {loadGameServersList} = require('./loadGameServersList');
 
 const rl = readline.createInterface({
@@ -14,7 +14,7 @@ rl.on('line', (line) => {
     loadGameServersList();
     // send a message to all connected clients
     tcpSockets.forEach((value, socket) => {
-      serverListResponse({}, socket);
+      serverListResponse(Buffer.alloc(0), socket, sendData);
     });
   }
   rl.prompt();
