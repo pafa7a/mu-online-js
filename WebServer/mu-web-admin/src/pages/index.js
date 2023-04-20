@@ -1,7 +1,16 @@
 import Head from 'next/head';
-import styles from '@/styles/Home.module.css';
+import styles from '@/styles/Main.module.css';
+import axios from 'axios';
+import {useRouter} from 'next/navigation';
 
 export default function Home() {
+  const {push} = useRouter();
+  const handleLogout = e => {
+    e.preventDefault();
+    axios.get('/api/logout').then(() => {
+      push('/login');
+    });
+  };
   return (
     <>
       <Head>
@@ -13,6 +22,7 @@ export default function Home() {
       <main className={styles.main}>
         <div>
           test
+          <button onClick={handleLogout}>Logout</button>
         </div>
       </main>
     </>

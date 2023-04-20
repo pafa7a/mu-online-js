@@ -1,3 +1,98 @@
-.main {
+@import "mixins";
+.mainWrapper {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  .loginFormWrapper {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    width: 450px;
+    background-color: var(--background-color-lighter-with-transparency);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    padding: 52px 28px;
+
+    .loginTitle {
+      display: flex;
+      justify-content: center;
+      padding-bottom: 25px;
+    }
+
+    .loginSubtitle {
+      padding-bottom: 25px;
+
+      h3 {
+        margin-bottom: 15px;
+      }
+      h4 {
+        color: var(--text-color-gray);
+        font-weight: 300;
+      }
+    }
+
+    label {
+      cursor: pointer;
+      margin-bottom: 5px;
+    }
+
+    input {
+      background: none;
+      width: 100%;
+      padding: 16px 14px;
+      margin-bottom: 25px;
+      border: 1px solid var(--main-background-color);
+      border-radius: 8px;
+      box-shadow: var(--box-shadow);
+      -webkit-tap-highlight-color: transparent;
+      color: var(--text-color-white);
+      transition: var(--transition);
+
+      &:focus {
+        outline: 0;
+        border-color: var(--light-blue);
+      }
+
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus,
+      &:-webkit-autofill:active {
+        transition: background-color 600000s 0s, color 600000s 0s;
+      }
+    }
+
+    button {
+      color: var(--text-color-white);
+      background-color: var(--light-blue);
+      border: 0;
+      padding: 16px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-transform: uppercase;
+      font-weight: 500;
+      &:hover {
+        background-color: var(--dark-blue);
+        box-shadow: var(--box-shadow);
+      }
+    }
+
+    .errorMessage {
+      color: var(--color-red);
+      margin-bottom: 25px;
+    }
+  }
+
+  .image {
+    position: absolute;
+    bottom: 15%;
+    width: 100%;
+    max-height: 387px;
+    z-index: 1;
+    @include for-desktop-only {
+      display: none;
+    }
+  }
 }
