@@ -1,5 +1,77 @@
 .main {
   display: flex;
 }
+.main .navWrapper {
+  width: 260px;
+  padding: 32px 0;
+}
+.main .navWrapper .navUl {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.main .navWrapper .navUl li {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  cursor: pointer;
+  padding: 9px 16px;
+  border-radius: 8px;
+  transition: var(--transition);
+  margin-bottom: 6px;
+}
+.main .navWrapper .navUl li:hover {
+  background-color: var(--menu-hover-background);
+}
+.main .navWrapper .navUl li svg {
+  margin-right: 12px;
+  font-size: 25px;
+}
+.main .navWrapper .navMenuActive {
+  background-color: var(--menu-hover-background);
+}
+
+.mainWrapper {
+  padding: 12px;
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.mainWrapper .boxWrapper {
+  height: 200px;
+  padding: 20px;
+}
+.mainWrapper .boxWrapper .box {
+  width: 100%;
+  height: 100%;
+  box-shadow: var(--box-shadow);
+  background-color: var(--background-color-lighter);
+  border-radius: 10px;
+  padding: 20px;
+}
+.mainWrapper .boxWrapper:global(.box-one-fifth) {
+  flex-basis: 16.6667%;
+  -webkit-box-flex: 0;
+  flex-grow: 0;
+  width: 16.6667%;
+}
+.mainWrapper .boxWrapper:global(.box-one-third) {
+  flex-basis: 33.3333%;
+  -webkit-box-flex: 0;
+  flex-grow: 0;
+  width: 33.3333%;
+}
+.mainWrapper .boxWrapper:global(.box-half) {
+  flex-basis: 50%;
+  -webkit-box-flex: 0;
+  flex-grow: 0;
+  width: 50%;
+}
+.mainWrapper .boxWrapper:global(.box-full) {
+  flex-basis: 100%;
+  -webkit-box-flex: 0;
+  flex-grow: 0;
+  width: 100%;
+}
 
 /*# sourceMappingURL=Main.module.css.map */

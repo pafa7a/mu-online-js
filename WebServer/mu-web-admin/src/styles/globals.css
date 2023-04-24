@@ -9,6 +9,7 @@
   --box-shadow: rgba(20, 21, 33, 0.18) 0px 2px 10px 0px;
   --transition: ease all .5s;
   --color-red: #ff4d49;
+  --menu-hover-background: #eaeaff0d;
 }
 
 * {
