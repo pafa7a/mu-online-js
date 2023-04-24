@@ -13,6 +13,8 @@ services:
     volumes:
       - ./mysql-data:/var/lib/mysql
       - ./.docker-files/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mu
 
   connectserver:
     build:
@@ -24,6 +26,8 @@ services:
       - "55557:55557/udp"
     volumes:
       - ./ConnectServer:/app
+    networks:
+      - mu
 
   joinserver:
     build:
@@ -41,6 +45,8 @@ services:
       MYSQL_PORT: 3306
       MYSQL_USER: root
       MYSQL_PASSWORD: root
+    networks:
+      - mu
 
   web-admin:
     build:
@@ -49,3 +55,30 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    networks:
+      - mu
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=elasticsearch
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - mu
+
+networks:
+  mu:
+    driver: bridge
