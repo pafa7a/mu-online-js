@@ -73,5 +73,8 @@
   flex-grow: 0;
   width: 100%;
 }
+.mainWrapper .boxWrapper:global(.box-double-height) {
+  height: 400px;
+}
 
 /*# sourceMappingURL=Main.module.css.map */

@@ -82,5 +82,8 @@
       flex-grow: 0;
       width: 100%;
     }
+    &:global(.box-double-height) {
+      height: 400px;
+    }
   }
 }

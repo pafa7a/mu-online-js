@@ -28,12 +28,12 @@ const Home = () => {
 
         </div>
       </div>
-      <div className={`${styles.boxWrapper} box-one-third`}>
+      <div className={`${styles.boxWrapper} box-one-third box-double-height`}>
         <div className={styles.box}>
 
         </div>
       </div>
-      <div className={`${styles.boxWrapper} box-one-third`}>
+      <div className={`${styles.boxWrapper} box-one-third box-double-height`}>
         <div className={styles.box}>
 
         </div>
