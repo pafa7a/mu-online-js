@@ -55,6 +55,8 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    volumes:
+      - ./WebServer/mu-web-admin:/app
     networks:
       - mu
 
@@ -76,6 +78,18 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    networks:
+      - mu
+
+  socketserver:
+    build:
+      context: ./WebServer/mu-socket-server
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "44404:44404"
+    volumes:
+      - ./WebServer/mu-socket-server:/app
     networks:
       - mu
 

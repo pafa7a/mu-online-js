@@ -1,0 +1,16 @@
+{
+  "name": "mu-socket-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon --signal SIGINT index.js",
+    "start": "node index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "dependencies": {
+    "ws": "^8.13.0"
+  }
+}
