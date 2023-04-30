@@ -4,7 +4,7 @@ const fs = require('fs');
 const server = new WebSocketServer({port: 44404});
 
 const allowedIps = new Set([
-  '127.0.0.1', '::ffff:127.0.0.1', 'localhost', '::ffff:172.18.0.1',
+  '127.0.0.1', '::ffff:127.0.0.1', 'localhost', '::ffff:172.18.0.1', '::1',
 ]);
 
 const connectedClients = new Map();

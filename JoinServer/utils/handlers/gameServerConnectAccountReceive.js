@@ -2,6 +2,7 @@ const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
 const loginMessage = require('../enums/loginMessage');
 const db = require('@mu-online-js/mu-db');
+const logger = require('./../logger');
 
 /**
  * Handles GameServerConnectAccountReceive request coming from GS.
@@ -12,7 +13,7 @@ const db = require('@mu-online-js/mu-db');
 const gameServerConnectAccountReceive = async (data, socket, sendData) => {
   const accountInfo = new packetManager().fromBuffer(data)
     .useStruct(structs.GSJSConnectAccountSend).toObject();
-  console.log(accountInfo);
+  logger.info(accountInfo);
 
   /**
    * Results of a database query to retrieve account information.

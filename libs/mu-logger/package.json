@@ -1,0 +1,26 @@
+{
+  "name": "@mu-online-js/mu-logger",
+  "version": "1.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "node --inspect index.js"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.7.0"
+  },
+  "repository": "https://github.com/pafa7a/mu-online-js",
+  "keywords": [
+    "MU Online",
+    "Logger",
+    "Networking",
+    "Game Servers",
+    "JavaScript",
+    "Node.js",
+    "MMO",
+    "MMORPG",
+    "Online Gaming",
+    "Data Serialization",
+    "Elasticsearch"
+  ]
+}

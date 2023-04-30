@@ -1,5 +1,6 @@
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = packetManager.getStructs();
+const logger = require('./../logger');
 
 /**
  * Handles GameServerUserInfo request coming from GS.
@@ -15,7 +16,7 @@ const gameServerUserInfoReceive = (data, socket) => {
     maxUserCount: serverUserInfo.maxUserCount,
     internalId: socket.remotePort
   };
-  console.log(gameServerUserInfo);
+  logger.info(gameServerUserInfo);
 };
 
 module.exports = gameServerUserInfoReceive;

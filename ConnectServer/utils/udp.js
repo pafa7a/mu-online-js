@@ -2,6 +2,7 @@ const {createSocket} = require('dgram');
 const byteToNiceHex = require('./byteToNiceHex');
 const {gameServersList, removeGameServer} = require('./loadGameServersList');
 const CSGameServerInfoHandler = require('./handlers/CSGameServerInfoHandler');
+const logger = require('./logger');
 
 const CLIENT_TIMEOUT = 10000;
 
@@ -33,7 +34,7 @@ const startServer = port => {
   });
   
   udpServer.bind(port, () => {
-    console.log('UDP server listening on port 55557');
+    logger.info('UDP server listening on port 55557');
   });
 };
 
@@ -45,7 +46,7 @@ const onReceive = (data, handler) => {
   }
 
   if (process.env.DEBUG_UDP && handlerName === 'Unknown') {
-    console.log(`Received [${handlerName}]:`, hexString);
+    logger.info(`Received [${handlerName}]:`, hexString);
   }
 };
 

@@ -3,6 +3,7 @@ const byteToNiceHex = require('./byteToNiceHex');
 const gameServerConnectAccountReceive = require('./handlers/gameServerConnectAccountReceive');
 const gameServerInfoReceive = require('./handlers/gameServerInfoReceive');
 const gameServerUserInfoReceive = require('./handlers/gameServerUserInfoReceive');
+const logger = require('./logger');
 
 let tcpServer;
 const tcpSockets = new Map();
@@ -32,7 +33,7 @@ const startServer = port => {
     tcpSockets.set(socket, true);
 
     if (process.env.DEBUG) {
-      console.log(`New client connected. IP: ${socket.remoteAddress}`);
+      logger.info(`New client connected. IP: ${socket.remoteAddress}`);
     }
 
     socket.on('data', (data) => {
@@ -88,24 +89,24 @@ const startServer = port => {
     socket.on('end', () => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
-      console.log('GameServer disconnected');
+      logger.info('GameServer disconnected');
     });
 
     socket.on('error', (error) => {
       // Remove the socket from the map.
       tcpSockets.delete(socket);
       if (error?.code !== 'ECONNRESET') {
-        console.log(`Socket Error: ${error.message}`);
+        logger.info(`Socket Error: ${error.message}`);
       }
     });
 
   });
   tcpServer.on('error', (error) => {
-    console.log(`Server Error: ${error.message}`);
+    logger.info(`Server Error: ${error.message}`);
   });
 
   tcpServer.listen(port, () => {
-    console.log(`TCP socket server is running on port: ${port}`);
+    logger.info(`TCP socket server is running on port: ${port}`);
   });
 };
 
@@ -123,7 +124,7 @@ const sendData = (socket, data, description = '') => {
   const buffer = Buffer.from(data);
   socket.write(buffer);
   if (process.env.DEBUG) {
-    console.log(`Sent [${description}]:`, byteToNiceHex(data));
+    logger.info(`Sent [${description}]:`, byteToNiceHex(data));
   }
 };
 
@@ -141,7 +142,7 @@ const onReceive = (socket, data, handler) => {
   }
 
   if (process.env.DEBUG) {
-    console.log(`Received [${handlerName}]:`, hexString);
+    logger.info(`Received [${handlerName}]:`, hexString);
   }
 };
 

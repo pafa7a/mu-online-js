@@ -1,4 +1,5 @@
 const importFresh = require('import-fresh');
+const logger = require('./logger');
 let gameServersList = [];
 
 const loadGameServersList = () => {
@@ -13,7 +14,7 @@ const addGameServer = (data, address, port) => {
         server.address = address;
         server.internalPort = port;
         server.state = 1;
-        console.log(`GameServer connected. Name: "${server.name}"; ServerCode: "${server.id}; InternalAddress: ${server.address}; InternalPort: ${server.internalPort}"`);
+        logger.info(`GameServer connected. Name: "${server.name}"; ServerCode: "${server.id}; InternalAddress: ${server.address}; InternalPort: ${server.internalPort}"`);
       }
       server.userTotal = data.userTotal;
       server.userCount = data.userCount;
@@ -25,7 +26,7 @@ const addGameServer = (data, address, port) => {
 const removeGameServer = server => {
   server.state = 0;
   server.address = server.internalPort = server.lastMessageTime = undefined;
-  console.log(`GameServer disconnected. Name: "${server.name}"; ServerCode: "${server.id}`);
+  logger.info(`GameServer disconnected. Name: "${server.name}"; ServerCode: "${server.id}`);
 };
 
 module.exports = {

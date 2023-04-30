@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@mu-online-js/mu-db": "^0.0.3",
+    "@mu-online-js/mu-logger": "^1.0.0",
     "@mu-online-js/mu-packet-manager": "^0.0.2",
     "import-fresh": "^3.3.0"
   }
