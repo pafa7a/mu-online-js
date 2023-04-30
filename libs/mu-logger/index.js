@@ -15,30 +15,34 @@ class Logger {
 
   async #checkAndCreateIndex() {
     const indexName = 'mu_logs';
-    const indexExists = await this.esClient.indices.exists({index: indexName});
-    if (!indexExists) {
-      await this.esClient.indices.create({
-        index: indexName,
-        body: {
-          mappings: {
-            properties: {
-              app: {
-                type: 'keyword'
-              },
-              logType: {
-                type: 'keyword'
-              },
-              date: {
-                type: 'date'
-              },
-              message: {
-                type: 'text',
-                index: false
+    try {
+      const indexExists = await this.esClient.indices.exists({index: indexName});
+      if (!indexExists) {
+        await this.esClient.indices.create({
+          index: indexName,
+          body: {
+            mappings: {
+              properties: {
+                app: {
+                  type: 'keyword'
+                },
+                logType: {
+                  type: 'keyword'
+                },
+                date: {
+                  type: 'date'
+                },
+                message: {
+                  type: 'text',
+                  index: false
+                }
               }
             }
           }
-        }
-      });
+        });
+      }
+    } catch (e) {
+      /* empty */
     }
   }
 
@@ -52,7 +56,9 @@ class Logger {
         date: new Date(),
         message
       }
-    }).then();
+    }).then().catch(() => {
+      /* empty */
+    });
   }
 
   #transformMessage = message => {

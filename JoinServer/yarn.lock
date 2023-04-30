@@ -275,9 +275,9 @@
     mysql2 "^3.2.0"
 
 "@mu-online-js/mu-logger@^1.0.0":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-logger/-/mu-logger-1.0.1.tgz#7656f4198125d032cdad6d197e017f27fbf6697f"
-  integrity sha512-z6S8ZRXxNsEom5TxhOA48pUznX0fnJRIRhUlpa8LS4aPJLOpBvQ6htaH0rTd2e60w2VvueOVpb8KiXdnX05xyA==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-logger/-/mu-logger-1.0.2.tgz#5d8e781b733511d778e04fd7c736b7076b5eab51"
+  integrity sha512-IyYmEj/1UYO3dWGCxy2edZzb7LB7Uh+GnIJUQd9mp3OuNvkQp0jsBOJobWUsR/FMabYNMsGHqyHLQY/6FBmEyg==
   dependencies:
     "@elastic/elasticsearch" "^8.7.0"
 
@@ -1528,6 +1528,11 @@ write-file-atomic@^3.0.0:
     is-typedarray "^1.0.0"
     signal-exit "^3.0.2"
     typedarray-to-buffer "^3.1.5"
+
+ws@^8.13.0:
+  version "8.13.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.13.0.tgz#9a9fb92f93cf41512a0735c8f4dd09b8a1211cd0"
+  integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==
 
 y18n@^4.0.0:
   version "4.0.3"
