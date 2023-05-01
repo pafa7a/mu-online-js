@@ -58,8 +58,6 @@ class SocketClient {
       if (handlers[data.event]) {
         // Call the handler function with the client name, payload, and connected clients
         handlers[data.event](data.payload, this.sendToServer);
-      } else {
-        logger.error(`Invalid or missing handler: "${data.event}" sent by the socket server`);
       }
     });
   }

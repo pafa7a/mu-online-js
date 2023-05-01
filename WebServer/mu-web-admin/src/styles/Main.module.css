@@ -48,6 +48,26 @@
   background-color: var(--background-color-lighter);
   border-radius: 10px;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+.mainWrapper .boxWrapper .box .loader {
+  background: linear-gradient(110deg, var(--background-color-lighter) 8%, var(--main-background-color) 18%, var(--background-color-lighter) 33%);
+  background-size: 200% 200%;
+  animation: 1.5s shine linear infinite;
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-color-gray);
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.8;
 }
 .mainWrapper .boxWrapper:global(.box-one-fifth) {
   flex-basis: 16.6667%;
@@ -75,6 +95,34 @@
 }
 .mainWrapper .boxWrapper:global(.box-double-height) {
   height: 400px;
+}
+.mainWrapper .boxWrapper .boxTitle {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.mainWrapper .boxWrapper .colorGreen {
+  color: var(--color-green);
+}
+.mainWrapper .boxWrapper .colorRed {
+  color: var(--color-red);
+}
+.mainWrapper .boxWrapper .reload {
+  color: #eaeaff99;
+  display: flex;
+  align-self: center;
+  margin-top: 5px;
+  cursor: pointer;
+}
+.mainWrapper .flexWithSpaceBetween {
+  display: flex;
+  justify-content: space-between;
+}
+
+@keyframes shine {
+  to {
+    background-position-x: -200%;
+  }
 }
 
 /*# sourceMappingURL=Main.module.css.map */

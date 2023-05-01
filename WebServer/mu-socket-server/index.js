@@ -1,5 +1,6 @@
 const {WebSocketServer} = require('ws');
 const fs = require('fs');
+const url = require('url');
 
 const server = new WebSocketServer({port: 44404});
 
@@ -47,7 +48,9 @@ server.on('connection', (socket, request) => {
     return;
   }
 
-  const clientName = request.headers['x-client-name'];
+  const clientNameInQuery = url.parse(request.url, {parseQueryString: true})?.query['x-client-name'];
+  const clientName = clientNameInQuery || request.headers['x-client-name'];
+
   if (!clientName || connectedClients.has(clientName)) {
     console.log(`Connection rejected from ${ip} - invalid or duplicate client name`);
     socket.close();
@@ -56,6 +59,12 @@ server.on('connection', (socket, request) => {
 
   console.log(`Connection accepted from ${ip} for client "${clientName}"`);
   connectedClients.set(clientName, socket);
+
+  const informAllClients = () => {
+    handlers['isServerOnline']('all', {serverName: clientName}, sendToClient, connectedClients);
+  };
+
+  informAllClients();
 
   socket.on('message', (message) => {
     let data = {};
@@ -68,7 +77,7 @@ server.on('connection', (socket, request) => {
     // Check if the event has a handler
     if (handlers[data.event]) {
       // Call the handler function with the client name, payload, and connected clients
-      handlers[data.event](clientName, data.payload, sendToClient);
+      handlers[data.event](clientName, data.payload, sendToClient, connectedClients);
     } else {
       console.log(`Invalid or missing handler: "${data.event}" sent by client: "${clientName}"`);
     }
@@ -77,5 +86,6 @@ server.on('connection', (socket, request) => {
   socket.on('close', () => {
     console.log(`Connection closed from ${ip} for client "${clientName}"`);
     connectedClients.delete(clientName);
+    informAllClients();
   });
 });
