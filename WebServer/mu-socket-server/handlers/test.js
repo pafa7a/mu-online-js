@@ -1,4 +1,4 @@
-module.exports = (clientName, payload, sendToClient) => {
+module.exports = ({clientName, sendToClient}) => {
   const response = {
     event: 'test',
     payload: {

@@ -5,9 +5,9 @@
  * @param {Object} payload
  * @param {Function} sendToClient
  */
-module.exports = (clientName, payload, sendToClient) => {
+module.exports = ({clientName, payload, sendToClient}) => {
   const response = {
-    event: 'returnProcessInfoFromServer',
+    event: 'setProcessInfoFromServer',
     payload: {
       serverName: clientName,
       ...payload

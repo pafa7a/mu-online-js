@@ -1,7 +1,7 @@
 module.exports = (payload, sendToServer) => {
   const {tcpSockets} = require('./../../tcp');
   const response = {
-    event: 'returnNumberOfTCPConnections',
+    event: 'setNumberOfTCPConnections',
     payload: {
       connections: tcpSockets.size
     },

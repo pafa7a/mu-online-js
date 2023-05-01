@@ -1,6 +1,7 @@
 const WebSocket = require('ws');
 const logger = require('./logger');
 const fs = require('fs');
+const {EOL} = require('os');
 
 const handlers = {};
 fs.readdirSync('./utils/handlers/ws')
@@ -8,6 +9,8 @@ fs.readdirSync('./utils/handlers/ws')
   .forEach((file) => {
     handlers[file.replace('.js', '')] = require(`./handlers/ws/${file}`);
   });
+
+let sendToServer = () => {};
 
 class SocketClient {
   constructor(clientName) {
@@ -42,25 +45,51 @@ class SocketClient {
       try {
         this.ws.send(JSON.stringify(payload));
       } catch (e) {
-        logger.error('Unable to send the message to the socket server');
+        if (this.ws && this.ws.readyState !== this.ws.OPEN) {
+          logger.error('The socket connection is not yet open. Retrying after 1s');
+          setTimeout(() => {
+            this.sendToServer(payload);
+          }, 1000);
+        }
+        else {
+          logger.error('Unable to send the message to the socket server.');
+        }
       }
     };
 
-    this.ws.on('message', message => {
-      let data = {};
-      try {
-        data = JSON.parse(message);
-      } catch (e) {
-        logger.error('Invalid JSON data from the socket server.');
-      }
+    sendToServer = this.sendToServer;
 
-      // Check if the event has a handler
-      if (handlers[data.event]) {
-        // Call the handler function with the client name, payload, and connected clients
-        handlers[data.event](data.payload, this.sendToServer);
-      }
+    this.ws.on('message', message => {
+      handleMessage(message);
     });
+
   }
 }
+
+const handleMessage = message => {
+  let data = {};
+  try {
+    data = JSON.parse(message);
+  } catch (e) {
+    logger.error('Invalid JSON data from the socket server.');
+  }
+
+  // Check if the event has a handler
+  if (handlers[data.event]) {
+    // Call the handler function with the client name, payload, and connected clients
+    handlers[data.event](data.payload, sendToServer);
+  }
+};
+process.stdin.on('data', data => {
+  data = data.toString().split(EOL);
+  // Remove the last new line.
+  data.pop();
+  for (const message of data) {
+    handleMessage(message);
+  }
+
+  // Keep listening for more inputs.
+  process.stdin.resume();
+});
 
 module.exports = SocketClient;

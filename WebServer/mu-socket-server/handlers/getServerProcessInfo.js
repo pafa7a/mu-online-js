@@ -1,13 +1,18 @@
 /**
  * Get process info for specific app.
  *
- * @param {String} clientName
  * @param {Object} payload
- * @param {Function} sendToClient
+ * @param {Object} globalStore
+ * @param {Function} sendToProcess
  */
-module.exports = (clientName, payload, sendToClient) => {
-  const response = {
+module.exports = ({payload, globalStore, sendToProcess}) => {
+  const serverName = payload.serverName;
+  const process = globalStore?.childProcesses[serverName];
+  if (!process) {
+    return;
+  }
+  const data = {
     event: 'getProcessInfo',
   };
-  sendToClient(payload.serverName, response);
+  sendToProcess(process, data);
 };

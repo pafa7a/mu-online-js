@@ -5,9 +5,9 @@
  * @param {Object} payload
  * @param {Function} sendToClient
  */
-module.exports = (clientName, payload, sendToClient) => {
+module.exports = ({clientName, payload, sendToClient}) => {
   const response = {
-    event: 'returnNumberOfTCPConnections',
+    event: 'setNumberOfTCPConnections',
     payload: {
       serverName: clientName,
       ...payload

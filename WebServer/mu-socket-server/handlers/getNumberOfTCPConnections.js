@@ -1,13 +1,18 @@
 /**
- * Get the number of TCP connections from a server.
+ Get the number of TCP connections from a server.
  *
- * @param {String} clientName
  * @param {Object} payload
- * @param {Function} sendToClient
+ * @param {Object} globalStore
+ * @param {Function} sendToProcess
  */
-module.exports = (clientName, payload, sendToClient) => {
-  const response = {
+module.exports = ({payload, globalStore, sendToProcess}) => {
+  const serverName = payload.serverName;
+  const process = globalStore?.childProcesses[serverName];
+  if (!process) {
+    return;
+  }
+  const data = {
     event: 'getNumberOfTCPConnections',
   };
-  sendToClient(payload.serverName, response);
+  sendToProcess(process, data);
 };

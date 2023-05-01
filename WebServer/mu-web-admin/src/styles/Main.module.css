@@ -47,7 +47,7 @@
   box-shadow: var(--box-shadow);
   background-color: var(--background-color-lighter);
   border-radius: 10px;
-  padding: 20px;
+  padding: 25px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -68,6 +68,52 @@
   top: 0;
   left: 0;
   opacity: 0.8;
+}
+.mainWrapper .boxWrapper .box .boxAction {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 24px;
+  height: 24px;
+  font-size: 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.mainWrapper .boxWrapper .box .boxAction:hover, .mainWrapper .boxWrapper .box .boxAction:global(.active) {
+  background-color: var(--main-background-color);
+}
+.mainWrapper .boxWrapper .box .boxActionMenu {
+  background-color: var(--main-background-color);
+  box-shadow: var(--box-shadow-large-bottom);
+  border-radius: 5px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+}
+.mainWrapper .boxWrapper .box .boxActionMenu:global(.active) {
+  opacity: 1;
+  visibility: visible;
+  transition: visibility 0s, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+.mainWrapper .boxWrapper .box .boxActionMenu li {
+  padding: 6px 16px;
+  min-width: 120px;
+  transition: var(--transition);
+  user-select: none;
+}
+.mainWrapper .boxWrapper .box .boxActionMenu li:hover {
+  background-color: var(--background-color-lighter);
+  box-shadow: var(--box-shadow-large-bottom);
 }
 .mainWrapper .boxWrapper:global(.box-one-fifth) {
   flex-basis: 16.6667%;

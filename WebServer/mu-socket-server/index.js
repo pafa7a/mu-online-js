@@ -1,6 +1,7 @@
 const {WebSocketServer} = require('ws');
 const fs = require('fs');
 const url = require('url');
+const {EOL} = require('os');
 
 const server = new WebSocketServer({port: 44404});
 
@@ -9,6 +10,9 @@ const allowedIps = new Set([
 ]);
 
 const connectedClients = new Map();
+const globalStore = {
+  childProcesses: {}
+};
 
 const handlers = {};
 
@@ -40,6 +44,10 @@ const sendToClient = (clientName, payload) => {
   }
 };
 
+const sendToProcess = (process, payload) => {
+  process.stdin.write(JSON.stringify(payload) + EOL);
+};
+
 server.on('connection', (socket, request) => {
   const ip = request.socket.remoteAddress;
   if (!allowedIps.has(ip)) {
@@ -60,12 +68,6 @@ server.on('connection', (socket, request) => {
   console.log(`Connection accepted from ${ip} for client "${clientName}"`);
   connectedClients.set(clientName, socket);
 
-  const informAllClients = () => {
-    handlers['isServerOnline']('all', {serverName: clientName}, sendToClient, connectedClients);
-  };
-
-  informAllClients();
-
   socket.on('message', (message) => {
     let data = {};
     try {
@@ -77,7 +79,15 @@ server.on('connection', (socket, request) => {
     // Check if the event has a handler
     if (handlers[data.event]) {
       // Call the handler function with the client name, payload, and connected clients
-      handlers[data.event](clientName, data.payload, sendToClient, connectedClients);
+      const args = {
+        clientName,
+        payload: data.payload,
+        sendToClient,
+        connectedClients,
+        globalStore,
+        sendToProcess
+      };
+      handlers[data.event](args);
     } else {
       console.log(`Invalid or missing handler: "${data.event}" sent by client: "${clientName}"`);
     }
@@ -86,6 +96,5 @@ server.on('connection', (socket, request) => {
   socket.on('close', () => {
     console.log(`Connection closed from ${ip} for client "${clientName}"`);
     connectedClients.delete(clientName);
-    informAllClients();
   });
 });

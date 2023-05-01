@@ -6,7 +6,7 @@
  * @param {Function} sendToClient
  * @param {Map} connectedClients
  */
-module.exports = (clientName, payload, sendToClient, connectedClients) => {
+module.exports = ({clientName, payload, sendToClient, connectedClients}) => {
   const response = {
     event: 'isServerOnline',
     payload: {

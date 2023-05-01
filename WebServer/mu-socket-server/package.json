@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon --signal SIGINT index.js",
+    "dev": "nodemon index.js",
     "start": "node index.js"
   },
   "devDependencies": {
