@@ -1,7 +1,7 @@
 import {useEffect, useCallback} from 'react';
 import mitt from 'mitt';
 
-let reconnectDelay = 5000;
+let reconnectDelay = 500;
 let ws = null;
 const emitter = mitt();
 

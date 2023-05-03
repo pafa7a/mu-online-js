@@ -46,7 +46,7 @@ const onReceive = (data, handler) => {
   }
 
   if (process.env.DEBUG_UDP && handlerName === 'Unknown') {
-    logger.info(`Received [${handlerName}]:`, hexString);
+    logger.info(`Received [${handlerName}]: ${hexString}`);
   }
 };
 

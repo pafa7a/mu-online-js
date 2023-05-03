@@ -99,7 +99,7 @@ const sendData = (socket, data, description = '') => {
   const buffer = Buffer.from(data);
   socket.write(buffer);
   if (process.env.DEBUG) {
-    logger.info(`Sent [${description}]:`, byteToNiceHex(data));
+    logger.info(`Sent [${description}]: ${byteToNiceHex(data)}`);
   }
 };
 
@@ -117,7 +117,7 @@ const onReceive = (socket, data, handler) => {
   }
 
   if (process.env.DEBUG) {
-    logger.info(`Received [${handlerName}]:`, hexString);
+    logger.info(`Received [${handlerName}]: ${hexString}`);
   }
 };
 

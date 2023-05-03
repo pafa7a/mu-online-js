@@ -3,8 +3,10 @@ import {useWebSocket} from '@/hooks/useWebSocket';
 import {useEffect, useRef, useState} from 'react';
 import {TbDotsVertical} from 'react-icons/tb';
 import useOutsideClick from '@/hooks/useOutsideClick';
+import {useRouter} from 'next/router';
 
 const ServerCard = ({boxType = 'box-one-fifth', server}) => {
+  const router = useRouter();
   const ref = useRef();
   const {sendMessage, emitter} = useWebSocket();
   const [isOnline, setIsOnline] = useState();
@@ -31,7 +33,6 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
   };
 
   const updateServerStats = () => {
-    console.log('now', isOnline);
     if (!isOnline) {
       return;
     }
@@ -148,6 +149,19 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
     );
   };
 
+  const displayWatchLogs = () => {
+    if (!isOnline) {
+      return '';
+    }
+    return (
+      <li onClick={() => {
+        router.push(`/logs/${server}`).then();
+      }}>
+        Watch logs
+      </li>
+    );
+  };
+
   const handleBoxActionClick = () => {
     setActionMenuActive(prev => {
       return !prev;
@@ -188,6 +202,7 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
           <ul className={`${styles.boxActionMenu} ${actionMenuActive ? 'active' : ''}`}>
             <li onClick={getServerStatus}>Refresh</li>
             {displayStartServer()}
+            {displayWatchLogs()}
             {displayStopServer()}
           </ul>
         </div>

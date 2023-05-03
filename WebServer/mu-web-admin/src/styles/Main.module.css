@@ -12,6 +12,7 @@
 }
 .main .navWrapper .navUl li {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
   cursor: pointer;
@@ -27,8 +28,24 @@
   margin-right: 12px;
   font-size: 25px;
 }
-.main .navWrapper .navMenuActive {
+.main .navWrapper .navUl .hasSubmenu svg:nth-of-type(2) {
+  margin-left: auto;
+}
+.main .navWrapper .navUl .hasSubmenu:global(>ul) {
+  width: 100%;
+  margin-top: 6px;
+}
+.main .navWrapper .navUl .hasSubmenu:global(>ul) li {
+  padding: 9px 0;
+}
+.main .navWrapper .navUl .navMenuActive {
+  background-color: var(--menu-active-background);
+}
+.main .navWrapper .navUl .navMenuActive:global(.hasSubmenu) {
   background-color: var(--menu-hover-background);
+}
+.main .navWrapper .navUl .navMenuActive:not(.hasSubmenu):hover {
+  background-color: var(--menu-active-background);
 }
 
 .mainWrapper {
@@ -52,22 +69,6 @@
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-}
-.mainWrapper .boxWrapper .box .loader {
-  background: linear-gradient(110deg, var(--background-color-lighter) 8%, var(--main-background-color) 18%, var(--background-color-lighter) 33%);
-  background-size: 200% 200%;
-  animation: 1.5s shine linear infinite;
-  height: 100%;
-  width: 100%;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--text-color-gray);
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0.8;
 }
 .mainWrapper .boxWrapper .box .boxAction {
   position: absolute;
@@ -163,6 +164,50 @@
 .mainWrapper .flexWithSpaceBetween {
   display: flex;
   justify-content: space-between;
+}
+.mainWrapper .boxWrapperFull {
+  display: flex;
+  padding: 24px;
+  margin-top: 18px;
+  width: 100%;
+  height: 100%;
+  box-shadow: var(--box-shadow);
+  background-color: var(--background-color-lighter);
+  border-radius: 10px;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+.mainWrapper .boxWrapperFull h1 {
+  font-size: 20px;
+}
+.mainWrapper .loader {
+  background: linear-gradient(110deg, var(--background-color-lighter) 8%, var(--main-background-color) 18%, var(--background-color-lighter) 33%);
+  background-size: 200% 200%;
+  animation: 1.5s shine linear infinite;
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-color-gray);
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.8;
+}
+.mainWrapper .logsWrapper {
+  margin-top: 25px;
+  box-shadow: var(--box-shadow);
+  background-color: var(--main-background-color);
+  padding: 25px 0;
+  max-height: 80vh;
+  overflow-y: auto;
+  scroll-padding: 25px;
+}
+.mainWrapper .logsWrapper div {
+  border: none;
 }
 
 @keyframes shine {

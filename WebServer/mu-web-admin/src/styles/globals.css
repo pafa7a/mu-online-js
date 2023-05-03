@@ -12,6 +12,7 @@
   --transition: ease all .5s;
   --color-red: #ff4d49;
   --menu-hover-background: #eaeaff0d;
+  --menu-active-background: #787eff;
 }
 
 * {

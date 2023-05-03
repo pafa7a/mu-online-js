@@ -4,8 +4,8 @@ import ServerCard from '@/components/socketFetchers/ServerCard';
 const Home = () => {
   return (
     <>
-      <ServerCard boxType="box-one-fifth" server="ConnectServer" />
-      <ServerCard boxType="box-one-fifth" server="JoinServer" />
+      <ServerCard boxType="box-one-fifth" server="ConnectServer"/>
+      <ServerCard boxType="box-one-fifth" server="JoinServer"/>
       <div className={`${styles.boxWrapper} box-one-fifth`}>
         <div className={`${styles.box}`}>
           <div className={styles.loader}>Loading example...</div>
