@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server';
 import {jwtVerify} from 'jose';
+
 export async function middleware(req) {
   let validAuthCookie = false;
   const {pathname} = req.nextUrl;
@@ -11,7 +12,9 @@ export async function middleware(req) {
   try {
     const authCookie = req.cookies.get('token')?.value;
     validAuthCookie = await jwtVerify(authCookie, new TextEncoder().encode(process.env.AUTH_SECRET));
-  } catch (e) { /* empty */ }
+  } catch (e) {
+    /* empty */
+  }
 
   const unprotectedPaths = ['/login', '/api/login'];
 
@@ -27,10 +30,10 @@ export async function middleware(req) {
     // If the cookie is valid.
     if (validAuthCookie) {
       return NextResponse.redirect(new URL('/', req.url));
-    }
-    else {
+    } else {
       // Just delete the cookie, because it's invalid anyway.
       const res = NextResponse.next();
+      // noinspection JSCheckFunctionSignatures
       res.cookies.delete('token');
       return res;
     }

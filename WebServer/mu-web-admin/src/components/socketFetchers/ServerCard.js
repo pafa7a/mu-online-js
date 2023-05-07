@@ -88,7 +88,7 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
     if (isOnline) {
       interval = setInterval(updateServerStats, 1000);
     } else {
-      setProcessInfo();
+      setProcessInfo(undefined);
     }
     return () => {
       clearInterval(interval);

@@ -30,7 +30,7 @@ export default function Home() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    setErrorMessage();
+    setErrorMessage(undefined);
     const {username, password} = state || '';
     axios.post('/api/login', {
       username,

@@ -56,7 +56,7 @@ server.on('connection', (socket, request) => {
     return;
   }
 
-  const clientNameInQuery = url.parse(request.url, {parseQueryString: true})?.query['x-client-name'];
+  const clientNameInQuery = url.parse(request.url, true)?.query['x-client-name'];
   const clientName = clientNameInQuery || request.headers['x-client-name'];
 
   if (!clientName || connectedClients.has(clientName)) {

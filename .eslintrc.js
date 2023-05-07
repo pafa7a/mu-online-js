@@ -5,9 +5,8 @@ module.exports = {
     'es2021': true,
     'mocha': true
   },
-  'extends': 'eslint:recommended',
-  'overrides': [
-  ],
+  'extends': ['eslint:recommended'],
+  'overrides': [],
   'parserOptions': {
     'ecmaVersion': 'latest'
   },

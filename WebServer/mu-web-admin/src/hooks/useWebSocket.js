@@ -17,7 +17,7 @@ export function useWebSocket() {
     ws.onclose = () => {
       console.log(`WebSocket disconnected. Retrying after ${reconnectDelay}s`);
       setTimeout(() => {
-        connect(true);
+        connect();
       }, reconnectDelay);
     };
 
