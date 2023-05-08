@@ -105,7 +105,6 @@ const Layout = ({children}) => {
 
 
   useEffect(() => {
-    console.log(router.pathname, router.asPath);
     if (!menuItems) {
       return '';
     }

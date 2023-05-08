@@ -70,52 +70,6 @@
   justify-content: space-between;
   position: relative;
 }
-.mainWrapper .boxWrapper .box .boxAction {
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  width: 24px;
-  height: 24px;
-  font-size: 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.mainWrapper .boxWrapper .box .boxAction:hover, .mainWrapper .boxWrapper .box .boxAction:global(.active) {
-  background-color: var(--main-background-color);
-}
-.mainWrapper .boxWrapper .box .boxActionMenu {
-  background-color: var(--main-background-color);
-  box-shadow: var(--box-shadow-large-bottom);
-  border-radius: 5px;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  top: 20px;
-  right: 16px;
-  font-size: 16px;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-}
-.mainWrapper .boxWrapper .box .boxActionMenu:global(.active) {
-  opacity: 1;
-  visibility: visible;
-  transition: visibility 0s, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
-}
-.mainWrapper .boxWrapper .box .boxActionMenu li {
-  padding: 6px 16px;
-  min-width: 120px;
-  transition: var(--transition);
-  user-select: none;
-}
-.mainWrapper .boxWrapper .box .boxActionMenu li:hover {
-  background-color: var(--background-color-lighter);
-  box-shadow: var(--box-shadow-large-bottom);
-}
 .mainWrapper .boxWrapper:global(.box-one-fifth) {
   flex-basis: 16.6667%;
   -webkit-box-flex: 0;
@@ -155,7 +109,7 @@
   color: var(--color-red);
 }
 .mainWrapper .boxWrapper .reload {
-  color: #eaeaff99;
+  color: rgba(234, 234, 255, 0.6);
   display: flex;
   align-self: center;
   margin-top: 5px;
@@ -208,6 +162,54 @@
 }
 .mainWrapper .logsWrapper div {
   border: none;
+}
+.mainWrapper .boxAction {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 24px;
+  height: 24px;
+  font-size: 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 8;
+}
+.mainWrapper .boxAction:hover, .mainWrapper .boxAction:global(.active) {
+  background-color: var(--main-background-color);
+}
+.mainWrapper .boxActionMenu {
+  background-color: var(--main-background-color);
+  box-shadow: var(--box-shadow-large-bottom);
+  border-radius: 5px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 9;
+}
+.mainWrapper .boxActionMenu:global(.active) {
+  opacity: 1;
+  visibility: visible;
+  transition: visibility 0s, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+.mainWrapper .boxActionMenu li {
+  padding: 6px 16px;
+  min-width: 120px;
+  transition: var(--transition);
+  user-select: none;
+}
+.mainWrapper .boxActionMenu li:hover {
+  background-color: var(--background-color-lighter);
+  box-shadow: var(--box-shadow-large-bottom);
 }
 
 @keyframes shine {

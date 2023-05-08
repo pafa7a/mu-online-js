@@ -30,7 +30,11 @@ module.exports = ({payload, sendToClient, globalStore}) => {
   }
 
   const child = spawn('node', ['index.js'], {
-    cwd: serverPath
+    cwd: serverPath,
+    env: {
+      PATH: process.env.PATH,
+      DEBUG: true
+    }
   });
 
   globalStore.childProcesses[serverName] = child;

@@ -82,58 +82,6 @@
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-
-      .boxAction {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-        width: 24px;
-        height: 24px;
-        font-size: 20px;
-        border-radius: 20px;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        &:hover, &:global(.active) {
-          background-color: var(--main-background-color);
-        }
-      }
-
-      .boxActionMenu {
-        background-color: var(--main-background-color);
-        box-shadow: var(--box-shadow-large-bottom);
-        border-radius: 5px;
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        position: absolute;
-        top: 20px;
-        right: 16px;
-        font-size: 16px;
-        cursor: pointer;
-        opacity: 0;
-        visibility: hidden;
-
-        &:global(.active) {
-          opacity: 1;
-          visibility: visible;
-          transition: visibility 0s, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
-        }
-
-        li {
-          padding: 6px 16px;
-          min-width: 120px;
-          transition: var(--transition);
-          user-select: none;
-
-          &:hover {
-            background-color: var(--background-color-lighter);
-            box-shadow: var(--box-shadow-large-bottom);
-          }
-        }
-      }
     }
 
     &:global(.box-one-fifth) {
@@ -242,6 +190,60 @@
 
     div {
       border: none;
+    }
+  }
+
+  .boxAction {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 24px;
+    height: 24px;
+    font-size: 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 8;
+
+    &:hover, &:global(.active) {
+      background-color: var(--main-background-color);
+    }
+  }
+
+  .boxActionMenu {
+    background-color: var(--main-background-color);
+    box-shadow: var(--box-shadow-large-bottom);
+    border-radius: 5px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 20px;
+    right: 16px;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 9;
+
+    &:global(.active) {
+      opacity: 1;
+      visibility: visible;
+      transition: visibility 0s, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+    }
+
+    li {
+      padding: 6px 16px;
+      min-width: 120px;
+      transition: var(--transition);
+      user-select: none;
+
+      &:hover {
+        background-color: var(--background-color-lighter);
+        box-shadow: var(--box-shadow-large-bottom);
+      }
     }
   }
 }
