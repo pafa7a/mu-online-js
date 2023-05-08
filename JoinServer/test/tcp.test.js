@@ -1,7 +1,7 @@
 const { connect } = require('net');
 const {startServer, stopServer} = require('../utils/tcp');
 const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = packetManager.getStructs();
+const structs = require('./../utils/packets/index');
 
 describe('TCP Socket Server', () => {
   let client;

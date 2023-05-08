@@ -4,7 +4,7 @@ const assert = require('assert');
 const mock = require('mock-fs');
 const { createSocket } = require('dgram');
 const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = packetManager.getStructs();
+const structs = require('./../utils/packets/index');
 
 let client;
 describe('UDP Socket Server', () => {

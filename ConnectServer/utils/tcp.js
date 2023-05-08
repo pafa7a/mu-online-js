@@ -1,7 +1,7 @@
 const { createServer } = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
 const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = packetManager.getStructs();
+const structs = require('./packets/index');
 const serverInfoResponse = require('./handlers/serverInfoResponse');
 const serverListResponse = require('./handlers/serverListResponse');
 const logger = require('./logger');
@@ -44,20 +44,20 @@ const startServer = port => {
     socket.on('data', (data) => {
       let handler;
       switch (data[0]) {
-      case HEAD_CODES.C1:
-        switch (data[2]) {
-        case HEAD_CODES.F4:
-          switch (data[3]) {
-          case HEAD_CODES.SERVER_INFO_RESPONSE:
-            handler = serverInfoResponse;
-            break;
-          case HEAD_CODES.SERVER_LIST_RESPONSE:
-            handler = serverListResponse;
-            break;
+        case HEAD_CODES.C1:
+          switch (data[2]) {
+            case HEAD_CODES.F4:
+              switch (data[3]) {
+                case HEAD_CODES.SERVER_INFO_RESPONSE:
+                  handler = serverInfoResponse;
+                  break;
+                case HEAD_CODES.SERVER_LIST_RESPONSE:
+                  handler = serverListResponse;
+                  break;
+              }
+              break;
           }
           break;
-        }
-        break;
       }
       onReceive(socket, data, handler);
       if (handler) {

@@ -79,42 +79,42 @@ Packet.prototype.toObject = function () {
  */
 Packet.prototype.decodeByType = function (type, key, objectToStore) {
   switch (type) {
-  case 'byte':
-    objectToStore[key] = this.buf.readUInt8(this.currentOffset);
-    this.currentOffset++;
-    break;
-  case 'arrayPadding':
-    objectToStore[key] = 0xC1;
-    this.currentOffset++;
-    break;
-  case 'word':
-    if (this.lastType !== 'word') {
+    case 'byte':
+      objectToStore[key] = this.buf.readUInt8(this.currentOffset);
       this.currentOffset++;
-    }
-    objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
-    this.currentOffset += 2;
-    break;
-  case 'wordBE':
-    objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
-    this.currentOffset += 2;
-    break;
-  case 'wordLE':
-    objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
-    this.currentOffset += 2;
-    break;
-  case 'shortBE':
-  case 'short':
-    objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
-    this.currentOffset++;
-    break;
-  case 'shortLE':
-    objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
-    this.currentOffset++;
-    break;
-  case 'dword':
-    objectToStore[key] = this.buf.readUInt32LE(this.currentOffset);
-    this.currentOffset += 4;
-    break;
+      break;
+    case 'arrayPadding':
+      objectToStore[key] = 0xC1;
+      this.currentOffset++;
+      break;
+    case 'word':
+      if (this.lastType !== 'word') {
+        this.currentOffset++;
+      }
+      objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'wordBE':
+      objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'wordLE':
+      objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'shortBE':
+    case 'short':
+      objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
+      this.currentOffset++;
+      break;
+    case 'shortLE':
+      objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
+      this.currentOffset++;
+      break;
+    case 'dword':
+      objectToStore[key] = this.buf.readUInt32LE(this.currentOffset);
+      this.currentOffset += 4;
+      break;
   }
 
   // Handle chars.
@@ -169,43 +169,43 @@ Packet.prototype.toBuffer = function (obj) {
  */
 Packet.prototype.encodeByType = function (type, value) {
   switch (type) {
-  case 'byte':
-    this.buf.writeUInt8(value, this.currentOffset);
-    this.currentOffset++;
-    break;
-  case 'arrayPadding':
-    this.buf.writeUInt8(0xC1, this.currentOffset);
-    this.currentOffset++;
-    break;
-  case 'word':
-    if (this.lastType !== 'word') {
-      this.buf.writeUInt8(0xCC, this.currentOffset);
+    case 'byte':
+      this.buf.writeUInt8(value, this.currentOffset);
       this.currentOffset++;
-    }
-    this.buf.writeUInt16LE(value, this.currentOffset);
-    this.currentOffset += 2;
-    break;
-  case 'wordLE':
-    this.buf.writeUIntLE(value, this.currentOffset, 2);
-    this.currentOffset += 2;
-    break;
-  case 'wordBE':
-    this.buf.writeUIntBE(value, this.currentOffset, 2);
-    this.currentOffset += 2;
-    break;
-  case 'shortBE':
-  case 'short':
-    this.buf.writeUInt16BE(value, this.currentOffset);
-    this.currentOffset += 2;
-    break;
-  case 'shortLE':
-    this.buf.writeUInt16LE(value, this.currentOffset);
-    this.currentOffset += 2;
-    break;
-  case 'dword':
-    this.buf.writeUInt32LE(value, this.currentOffset);
-    this.currentOffset += 4;
-    break;
+      break;
+    case 'arrayPadding':
+      this.buf.writeUInt8(0xC1, this.currentOffset);
+      this.currentOffset++;
+      break;
+    case 'word':
+      if (this.lastType !== 'word') {
+        this.buf.writeUInt8(0xCC, this.currentOffset);
+        this.currentOffset++;
+      }
+      this.buf.writeUInt16LE(value, this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'wordLE':
+      this.buf.writeUIntLE(value, this.currentOffset, 2);
+      this.currentOffset += 2;
+      break;
+    case 'wordBE':
+      this.buf.writeUIntBE(value, this.currentOffset, 2);
+      this.currentOffset += 2;
+      break;
+    case 'shortBE':
+    case 'short':
+      this.buf.writeUInt16BE(value, this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'shortLE':
+      this.buf.writeUInt16LE(value, this.currentOffset);
+      this.currentOffset += 2;
+      break;
+    case 'dword':
+      this.buf.writeUInt32LE(value, this.currentOffset);
+      this.currentOffset += 4;
+      break;
   }
   // Handle chars.
   const match = type.match(/^char\((\d+)\)$/);
@@ -243,28 +243,28 @@ Packet.prototype.calculateBufferSize = function(struct, obj) {
     }
     else {
       switch (type) {
-      case 'byte':
-      case 'arrayPadding':
-        size += 1;
-        break;
-      case 'word':
-        if (this.lastType !== 'word') {
-          size++;
-        }
-        size += 2;
-        break;
-      case 'wordLE':
-      case 'wordBE':
-        size += 2;
-        break;
-      case 'short':
-      case 'shortBE':
-      case 'shortLE':
-        size += 2;
-        break;
-      case 'dword':
-        size += 4;
-        break;
+        case 'byte':
+        case 'arrayPadding':
+          size += 1;
+          break;
+        case 'word':
+          if (this.lastType !== 'word') {
+            size++;
+          }
+          size += 2;
+          break;
+        case 'wordLE':
+        case 'wordBE':
+          size += 2;
+          break;
+        case 'short':
+        case 'shortBE':
+        case 'shortLE':
+          size += 2;
+          break;
+        case 'dword':
+          size += 4;
+          break;
       }
       // Handle chars.
       const match = type.match(/^char\((\d+)\)$/);
@@ -277,14 +277,6 @@ Packet.prototype.calculateBufferSize = function(struct, obj) {
     }
   }
   return size;
-};
-
-/**
- * Returns the available structures.
- * @returns {object} The available structures.
- */
-Packet.getStructs = function () {
-  return require('./structs');
 };
 
 /**

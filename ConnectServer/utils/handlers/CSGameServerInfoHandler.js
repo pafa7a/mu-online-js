@@ -1,5 +1,5 @@
 const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = packetManager.getStructs();
+const structs = require('./../packets/index');
 const {addGameServer} = require('../loadGameServersList');
 
 /**

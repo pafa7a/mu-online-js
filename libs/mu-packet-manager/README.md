@@ -26,11 +26,6 @@ First, you need to require the library in your code:
 const packetManager = require('@mu-online-js/mu-packet-manager');
 ```
 
-You can then get the list of available packet structures:
-```javascript
-const structs = packetManager.getStructs();
-```
-
 You can define your packet structure using an object and convert it to a buffer like this:
 
 ```javascript

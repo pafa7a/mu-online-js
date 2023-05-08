@@ -1,6 +1,6 @@
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const {gameServersList} = require('../loadGameServersList');
-const structs = packetManager.getStructs();
+const structs = require('./../packets/index');
 
 const getActiveServerList = () => {
   const list = [];

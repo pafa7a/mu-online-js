@@ -5,7 +5,7 @@ const byteToNiceHex = require('./../utils/byteToNiceHex');
 const assert = require('assert');
 const mock = require('mock-fs');
 const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = packetManager.getStructs();
+const structs = require('./../utils/packets/index');
 
 describe('TCP Socket Server', () => {
   let client;
