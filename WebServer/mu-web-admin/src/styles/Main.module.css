@@ -120,6 +120,7 @@
   justify-content: space-between;
 }
 .mainWrapper .boxWrapperFull {
+    grid-column: span 12;
   display: flex;
   padding: 24px;
   margin-top: 18px;
@@ -217,5 +218,32 @@
     background-position-x: -200%;
   }
 }
+
+@media only screen and (max-width: 1200px){
+    .mainWrapper{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .mainWrapper > *{
+        width: 100% !important;
+    }
+}
+
+@media only screen and (max-width: 900px){
+    .mainWrapper{
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media only screen and (max-width: 600px){
+    .mainWrapper{
+        margin-left: 75px;
+        grid-template-columns: 1fr;
+    }
+}
+
+
 
 /*# sourceMappingURL=Main.module.css.map */

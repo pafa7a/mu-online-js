@@ -1,0 +1,100 @@
+.mainNav{
+    padding: 4rem;
+    min-width: 300px;
+    display: flex;
+    flex-flow: column nowrap;
+    background-color: var(--main-background-color);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.mainNavList{
+    display: flex;
+    flex-flow: column nowrap;
+    list-style: none;
+    gap: 1rem;
+}
+
+.mainNavLink, .collapsable summary, .button{
+    padding: 4rem;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 4rem;
+    border-radius: 10px;
+    background: none;
+    transition: background .2s;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.mainNavLink:hover, .collapsable summary:hover, .button:hover{
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.collapsable ul{
+    margin-left: 9rem;
+}
+
+.mainNavLinkImage{
+    height: 20px;
+    width: 20px;
+}
+
+.active:not(.collapsable), .active:not(.collapsable):hover{
+    background-color: var(--menu-active-background);
+    cursor: default;
+    pointer-events: none;
+}
+
+.navToggle{
+    flex-grow: 1;
+    display: none;
+    flex-flow: column nowrap;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+.button{
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    color: var(--text-color-white);
+    font-size: 4rem;
+}
+
+.navToggle button{
+    justify-content: center;
+}
+
+@media only screen and (max-width: 600px){
+    .mainNav{
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 2rem;
+        height: 100vh;
+        width: 75px;
+        min-width: unset;
+        transition: width .6s;
+    }
+
+    .mainNavActive{
+        width: 100vw;
+    }
+
+    .mainNavList{
+        visibility: hidden;
+        opacity: 0;
+        transition: all .6s;
+    }
+
+    .mainNavListActive{
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .navToggle{
+        display: flex;
+    }
+}
