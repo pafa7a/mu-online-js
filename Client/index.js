@@ -26,7 +26,6 @@ emitter.on('sendPacketToConnectServer', data => {
   client.write(data);
 });
 
-
 emitter.on('receivePacketFromConnectServer', buffer => {
   let handler;
   const packetType = buffer[0];
@@ -54,6 +53,7 @@ emitter.on('receivePacketFromConnectServer', buffer => {
         case 0xF4: {
           switch (packetSub) {
             case 0x03: {
+              // Received from ConnectServer once a specific server info is requested.
               handler = receiveServerInfoFromConnectServer;
             }
               break;
@@ -93,7 +93,10 @@ const receiveHelloFromConnectServer = () => {
 
   const messageStruct = {
     header: {
-      type: 0xC1, size: 'auto', headCode: 0xF4, subCode: 0x06,
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF4,
+      subCode: 0x06,
     },
   };
 
