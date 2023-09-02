@@ -1,0 +1,14 @@
+{
+  "name": "mu-online-js-client",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "repository": "https://github.com/pafa7a/mu-online-js",
+  "scripts": {
+    "start": "node index.js",
+    "debug": "set DEBUG=true && node --inspect=9228 index.js"
+  },
+  "dependencies": {
+    "@mu-online-js/mu-packet-manager": "^0.0.9"
+  }
+}

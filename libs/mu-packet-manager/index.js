@@ -84,7 +84,7 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
       this.currentOffset++;
       break;
     case 'arrayPadding':
-      objectToStore[key] = 0xC1;
+      //objectToStore[key] = 0xC1;
       this.currentOffset++;
       break;
     case 'word':
@@ -105,11 +105,11 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
     case 'shortBE':
     case 'short':
       objectToStore[key] = this.buf.readUInt16BE(this.currentOffset);
-      this.currentOffset++;
+      this.currentOffset += 2;
       break;
     case 'shortLE':
       objectToStore[key] = this.buf.readUInt16LE(this.currentOffset);
-      this.currentOffset++;
+      this.currentOffset += 2;
       break;
     case 'dword':
       objectToStore[key] = this.buf.readUInt32LE(this.currentOffset);

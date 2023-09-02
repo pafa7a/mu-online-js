@@ -274,10 +274,10 @@
   dependencies:
     "@elastic/elasticsearch" "^8.7.0"
 
-"@mu-online-js/mu-packet-manager@^0.0":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-packet-manager/-/mu-packet-manager-0.0.8.tgz#2a3a14500b5bf1776d2d197e4af3ca0d9abe9d66"
-  integrity sha512-kd+ZxtLabOiORVoZAj0Ombt24qZDpBuJkYCMvpW3wmeyEF07AJ9TtfLv1q071pAfCXtmm6EoLM91TWs8A5PDcw==
+"@mu-online-js/mu-packet-manager@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-packet-manager/-/mu-packet-manager-0.0.9.tgz#34ea397dc4a0363d2df31686a8858d7f3bf6189a"
+  integrity sha512-jXjk2/zExMQubx0/B05bDoWZzp6PSmEBTSZjz3QUsO8WW0wMXiCPAVKpd/9pH9UtQk39pS5qUT5MRMSYvY+eVw==
 
 aggregate-error@^3.0.0:
   version "3.1.0"
