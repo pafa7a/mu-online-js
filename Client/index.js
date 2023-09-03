@@ -13,17 +13,21 @@ const rl = readline.createInterface({
 
 const emitter = new events.EventEmitter();
 const CS_PORT = 44405;
-const client = connect({port: CS_PORT}, () => {
+const ConnectServerNet = connect({port: CS_PORT}, () => {
   console.log(`Connected successfully to ConnectServer on port ${CS_PORT}`);
 });
+let GameServerNet;
 
 // Wait for the server to send the "Hello" message
-client.on('data', data => {
+ConnectServerNet.on('data', data => {
   emitter.emit('receivePacketFromConnectServer', data);
 });
 
 emitter.on('sendPacketToConnectServer', data => {
-  client.write(data);
+  ConnectServerNet.write(data);
+});
+emitter.on('sendPacketToGameServer', data => {
+  GameServerNet.write(data);
 });
 
 emitter.on('receivePacketFromConnectServer', buffer => {
@@ -70,6 +74,61 @@ emitter.on('receivePacketFromConnectServer', buffer => {
             case 0x06: {
               // Received from ConnectServer once the server list was requested.
               handler = receiveServerListFromConnectServer;
+            }
+              break;
+          }
+        }
+          break;
+      }
+    }
+      break;
+  }
+
+  if (handler) {
+    handler(buffer);
+  } else {
+    console.log(`Unknown packet: ${byteToNiceHex(buffer)}`);
+  }
+
+});
+emitter.on('receivePacketFromGameServer', buffer => {
+  let handler;
+  const packetType = buffer[0];
+  let packetHead = buffer[2];
+  let packetSub = buffer[3];
+
+  if (packetType === 0xC2) {
+    packetHead = buffer[3];
+    packetSub = buffer[4];
+  }
+
+  switch (packetType) {
+    case 0xC1: {
+      switch (packetHead) {
+        case 0x00: {
+          switch (packetSub) {
+            case 0x01: {
+            }
+              break;
+          }
+        }
+          break;
+        case 0xF4: {
+          switch (packetSub) {
+            case 0x03: {
+            }
+              break;
+          }
+        }
+          break;
+      }
+    }
+      break;
+    case 0xC2: {
+      switch (packetHead) {
+        case 0xF4: {
+          switch (packetSub) {
+            case 0x06: {
             }
               break;
           }
@@ -163,4 +222,31 @@ const receiveServerInfoFromConnectServer = buffer => {
   globalStorage.serverPort = serverInfo.serverPort;
   console.log('Received the following data for the server:');
   console.log(`IP: ${serverInfo.serverAddress}; Port: ${serverInfo.serverPort}`);
+  console.log('Closing the connection with the ConnectServer.');
+  // Close the connection with CS and start a GS connection.
+  ConnectServerNet.end();
+  connectToGS();
+};
+
+const connectToGS = () => {
+  const GameServerNet = connect({port: globalStorage.serverPort}, () => {
+    console.log(`Connected successfully to GameServer on port ${globalStorage.serverPort}`);
+  });
+
+  GameServerNet.on('data', data => {
+    emitter.emit('receivePacketFromGameServer', data);
+  });
+
+  GameServerNet.on('close', () => {
+    console.log(`Disconnected from the GameServer (${globalStorage.serverId}) on port ${globalStorage.serverPort}.`);
+  });
+
+  GameServerNet.on('error', error => {
+    console.log(`Error while connecting with the GameServer: ${error}`);
+  });
+
+  emitter.on('sendPacketToGameServer', data => {
+    GameServerNet.write(data);
+  });
+
 };

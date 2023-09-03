@@ -81,7 +81,10 @@ const CSServerListResponse = {
 };
 
 /**
- * The struct for packet that Main will send when click on a server.
+ * Info: The struct for packet that Main will send when click on a server.
+ * When: After clicking on the server name on idle screen.
+ * Action: Requests the IP address and the port of the selected game server.
+ * C++ struct: SendRequestServerAddress
  * @type {PacketStructure}
  */
 const MainCSServerInfoRequest = {
@@ -90,7 +93,11 @@ const MainCSServerInfoRequest = {
 };
 
 /**
- * The structure for the PMSG_SERVER_INFO_SEND packet in CS.
+ * Info: The structure for the PMSG_SERVER_INFO_SEND packet in CS.
+ * When: Received from ConnectServer once a specific server info is requested
+ * Action: Stores the IP address and the port of the selected game server.
+ * Closes the connection with the CS.
+ * C++ struct: LPPRECEIVE_SERVER_ADDRESS.
  * @type {PacketStructure}
  */
 const CSMainCSServerInfoResponse = {
