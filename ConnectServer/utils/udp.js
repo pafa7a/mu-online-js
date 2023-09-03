@@ -19,20 +19,20 @@ const startServer = port => {
   udpServer.on('message', (data, remoteInfo) => {
     let handler;
     switch (data[0]) {
-    case HEAD_CODES.C1:
-      switch (data[2]) {
-      case HEAD_CODES.GS_GAME_SERVER_INFO_HANDLER:
-        handler = CSGameServerInfoHandler;
+      case HEAD_CODES.C1:
+        switch (data[2]) {
+          case HEAD_CODES.GS_GAME_SERVER_INFO_HANDLER:
+            handler = CSGameServerInfoHandler;
+            break;
+        }
         break;
-      }
-      break;
     }
     onReceive(data, handler);
     if (handler) {
       handler(data, remoteInfo.address, remoteInfo.port);
     }
   });
-  
+
   udpServer.bind(port, () => {
     logger.info('UDP server listening on port 55557');
   });

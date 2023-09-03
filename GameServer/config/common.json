@@ -1,0 +1,12 @@
+{
+  "name": "GS 1",
+  "code": 0,
+  "port": 55901,
+  "version": "1.04.05",
+  "serial": "TbYehR2hFUPBKgZj",
+  "maxUsers": 1000,
+  "joinServerAddress": "127.0.0.1",
+  "joinServerPort": 55970,
+  "connectServerAddress": "127.0.0.1",
+  "connectServerPort": 55557
+}
