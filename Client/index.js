@@ -4,8 +4,16 @@ const byteToNiceHex = require('./src/utils/byteToNiceHex');
 const structs = require('./src/packets/index');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const readline = require('readline');
+const encodeClientVersion = require('./src/utils/encodeClientVersion');
 
-let globalStorage = {};
+let globalStorage = {
+  connectServerPort: 44405,
+  version: encodeClientVersion('1.04.05'),
+  serial: 'TbYehR2hFUPBKgZj',
+};
+
+console.log(`ClientVersion: ${globalStorage.version}`);
+console.log(`Serial: ${globalStorage.serial}`);
 
 const ask = (query, hidden = false) => {
   const rl = readline.createInterface({
@@ -29,9 +37,8 @@ const ask = (query, hidden = false) => {
 };
 
 const emitter = new events.EventEmitter();
-const CS_PORT = 44405;
-const ConnectServerNet = connect({port: CS_PORT}, () => {
-  console.log(`Connected successfully to ConnectServer on port ${CS_PORT}`);
+const ConnectServerNet = connect({port: globalStorage.connectServerPort}, () => {
+  console.log(`Connected successfully to ConnectServer on port ${globalStorage.connectServerPort}`);
 });
 let GameServerNet;
 

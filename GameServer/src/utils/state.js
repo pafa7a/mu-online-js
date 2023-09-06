@@ -1,5 +1,7 @@
 const globalState = {
-  users: []
+  users: [],
+  version: '',
+  serial: '',
 };
 
 module.exports = globalState;

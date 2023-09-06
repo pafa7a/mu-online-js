@@ -3,7 +3,7 @@ const path = require('path');
 const configs = {};
 
 /**
- * Helper function to read all config files and store them in memory.
+ * Read all config files and store them in memory.
  */
 const loadAllConfigs = () => {
   const traverseDirectory = (currentPath) => {
