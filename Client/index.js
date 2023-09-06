@@ -7,9 +7,26 @@ const readline = require('readline');
 
 let globalStorage = {};
 
-const rl = readline.createInterface({
-  input: process.stdin, output: process.stdout
-});
+const ask = (query, hidden = false) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  if (hidden) {
+    let t = true;
+    rl._writeToOutput = (a) => {
+      if (t) {
+        rl.output.write(a);
+        t = false;
+      }
+    };
+  }
+  return new Promise(resolve => rl.question(query, ans => {
+    if (hidden) rl.output.write('\n\r');
+    rl.close();
+    resolve(ans);
+  }));
+};
 
 const emitter = new events.EventEmitter();
 const CS_PORT = 44405;
@@ -164,10 +181,10 @@ const receiveHelloFromConnectServer = () => {
   emitter.emit('sendPacketToConnectServer', message);
 };
 
-const receiveServerListFromConnectServer = buffer => {
+const receiveServerListFromConnectServer = async (buffer) => {
   console.log('Received the server list from ConnectServer');
   const serverListInitial = new packetManager().fromBuffer(buffer).useStruct(structs.CSServerListResponse).toObject();
-  globalStorage.serverList  = {...serverListInitial};
+  globalStorage.serverList = {...serverListInitial};
   globalStorage.serverList.serverLoadInfo = [];
 
   // Extract the server list array from the buffer based on server count.
@@ -180,25 +197,23 @@ const receiveServerListFromConnectServer = buffer => {
     offset += 4;
   }
 
-  const selectServerId = callback => {
+  const selectServerId = async (callback) => {
     console.log('Servers list:');
     globalStorage.serverList.serverLoadInfo.forEach(server => {
       console.log(`[${server.serverId}] (${server.loadPercentage})`);
     });
-    rl.question('Enter the server ID that you want to connect with: ', selectedServerId => {
-      selectedServerId = parseInt(selectedServerId);
-      // Validate input.
-      if (!globalStorage.serverList.serverLoadInfo.some((item) => item.serverId === selectedServerId)) {
-        console.log('Please enter a valid server ID.');
-        selectServerId(callback);
-      } else {
-        rl.close();
-        callback(selectedServerId);
-      }
-    });
+    let selectedServerId = await ask('Enter the server ID that you want to connect with: ');
+    selectedServerId = parseInt(selectedServerId);
+    // Validate input.
+    if (!globalStorage.serverList.serverLoadInfo.some((item) => item.serverId === selectedServerId)) {
+      console.log('Please enter a valid server ID.');
+      await selectServerId(callback);
+    } else {
+      callback(selectedServerId);
+    }
   };
 
-  selectServerId(serverId => {
+  await selectServerId(serverId => {
     globalStorage.serverId = serverId;
     const messageStruct = {
       header: {
@@ -216,7 +231,7 @@ const receiveServerListFromConnectServer = buffer => {
 
 };
 
-const receiveServerInfoFromConnectServer = buffer => {
+const receiveServerInfoFromConnectServer = async (buffer) => {
   const serverInfo = new packetManager().fromBuffer(buffer).useStruct(structs.CSMainCSServerInfoResponse).toObject();
   globalStorage.serverAddress = serverInfo.serverAddress;
   globalStorage.serverPort = serverInfo.serverPort;
@@ -225,28 +240,39 @@ const receiveServerInfoFromConnectServer = buffer => {
   console.log('Closing the connection with the ConnectServer.');
   // Close the connection with CS and start a GS connection.
   ConnectServerNet.end();
-  connectToGS();
+  // Wait for the TCP connection with the GS.
+  await connectToGS();
+  // Display the user & pass prompts.
+  await loadLoginScreen();
 };
 
 const connectToGS = () => {
-  const GameServerNet = connect({port: globalStorage.serverPort}, () => {
-    console.log(`Connected successfully to GameServer on port ${globalStorage.serverPort}`);
-  });
+  return new Promise(resolve => {
+    const GameServerNet = connect({port: globalStorage.serverPort}, () => {
+      console.log(`Connected successfully to GameServer on port ${globalStorage.serverPort}`);
+      resolve(true);
+    });
 
-  GameServerNet.on('data', data => {
-    emitter.emit('receivePacketFromGameServer', data);
-  });
+    GameServerNet.on('data', data => {
+      emitter.emit('receivePacketFromGameServer', data);
+    });
 
-  GameServerNet.on('close', () => {
-    console.log(`Disconnected from the GameServer (${globalStorage.serverId}) on port ${globalStorage.serverPort}.`);
-  });
+    GameServerNet.on('close', () => {
+      console.log(`Disconnected from the GameServer (${globalStorage.serverId}) on port ${globalStorage.serverPort}.`);
+    });
 
-  GameServerNet.on('error', error => {
-    console.log(`Error while connecting with the GameServer: ${error}`);
-  });
+    GameServerNet.on('error', error => {
+      console.log(`Error while connecting with the GameServer: ${error}`);
+    });
 
-  emitter.on('sendPacketToGameServer', data => {
-    GameServerNet.write(data);
+    emitter.on('sendPacketToGameServer', data => {
+      GameServerNet.write(data);
+    });
   });
+};
 
+const loadLoginScreen = async () => {
+  const username = await ask('Username: ');
+  const password = await ask('Password: ', true);
+  // @TODO: send the packet for user login to GS
 };
