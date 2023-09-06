@@ -36,10 +36,10 @@
   dependencies:
     "@elastic/elasticsearch" "^8.7.0"
 
-"@mu-online-js/mu-packet-manager@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-packet-manager/-/mu-packet-manager-0.0.9.tgz#34ea397dc4a0363d2df31686a8858d7f3bf6189a"
-  integrity sha512-jXjk2/zExMQubx0/B05bDoWZzp6PSmEBTSZjz3QUsO8WW0wMXiCPAVKpd/9pH9UtQk39pS5qUT5MRMSYvY+eVw==
+"@mu-online-js/mu-packet-manager@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-packet-manager/-/mu-packet-manager-0.0.10.tgz#d8fc3eb0699d7dfbbd0bc13566fdfeecaaaee2fa"
+  integrity sha512-cmlrc+RJFsP8syfL3lAfY3eZ+pB2+0XB2ShLkS+Ea/OhoLKze5wWnQkIlJ7tSEb/KbZnOJd2Xg4Vtl+hjc/cpQ==
 
 busboy@^1.6.0:
   version "1.6.0"

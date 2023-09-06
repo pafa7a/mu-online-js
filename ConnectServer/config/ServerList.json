@@ -4,9 +4,7 @@
     "name": "GameServer",
     "IP": "127.0.0.1",
     "port": 55901,
-    "show": true,
-    "state": 1,
-    "userTotal": 20
+    "show": true
   },
   {
     "id": 1,
@@ -16,17 +14,10 @@
     "show": true
   },
   {
-    "id": 20,
-    "name": "GameServer3",
-    "IP": "127.0.0.1",
-    "port": 55901,
-    "show": true
-  },
-  {
     "id": 21,
     "name": "GameServerCS",
     "IP": "127.0.0.1",
-    "port": 55901,
+    "port": 55919,
     "show": false
   }
 ]

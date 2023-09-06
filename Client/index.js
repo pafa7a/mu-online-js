@@ -8,7 +8,7 @@ const readline = require('readline');
 let globalStorage = {};
 
 const rl = readline.createInterface({
-  input: process.stdin, output: process.stdout, prompt: '> '
+  input: process.stdin, output: process.stdout
 });
 
 const emitter = new events.EventEmitter();
@@ -167,13 +167,13 @@ const receiveHelloFromConnectServer = () => {
 const receiveServerListFromConnectServer = buffer => {
   console.log('Received the server list from ConnectServer');
   const serverListInitial = new packetManager().fromBuffer(buffer).useStruct(structs.CSServerListResponse).toObject();
-  const serverList = {...serverListInitial};
-  serverList.serverLoadInfo = [];
+  globalStorage.serverList  = {...serverListInitial};
+  globalStorage.serverList.serverLoadInfo = [];
 
   // Extract the server list array from the buffer based on server count.
   let offset = 7;
-  for (let i = 0; i < serverList.serverCount; i++) {
-    serverList.serverLoadInfo.push({
+  for (let i = 0; i < globalStorage.serverList.serverCount; i++) {
+    globalStorage.serverList.serverLoadInfo.push({
       serverId: buffer.readUInt16LE(offset),
       loadPercentage: buffer.readUInt8(offset + 2)
     });
@@ -182,13 +182,13 @@ const receiveServerListFromConnectServer = buffer => {
 
   const selectServerId = callback => {
     console.log('Servers list:');
-    serverList.serverLoadInfo.forEach(server => {
+    globalStorage.serverList.serverLoadInfo.forEach(server => {
       console.log(`[${server.serverId}] (${server.loadPercentage})`);
     });
     rl.question('Enter the server ID that you want to connect with: ', selectedServerId => {
       selectedServerId = parseInt(selectedServerId);
       // Validate input.
-      if (!serverList.serverLoadInfo.some((item) => item.serverId === selectedServerId)) {
+      if (!globalStorage.serverList.serverLoadInfo.some((item) => item.serverId === selectedServerId)) {
         console.log('Please enter a valid server ID.');
         selectServerId(callback);
       } else {

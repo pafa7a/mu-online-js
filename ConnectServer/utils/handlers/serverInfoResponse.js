@@ -1,5 +1,4 @@
 const packetManager = require('@mu-online-js/mu-packet-manager');
-const {gameServersList} = require('../loadGameServersList');
 const structs = require('./../packets/index');
 
 /**
@@ -9,10 +8,11 @@ const structs = require('./../packets/index');
  * @param {function} sendData
  */
 const serverInfoResponse = (data, socket, sendData) => {
+  const {gameServersList} = require('../loadGameServersList');
   const received = new packetManager().fromBuffer(data)
     .useStruct(structs.MainCSServerInfoRequest).toObject();
   const serverId = received?.serverId;
-  gameServersList.forEach(gameServer => {
+  gameServersList?.forEach(gameServer => {
     if (gameServer.id === serverId && gameServer.state) {
       const messageStruct = {
         header: {

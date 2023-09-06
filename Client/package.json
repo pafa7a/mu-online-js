@@ -9,6 +9,6 @@
     "debug": "set DEBUG=true && node --inspect=9228 index.js"
   },
   "dependencies": {
-    "@mu-online-js/mu-packet-manager": "^0.0.9"
+    "@mu-online-js/mu-packet-manager": "^0.0.10"
   }
 }

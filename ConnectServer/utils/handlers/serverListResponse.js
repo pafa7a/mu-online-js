@@ -1,10 +1,10 @@
 const packetManager = require('@mu-online-js/mu-packet-manager');
-const {gameServersList} = require('../loadGameServersList');
 const structs = require('./../packets/index');
 
 const getActiveServerList = () => {
+  const {gameServersList} = require('../loadGameServersList');
   const list = [];
-  gameServersList.forEach(gameServer => {
+  gameServersList?.forEach(gameServer => {
     if (gameServer.show && gameServer.state) {
       list.push({
         serverId: gameServer.id,
