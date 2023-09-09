@@ -5,6 +5,8 @@ const structs = require('./src/packets/index');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const readline = require('readline');
 const encodeClientVersion = require('./src/utils/encodeClientVersion');
+const getTickCount = require('./src/utils/getTickCount');
+const loginMessage = require('./src/enums/loginMessage');
 
 let globalStorage = {
   connectServerPort: 44405,
@@ -40,7 +42,6 @@ const emitter = new events.EventEmitter();
 const ConnectServerNet = connect({port: globalStorage.connectServerPort}, () => {
   console.log(`Connected successfully to ConnectServer on port ${globalStorage.connectServerPort}`);
 });
-let GameServerNet;
 
 // Wait for the server to send the "Hello" message
 ConnectServerNet.on('data', data => {
@@ -49,9 +50,6 @@ ConnectServerNet.on('data', data => {
 
 emitter.on('sendPacketToConnectServer', data => {
   ConnectServerNet.write(data);
-});
-emitter.on('sendPacketToGameServer', data => {
-  GameServerNet.write(data);
 });
 
 emitter.on('receivePacketFromConnectServer', buffer => {
@@ -127,39 +125,16 @@ emitter.on('receivePacketFromGameServer', buffer => {
   }
 
   switch (packetType) {
-    case 0xC1: {
+    case 0xC1:
       switch (packetHead) {
-        case 0x00: {
+        case 0xF1:
           switch (packetSub) {
-            case 0x01: {
-            }
+            case 0x01:
+              handler = receiveLoginResponse;
               break;
           }
-        }
-          break;
-        case 0xF4: {
-          switch (packetSub) {
-            case 0x03: {
-            }
-              break;
-          }
-        }
           break;
       }
-    }
-      break;
-    case 0xC2: {
-      switch (packetHead) {
-        case 0xF4: {
-          switch (packetSub) {
-            case 0x06: {
-            }
-              break;
-          }
-        }
-          break;
-      }
-    }
       break;
   }
 
@@ -281,5 +256,31 @@ const connectToGS = () => {
 const loadLoginScreen = async () => {
   const username = await ask('Username: ');
   const password = await ask('Password: ', true);
-  // @TODO: send the packet for user login to GS
+  const messageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF1,
+      subCode: 0x01,
+    },
+    username,
+    password,
+    tickCount: getTickCount(),
+    version: globalStorage.version,
+    serial: globalStorage.serial,
+  };
+
+  const message = new packetManager()
+    .useStruct(structs.RequestLogin).toBuffer(messageStruct);
+  emitter.emit('sendPacketToGameServer', message);
+};
+
+const receiveLoginResponse = buffer => {
+  const data = new packetManager().fromBuffer(buffer).useStruct(structs.LoginResult).toObject();
+  const {result} = data;
+  if (result === loginMessage.LOG_IN_FAIL_VERSION) {
+    console.log('Invalid version or serial. Closing the client.');
+    process.exit();
+  }
+  //@TODO: handle the rest.
 };

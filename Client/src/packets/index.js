@@ -106,6 +106,31 @@ const CSMainCSServerInfoResponse = {
   serverPort: 'wordLE',
 };
 
+/**
+ * Info: User login.
+ * When: After submitting the login form.
+ * Action: Sends the login credentials to GS.
+ * C++ struct: PMSG_CONNECT_ACCOUNT_RECV
+ */
+const RequestLogin = {
+  ...subCodeHeader,
+  username: 'char(10)',
+  password: 'char(20)',
+  tickCount: 'dwordBE',
+  version: 'char(5)',
+  serial: 'char(16)'
+};
+
+/**
+ * Info: Information about the login result
+ * When: after the user login request was sent.
+ * Action: Tells the client how to proceed.
+ * C++ struct: PMSG_CONNECT_ACCOUNT_SEND
+ */
+const LoginResult = {
+  ...subCodeHeader,
+  result: 'byte'
+};
 
 const structures = {
   CSGameServerInfo,
@@ -113,6 +138,8 @@ const structures = {
   CSServerListResponse,
   MainCSServerInfoRequest,
   CSMainCSServerInfoResponse,
+  RequestLogin,
+  LoginResult
 };
 
 module.exports = structures;

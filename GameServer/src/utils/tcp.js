@@ -1,6 +1,9 @@
-const { createServer } = require('net');
+const {createServer} = require('net');
 const byteToNiceHex = require('./byteToNiceHex');
 const packetManager = require('@mu-online-js/mu-packet-manager');
+const structs = require('./../packets/gameserver');
+const globalState = require('./state');
+const loginMessage = require('./../enums/loginMessage');
 
 let tcpServer;
 const tcpSockets = new Map();
@@ -24,6 +27,21 @@ const startTCPServer = port => {
         packetHead = buffer[3];
         packetSub = buffer[4];
       }
+
+      switch (packetType) {
+        case 0xC1:
+          switch (packetHead) {
+            case 0xF1:
+              switch (packetSub) {
+                case 0x01:
+                  handler = MainLoginRequest;
+                  break;
+              }
+              break;
+          }
+          break;
+      }
+
       onReceive(socket, buffer, handler);
       if (handler) {
         handler(buffer, socket, sendData);
@@ -89,6 +107,27 @@ const onReceive = (socket, data, handler) => {
 
 const stopTCPServer = () => {
   tcpServer.close();
+};
+
+const MainLoginRequest = (buffer, socket, sendData) => {
+  const data = new packetManager().fromBuffer(buffer).useStruct(structs.RequestLogin).toObject();
+  const {username, password, tickCount, version, serial} = data;
+
+  if (version !== globalState.version || serial !== globalState.serial) {
+    const messageStruct = {
+      header: {
+        type: 0xC1,
+        size: 'auto',
+        headCode: 0xF1,
+        subCode: 0x01,
+      },
+      result: loginMessage.LOG_IN_FAIL_VERSION
+    };
+    const message = new packetManager().useStruct(structs.LoginResult).toBuffer(messageStruct);
+    sendData(socket, message, 'LoginResult');
+    return;
+  }
+  //@TODO: handle the rest.
 };
 
 module.exports = {

@@ -116,6 +116,10 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
         objectToStore[key] = this.buf.readUInt32LE(this.currentOffset);
         this.currentOffset += 4;
         break;
+      case 'dwordBE':
+        objectToStore[key] = this.buf.readUInt32BE(this.currentOffset);
+        this.currentOffset += 4;
+        break;
     }
   } catch (e) {
     // Probably incomplete packet or optional parameters.
@@ -211,6 +215,10 @@ Packet.prototype.encodeByType = function (type, value) {
         this.buf.writeUInt32LE(value, this.currentOffset);
         this.currentOffset += 4;
         break;
+      case 'dwordBE':
+        this.buf.writeUInt32BE(value, this.currentOffset);
+        this.currentOffset += 4;
+        break;
     }
   } catch (e) {
     // Probably incomplete packet or optional parameters.
@@ -271,6 +279,7 @@ Packet.prototype.calculateBufferSize = function(struct, obj) {
           size += 2;
           break;
         case 'dword':
+        case 'dwordBE':
           size += 4;
           break;
       }
