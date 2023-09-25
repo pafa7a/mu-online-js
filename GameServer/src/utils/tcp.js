@@ -14,6 +14,9 @@ const tcpSockets = new Map();
 const startTCPServer = port => {
   tcpServer = createServer((socket) => {
     console.log(`[GameServer] New client connection from IP ${socket.remoteAddress}`);
+
+    NewClientConnected(socket);
+
     // Store the socket in map.
     tcpSockets.set(socket, true);
 
@@ -29,7 +32,7 @@ const startTCPServer = port => {
       }
 
       switch (packetType) {
-        case 0xC1:
+        case 0xC3:
           switch (packetHead) {
             case 0xF1:
               switch (packetSub) {
@@ -129,6 +132,26 @@ const MainLoginRequest = (buffer, socket, sendData) => {
   }
   //@TODO: handle the rest.
 };
+
+const NewClientConnected = socket => {
+  // Send the init packet to Main.
+  const messageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF1,
+      subCode: 0x00,
+    },
+    result: 1,
+    playerIndexH: (socket.remotePort >> 8) & 0xFF,
+    playerIndexL: socket.remotePort & 0xFF,
+    version: globalState.version
+  };
+  const initMessageBuffer = new packetManager()
+    .useStruct(structs.NewClientConnected).toBuffer(messageStruct);
+  sendData(socket, initMessageBuffer, 'NewClientConnected');
+};
+
 
 module.exports = {
   startTCPServer,

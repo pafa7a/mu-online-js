@@ -55,7 +55,7 @@ const JSUserInfoSend = () => {
 const sendData = (data, description = '') => {
   client.write(data);
   if (process.env.DEBUG) {
-    console.log(`[JoinServer] Sending [${description}]: ${byteToNiceHex(data)}`);
+    //console.log(`[JoinServer] Sending [${description}]: ${byteToNiceHex(data)}`);
   }
 };
 

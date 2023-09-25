@@ -37,7 +37,7 @@ class SocketClient {
     });
 
     this.ws.on('close', () => {
-      logger.warning('Cannot connect to the socket server. Retrying after 5s.');
+      //logger.warning('Cannot connect to the socket server. Retrying after 5s.');
       setTimeout(() => this.connect(), 5000);
     });
 

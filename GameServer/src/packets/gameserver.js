@@ -45,9 +45,24 @@ const LoginResult = {
   result: 'byte'
 };
 
+/**
+ * Info: Request the client to render the login screen scene.
+ * When: Immediately when the Client is connected to the GS TCP.
+ * Action: Tells the client to display the user login screen.
+ * C++ struct: LPPRECEIVE_JOIN_SERVER in Main.
+ */
+const NewClientConnected = {
+  ...subCodeHeader,
+  result: 'byte',
+  playerIndexH: 'byte',
+  playerIndexL: 'byte',
+  version: 'char(5)'
+};
+
 const structures = {
   RequestLogin,
-  LoginResult
+  LoginResult,
+  NewClientConnected
 };
 
 module.exports = structures;

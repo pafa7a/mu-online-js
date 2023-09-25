@@ -41,7 +41,7 @@ const sendData = (data, description = '') => {
     }
   });
   if (process.env.DEBUG) {
-    console.log(`[ConnectServer] Sending [${description}]: ${byteToNiceHex(data)}`);
+    //console.log(`[ConnectServer] Sending [${description}]: ${byteToNiceHex(data)}`);
   }
 };
 

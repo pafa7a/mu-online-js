@@ -2,7 +2,7 @@
   "name": "GS 1",
   "code": 0,
   "port": 55901,
-  "version": "1.04.05",
+  "version": "10405",
   "serial": "TbYehR2hFUPBKgZj",
   "maxUsers": 1000,
   "joinServerAddress": "127.0.0.1",
