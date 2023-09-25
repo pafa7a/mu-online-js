@@ -4,13 +4,12 @@ const byteToNiceHex = require('./src/utils/byteToNiceHex');
 const structs = require('./src/packets/index');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const readline = require('readline');
-const encodeClientVersion = require('./src/utils/encodeClientVersion');
 const getTickCount = require('./src/utils/getTickCount');
 const loginMessage = require('./src/enums/loginMessage');
 
 let globalStorage = {
   connectServerPort: 44405,
-  version: encodeClientVersion('1.04.05'),
+  version: '10405',
   serial: 'TbYehR2hFUPBKgZj',
 };
 
@@ -129,6 +128,11 @@ emitter.on('receivePacketFromGameServer', buffer => {
       switch (packetHead) {
         case 0xF1:
           switch (packetSub) {
+            case 0x00: {
+              // Received from GameServer once a connection is established.
+              handler = receiveOpenLoginScreen;
+            }
+              break;
             case 0x01:
               handler = receiveLoginResponse;
               break;
@@ -224,8 +228,6 @@ const receiveServerInfoFromConnectServer = async (buffer) => {
   ConnectServerNet.end();
   // Wait for the TCP connection with the GS.
   await connectToGS();
-  // Display the user & pass prompts.
-  await loadLoginScreen();
 };
 
 const connectToGS = () => {
@@ -258,7 +260,7 @@ const loadLoginScreen = async () => {
   const password = await ask('Password: ', true);
   const messageStruct = {
     header: {
-      type: 0xC1,
+      type: 0xC3,
       size: 'auto',
       headCode: 0xF1,
       subCode: 0x01,
@@ -283,4 +285,8 @@ const receiveLoginResponse = buffer => {
     process.exit();
   }
   //@TODO: handle the rest.
+};
+
+const receiveOpenLoginScreen = async () => {
+  await loadLoginScreen();
 };
