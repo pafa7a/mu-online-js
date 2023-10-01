@@ -1,4 +1,4 @@
-const { connect } = require('net');
+const {connect} = require('tls');
 const {loadGameServersList} = require('./../utils/loadGameServersList');
 const {startServer, stopServer} = require('./../utils/tcp');
 const byteToNiceHex = require('./../utils/byteToNiceHex');
@@ -6,6 +6,13 @@ const assert = require('assert');
 const mock = require('mock-fs');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = require('./../utils/packets/index');
+const {readFileSync} = require('fs');
+
+const tlsOptions = {
+  ca: readFileSync('./../ssl/cert.pem'),
+  host: '127.0.0.1',
+  port: 44405,
+};
 
 describe('TCP Socket Server', () => {
   let client;
@@ -35,7 +42,7 @@ describe('TCP Socket Server', () => {
     startServer(44405);
 
     // Connect to the server with a client socket
-    client = connect({port: 44405}, () => {
+    client = connect(tlsOptions, () => {
       console.log('Client connected');
     });
 

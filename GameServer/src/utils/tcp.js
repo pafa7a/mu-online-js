@@ -1,10 +1,19 @@
-const {createServer} = require('net');
+const { createServer } = require('tls');
 const byteToNiceHex = require('./byteToNiceHex');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = require('./../packets/gameserver');
 const globalState = require('./state');
 const loginMessage = require('./../enums/loginMessage');
+const fs = require('fs');
 
+
+const serverOptions = {
+  key: fs.readFileSync('./../ssl/key.pem'),
+  cert: fs.readFileSync('./../ssl/cert.pem'),
+  rejectUnauthorized: true,
+  requestCert: false,
+  ca: [fs.readFileSync('./../ssl/cert.pem')],
+};
 let tcpServer;
 const tcpSockets = new Map();
 
@@ -12,7 +21,7 @@ const tcpSockets = new Map();
  * @typedef {import('net').Socket} Socket
  */
 const startTCPServer = port => {
-  tcpServer = createServer((socket) => {
+  tcpServer = createServer(serverOptions, (socket) => {
     console.log(`[GameServer] New client connection from IP ${socket.remoteAddress}`);
 
     NewClientConnected(socket);

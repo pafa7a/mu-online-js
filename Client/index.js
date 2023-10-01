@@ -1,4 +1,4 @@
-const {connect} = require('net');
+const {connect} = require('tls');
 const events = require('events');
 const byteToNiceHex = require('./src/utils/byteToNiceHex');
 const structs = require('./src/packets/index');
@@ -6,6 +6,7 @@ const packetManager = require('@mu-online-js/mu-packet-manager');
 const readline = require('readline');
 const getTickCount = require('./src/utils/getTickCount');
 const loginMessage = require('./src/enums/loginMessage');
+const {readFileSync} = require('fs');
 
 let globalStorage = {
   connectServerPort: 44405,
@@ -15,6 +16,11 @@ let globalStorage = {
 
 console.log(`ClientVersion: ${globalStorage.version}`);
 console.log(`Serial: ${globalStorage.serial}`);
+
+const tlsOptions = {
+  ca: readFileSync('./../ssl/cert.pem'),
+  host: '127.0.0.1',
+};
 
 const ask = (query, hidden = false) => {
   const rl = readline.createInterface({
@@ -38,7 +44,7 @@ const ask = (query, hidden = false) => {
 };
 
 const emitter = new events.EventEmitter();
-const ConnectServerNet = connect({port: globalStorage.connectServerPort}, () => {
+const ConnectServerNet = connect({...tlsOptions, port: globalStorage.connectServerPort}, () => {
   console.log(`Connected successfully to ConnectServer on port ${globalStorage.connectServerPort}`);
 });
 
@@ -232,7 +238,7 @@ const receiveServerInfoFromConnectServer = async (buffer) => {
 
 const connectToGS = () => {
   return new Promise(resolve => {
-    const GameServerNet = connect({port: globalStorage.serverPort}, () => {
+    const GameServerNet = connect({...tlsOptions, port: globalStorage.serverPort}, () => {
       console.log(`Connected successfully to GameServer on port ${globalStorage.serverPort}`);
       resolve(true);
     });

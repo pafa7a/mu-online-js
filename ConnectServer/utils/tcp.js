@@ -1,10 +1,19 @@
-const { createServer } = require('net');
+const { createServer } = require('tls');
+const fs = require('fs');
 const byteToNiceHex = require('./byteToNiceHex');
 const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = require('./packets/index');
 const serverInfoResponse = require('./handlers/serverInfoResponse');
 const serverListResponse = require('./handlers/serverListResponse');
 const logger = require('./logger');
+
+const serverOptions = {
+  key: fs.readFileSync('./../ssl/key.pem'),
+  cert: fs.readFileSync('./../ssl/cert.pem'),
+  rejectUnauthorized: true,
+  requestCert: false,
+  ca: [fs.readFileSync('./../ssl/cert.pem')],
+};
 
 let tcpServer;
 const tcpSockets = new Map();
@@ -20,7 +29,7 @@ const HEAD_CODES = {
  * @typedef {import('net').Socket} Socket
  */
 const startServer = port => {
-  tcpServer = createServer((socket) => {
+  tcpServer = createServer(serverOptions, (socket) => {
     // Store the socket in map.
     tcpSockets.set(socket, true);
 
