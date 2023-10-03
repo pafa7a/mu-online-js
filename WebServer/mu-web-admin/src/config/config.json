@@ -1,0 +1,13 @@
+{
+  "servers": [
+    {
+      "name": "ConnectServer"
+    },
+    {
+      "name": "JoinServer"
+    },
+    {
+      "name": "GameServer"
+    }
+  ]
+}
