@@ -13,12 +13,15 @@ module.exports = ({payload, sendToClient, globalStore}) => {
   const serverName = payload.serverName;
   let serverPath;
   switch (serverName) {
-  case 'ConnectServer':
-    serverPath = path.join(process.cwd(), '../../ConnectServer/');
-    break;
-  case 'JoinServer':
-    serverPath = path.join(process.cwd(), '../../JoinServer/');
-    break;
+    case 'ConnectServer':
+      serverPath = path.join(process.cwd(), '../../ConnectServer/');
+      break;
+    case 'JoinServer':
+      serverPath = path.join(process.cwd(), '../../JoinServer/');
+      break;
+    case 'GameServer':
+      serverPath = path.join(process.cwd(), '../../GameServer/');
+      break;
   }
 
   if (!serverPath) {
@@ -50,6 +53,7 @@ module.exports = ({payload, sendToClient, globalStore}) => {
       }
     };
     sendToClient('mu-web-admin', response);
+    console.log(response);
   });
 
   child.stderr.on('data', (data) => {
@@ -63,6 +67,7 @@ module.exports = ({payload, sendToClient, globalStore}) => {
       }
     };
     sendToClient('mu-web-admin', response);
+    console.error(response);
   });
 
   child.on('close', (code) => {

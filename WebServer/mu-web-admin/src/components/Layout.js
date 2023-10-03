@@ -18,6 +18,7 @@ import {
 } from 'react-icons/md';
 import {RxDotFilled} from 'react-icons/rx';
 import {useEffect, useState} from 'react';
+import config from '@/config';
 
 const Layout = ({children}) => {
   const router = useRouter();
@@ -38,6 +39,27 @@ const Layout = ({children}) => {
       });
       return [...prev];
     });
+  };
+
+  const getLogsSubmenu = () => {
+    const submenu = [];
+
+    config.servers.forEach((server, id) => {
+      const {name} = server;
+      submenu.push({
+        key: `logs-submenu-${id}`,
+        text: name,
+        icon: <RxDotFilled/>,
+        onClick: (e) => {
+          e.stopPropagation();
+          return router.push(`/logs/${name}`);
+        },
+        pattern: `/logs/${name}`,
+        isActive: false,
+      });
+    });
+
+    return submenu;
   };
 
   const menuItemsInitial = [
@@ -69,28 +91,7 @@ const Layout = ({children}) => {
       pattern: '/logs/[slug]',
       isActive: false,
       subMenuOpen: false,
-      subMenu: [
-        {
-          text: 'ConnectServer',
-          icon: <RxDotFilled/>,
-          onClick: (e) => {
-            e.stopPropagation();
-            return router.push('/logs/ConnectServer');
-          },
-          pattern: '/logs/ConnectServer',
-          isActive: false,
-        },
-        {
-          text: 'JoinServer',
-          icon: <RxDotFilled/>,
-          onClick: (e) => {
-            e.stopPropagation();
-            return router.push('/logs/JoinServer');
-          },
-          pattern: '/logs/JoinServer',
-          isActive: false,
-        }
-      ]
+      subMenu: getLogsSubmenu()
     },
     {
       text: 'Logout',

@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {TbDotsVertical} from 'react-icons/tb';
 import useOutsideClick from '@/hooks/useOutsideClick';
 import {useRouter} from 'next/router';
+import {useServer} from '@/hooks/useServer';
 
 const ServerCard = ({boxType = 'box-one-fifth', server}) => {
   const router = useRouter();
@@ -13,21 +14,10 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
   const [processInfo, setProcessInfo] = useState();
   const [actionMenuActive, setActionMenuActive] = useState(false);
   const [connectedClients, setConnectedClients] = useState(0);
+  const {startServer, stopServer} = useServer();
 
   const getServerStatus = () => {
     sendMessage('getServerStatus', {
-      serverName: server
-    });
-  };
-
-  const startServer = () => {
-    sendMessage('startServer', {
-      serverName: server
-    });
-  };
-
-  const stopServer = () => {
-    sendMessage('stopServer', {
       serverName: server
     });
   };
@@ -132,7 +122,7 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
       return '';
     }
     return (
-      <li onClick={startServer}>
+      <li onClick={() => startServer(server)}>
         Start server
       </li>
     );
@@ -143,7 +133,7 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
       return '';
     }
     return (
-      <li onClick={stopServer}>
+      <li onClick={() => stopServer(server)}>
         Stop server
       </li>
     );
@@ -187,7 +177,7 @@ const ServerCard = ({boxType = 'box-one-fifth', server}) => {
           <div>{processInfo?.memory}MB</div>
         </div>
         <div className={styles.flexWithSpaceBetween}>
-          <div>TCP connections</div>
+          <div>{server === 'GameServer' ? 'Online players' : 'TCP connections'}</div>
           <div>{connectedClients}</div>
         </div>
       </>

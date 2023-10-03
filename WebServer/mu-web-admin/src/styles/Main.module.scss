@@ -248,6 +248,30 @@
   }
 }
 
+.button {
+  background-color: var(--light-blue);
+  box-shadow: var(--box-shadow-large-bottom);
+  color: var(--text-color-white);
+  user-select: none;
+  border: 0;
+  cursor: pointer;
+  padding: 9px 16px;
+  border-radius: 8px;
+  transition: var(--transition);
+  font-size: 16px;
+
+  &.red {
+    background-color: var(--color-red);
+    &:hover {
+      background-color: var(--color-dark-red);
+    }
+  }
+
+  &:hover {
+    background-color: var(--dark-blue);
+  }
+}
+
 
 @keyframes shine {
   to {

@@ -3,6 +3,7 @@ const {connectToJS, JSUserInfoSend} = require('./src/utils/joinserver');
 const {CSInfoSend} = require('./src/utils/connectserver');
 const {startTCPServer} = require('./src/utils/tcp');
 const loadClientVersionAndSerial = require('./src/utils/loadClientVersionAndSerial');
+const SocketClient = require('./src/utils/socketClient');
 
 // Internal.
 loadAllConfigs();
@@ -24,3 +25,6 @@ setInterval(() => {
   JSUserInfoSend();
   CSInfoSend();
 }, 5000);
+
+// Connect to the socket client.
+new SocketClient('GameServer');
