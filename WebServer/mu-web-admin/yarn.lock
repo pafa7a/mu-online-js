@@ -1980,10 +1980,10 @@ iterator.prototype@^1.1.2:
     reflect.getprototypeof "^1.0.4"
     set-function-name "^2.0.1"
 
-jose@^4.14.0:
-  version "4.14.0"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-4.14.0.tgz#c8c03579a0ba3598194c92ccca777d96adca8f48"
-  integrity sha512-LSA/XenLPwqk6e2L+PSUNuuY9G4NGsvjRWz6sJcUBmzTLEPJqQh46FHSUxnAQ64AWOkRO6bSXpy3yXuEKZkbIA==
+jose@^4.15.1:
+  version "4.15.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.15.1.tgz#7ccfdf15a4a251e12af32a0924991950d22de41d"
+  integrity sha512-CinpaEMmwb/59YG0N6SC3DY1imdTU5iNl08HPWR7NdyxACPeFuQbqjaocEjCDGq04KbnxSqQu702vL3ZTvKe5w==
 
 js-sdsl@^4.1.4:
   version "4.4.0"
