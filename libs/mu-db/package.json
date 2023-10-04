@@ -9,7 +9,7 @@
     "install-dummy-data": "node --inspect install/dummy.js"
   },
   "dependencies": {
-    "mysql2": "^3.2.0"
+    "mysql2": "^3.6.1"
   },
   "devDependencies": {}
 }
