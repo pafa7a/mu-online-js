@@ -1,0 +1,42 @@
+version: 2
+updates:
+  - package-ecosystem: "yarn"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "Client"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "ConnectServer"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "GameServer"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "JoinServer"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "libs/mu-db"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "libs/mu-logger"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "libs/mu-packet-manager"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "WebServer/mu-socket-server"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "WebServer/mu-web-admin"
+    schedule:
+      interval: "weekly"
