@@ -1,6 +1,6 @@
 name: Mu Web Admin tests
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build-and-test:
