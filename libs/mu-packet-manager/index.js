@@ -49,19 +49,21 @@ Packet.prototype.fromBuffer = function (buffer) {
  * @returns {object} The object that holds the parsed packet data.
  */
 Packet.prototype.toObject = function () {
-  const decodeObject = (object, structure, parentKey = '') => {
+  const decodeObject = (object, structure) => {
     for (let key in structure) {
       const type = structure[key];
-      const fullKey = parentKey ? `${parentKey}.${key}` : key;
       if (typeof type === 'object') {
         object[key] = {};
-        decodeObject(object[key], type, fullKey);
+        decodeObject(object[key], type, key);
       } else {
-        this.decodeByType(type, fullKey, object);
+        this.decodeByType(type, key, object);
       }
     }
   };
   decodeObject(this.obj, this.structure);
+  if (process.env.DEBUG_VERBOSE) {
+    console.log(JSON.stringify(this.obj, null, 2));
+  }
   return this.obj;
 };
 

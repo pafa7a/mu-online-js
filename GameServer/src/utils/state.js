@@ -1,5 +1,5 @@
 const globalState = {
-  users: [],
+  users: new Map(),
   version: '',
   serial: '',
 };
