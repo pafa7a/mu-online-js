@@ -15,7 +15,7 @@
     "cookies-next": "^4.0.0",
     "eslint": "8.38.0",
     "eslint-config-next": "13.5.4",
-    "jose": "^4.15.1",
+    "jose": "^4.15.2",
     "mitt": "^3.0.1",
     "next": "^13.5.4",
     "react": "18.2.0",
