@@ -68,48 +68,26 @@ emitter.on('receivePacketFromConnectServer', buffer => {
     packetSub = buffer[4];
   }
 
-  switch (packetType) {
-    case 0xC1: {
-      switch (packetHead) {
-        case 0x00: {
-          switch (packetSub) {
-            case 0x01: {
-              // Received from ConnectServer once the TCP client is connected.
-              handler = receiveHelloFromConnectServer;
-            }
-              break;
-          }
-        }
-          break;
-        case 0xF4: {
-          switch (packetSub) {
-            case 0x03: {
-              // Received from ConnectServer once a specific server info is requested.
-              handler = receiveServerInfoFromConnectServer;
-            }
-              break;
-          }
-        }
-          break;
-      }
-    }
-      break;
-    case 0xC2: {
-      switch (packetHead) {
-        case 0xF4: {
-          switch (packetSub) {
-            case 0x06: {
-              // Received from ConnectServer once the server list was requested.
-              handler = receiveServerListFromConnectServer;
-            }
-              break;
-          }
-        }
-          break;
-      }
-    }
-      break;
-  }
+  const packetHandlers = {
+    0xC1: {
+      0x00: {
+        // Received from ConnectServer once the TCP client is connected.
+        0x01: receiveHelloFromConnectServer,
+      },
+      0xF4: {
+        // Received from ConnectServer once a specific server info is requested.
+        0x03: receiveServerInfoFromConnectServer,
+      },
+    },
+    0xC2: {
+      0xF4: {
+        // Received from ConnectServer once the server list was requested.
+        0x06: receiveServerListFromConnectServer,
+      },
+    },
+  };
+  
+  handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
 
   if (handler) {
     handler(buffer);
@@ -129,24 +107,17 @@ emitter.on('receivePacketFromGameServer', buffer => {
     packetSub = buffer[4];
   }
 
-  switch (packetType) {
-    case 0xC1:
-      switch (packetHead) {
-        case 0xF1:
-          switch (packetSub) {
-            case 0x00: {
-              // Received from GameServer once a connection is established.
-              handler = receiveOpenLoginScreen;
-            }
-              break;
-            case 0x01:
-              handler = receiveLoginResponse;
-              break;
-          }
-          break;
-      }
-      break;
-  }
+  const packetHandlers = {
+    0xC1: {
+      0xF1: {
+        // Received from GameServer once a connection is established.
+        0x00: receiveOpenLoginScreen,
+        0x01: receiveLoginResponse,
+      },
+    },
+  };
+  
+  handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
 
   if (handler) {
     handler(buffer);
