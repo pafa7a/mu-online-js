@@ -41,12 +41,13 @@ const GSJSUserInfoSend = {
 };
 
 /**
- * The structure for the SDHP_CONNECT_ACCOUNT_SEND packet from GS.
- * @type {{password: string, ipAddress: string, header: {type: string, size: string, headCode: string}, playerIndex: string, account: string}}
+ * Info: The structure for the SDHP_CONNECT_ACCOUNT_SEND packet from GS.
+ * When: Client submits the login form and GS contacts the JS for validation.
+ * Action: Receives the data from GS, validates it and respond back to GS with the login results.
  */
 const GSJSConnectAccountSend = {
   ...standardHeader,
-  playerIndex: 'word',
+  index: 'word',
   account: 'char(11)',
   password: 'char(11)',
   ipAddress: 'char(16)',

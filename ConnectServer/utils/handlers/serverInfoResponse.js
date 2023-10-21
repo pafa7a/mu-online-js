@@ -5,9 +5,9 @@ const structs = require('./../packets/index');
  * Handles serverInfoResponse request coming from GS.
  * @param {Buffer} data
  * @param {Socket} socket
- * @param {function} sendData
+ * @param {({socket: Socket, data: Object, description: String}) => void} sendData
  */
-const serverInfoResponse = (data, socket, sendData) => {
+const serverInfoResponse = ({data, socket, sendData}) => {
   const {gameServersList} = require('../loadGameServersList');
   const received = new packetManager().fromBuffer(data)
     .useStruct(structs.MainCSServerInfoRequest).toObject();
@@ -27,7 +27,7 @@ const serverInfoResponse = (data, socket, sendData) => {
 
       const messageBuffer = new packetManager()
         .useStruct(structs.CSMainCSServerInfoResponse).toBuffer(messageStruct);
-      sendData(socket, messageBuffer, 'serverInfoResponse');
+      sendData({socket, data: messageBuffer, description: 'serverInfoResponse'});
     }
   });
 };

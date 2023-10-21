@@ -35,7 +35,7 @@ const removeGameServer = server => {
 const reloadGameServersList = () => {
   // send a message to all connected clients
   tcpSockets.forEach((value, socket) => {
-    serverListResponse(Buffer.alloc(0), socket, sendData);
+    serverListResponse({socket, sendData});
   });
 };
 

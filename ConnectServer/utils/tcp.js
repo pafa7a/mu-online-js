@@ -18,13 +18,6 @@ const serverOptions = {
 let tcpServer;
 const tcpSockets = new Map();
 
-const HEAD_CODES = {
-  C1: 0xC1,
-  F4: 0xF4,
-  SERVER_INFO_RESPONSE: 0x03,
-  SERVER_LIST_RESPONSE: 0x06,
-};
-
 /**
  * @typedef {import('net').Socket} Socket
  */
@@ -40,7 +33,7 @@ const startServer = port => {
     // Send the init packet to Main.
     const messageStruct = {
       header: {
-        type: HEAD_CODES.C1,
+        type: 0xC1,
         size: 'auto',
         subCode: 0x00,
       },
@@ -48,29 +41,32 @@ const startServer = port => {
     };
     const initMessageBuffer = new packetManager()
       .useStruct(structs.CSMainSendInitPacket).toBuffer(messageStruct);
-    sendData(socket, initMessageBuffer, 'CSMainSendInitPacket');
+    sendData({socket, data: initMessageBuffer, description: 'CSMainSendInitPacket'});
 
     socket.on('data', (data) => {
       let handler;
-      switch (data[0]) {
-        case HEAD_CODES.C1:
-          switch (data[2]) {
-            case HEAD_CODES.F4:
-              switch (data[3]) {
-                case HEAD_CODES.SERVER_INFO_RESPONSE:
-                  handler = serverInfoResponse;
-                  break;
-                case HEAD_CODES.SERVER_LIST_RESPONSE:
-                  handler = serverListResponse;
-                  break;
-              }
-              break;
-          }
-          break;
+      const packetType = data[0];
+      let packetHead = data[2];
+      let packetSub = data[3];
+
+      if (packetType === 0xC2) {
+        packetHead = data[3];
+        packetSub = data[4];
       }
-      onReceive(socket, data, handler);
+
+      const packetHandlers = {
+        0xC1: {
+          0xF4: {
+            0x03: serverInfoResponse,
+            0x06: serverListResponse,
+          },
+        },
+      };
+
+      handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
+      onReceive({data, handler});
       if (handler) {
-        handler(data, socket, sendData);
+        handler({data, socket, sendData});
       }
     });
 
@@ -104,7 +100,7 @@ const startServer = port => {
  * @param {Object} data
  * @param {String} description
  */
-const sendData = (socket, data, description = '') => {
+const sendData = ({socket, data, description = ''}) => {
   const buffer = Buffer.from(data);
   socket.write(buffer);
   if (process.env.DEBUG) {
@@ -114,11 +110,11 @@ const sendData = (socket, data, description = '') => {
 
 /**
  * Helper function that logs the bytes in HEX format upon receive.
- * @param {Socket} socket
- * @param {Object} data
- * @param {Function | String} handler
+ * @param socket
+ * @param data
+ * @param handler
  */
-const onReceive = (socket, data, handler) => {
+const onReceive = ({data, handler}) => {
   const hexString = byteToNiceHex(data);
   let handlerName = 'Unknown';
   if (typeof handler === 'function') {

@@ -7,7 +7,7 @@ const logger = require('./../logger');
  * @param {Buffer} data
  * @param {Socket} socket
  */
-const gameServerInfoReceive = (data, socket) => {
+const gameServerInfoReceive = ({data, socket}) => {
   const serverInfo = new packetManager().fromBuffer(data)
     .useStruct(structs.GSJSServerInfoSend).toObject();
   const gameServerInfo = {
@@ -17,7 +17,9 @@ const gameServerInfoReceive = (data, socket) => {
     serverCode: serverInfo.serverCode,
     internalId: socket.remotePort
   };
-  logger.info(gameServerInfo);
+  if (process.env.DEBUG_GS) {
+    logger.info(gameServerInfo);
+  }
 };
 
 module.exports = gameServerInfoReceive;

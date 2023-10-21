@@ -8,9 +8,9 @@ const logger = require('./../logger');
  * Handles GameServerConnectAccountReceive request coming from GS.
  * @param {Buffer} data
  * @param {Socket} socket
- * @param {function} sendData
+ * @param {({socket: Socket, data: Object, description: String, rawData: Object}) => void} sendData
  */
-const gameServerConnectAccountReceive = async (data, socket, sendData) => {
+const gameServerConnectAccountReceive = async ({data, socket, sendData}) => {
   const accountInfo = new packetManager().fromBuffer(data)
     .useStruct(structs.GSJSConnectAccountSend).toObject();
   logger.info(accountInfo);
@@ -31,9 +31,8 @@ const gameServerConnectAccountReceive = async (data, socket, sendData) => {
    * The result of the database query to retrieve account information.
    * @type {DbMembInfoResponse}
    */
-  const dbResult = await db('SELECT * FROM memb_info WHERE memb___id = ? AND memb__pwd = ?', [
-    accountInfo.account,
-    accountInfo.password
+  const dbResult = await db('SELECT memb__pwd, sno__numb FROM memb_info WHERE memb___id = ?', [
+    accountInfo.account
   ]);
 
   const responseStruct = {
@@ -42,7 +41,7 @@ const gameServerConnectAccountReceive = async (data, socket, sendData) => {
       size: 'auto',
       headCode: 0x01,
     },
-    playerIndex: accountInfo.playerIndex,
+    playerIndex: accountInfo.index,
     account: accountInfo.account,
     personalCode: '',
     result: loginMessage.LOG_IN_FAIL_ID,
@@ -55,9 +54,15 @@ const gameServerConnectAccountReceive = async (data, socket, sendData) => {
   if (dbResult.length) {
     const [dbAccount] = dbResult;
     //@TODO: create db table with IP blacklist and check if the IP is there.
-    if (dbAccount.bloc_code === 1) {
+    // Validate password.
+    if (dbAccount.memb__pwd !== accountInfo.password) {
+      responseStruct.result = loginMessage.LOG_IN_FAIL_PASSWORD;
+    }
+    // Validate blocked.
+    else if (dbAccount.bloc_code === 1) {
       responseStruct.result = loginMessage.LOG_IN_FAIL_ID_BLOCK;
     }
+    // Successful login.
     else {
       responseStruct.result = loginMessage.LOG_IN_SUCCESS;
       responseStruct.personalCode = dbAccount.sno__numb;
@@ -66,7 +71,7 @@ const gameServerConnectAccountReceive = async (data, socket, sendData) => {
 
   const responseBuffer = new packetManager()
     .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct);
-  sendData(socket, responseBuffer, 'send login result');
+  sendData({socket, data: responseBuffer, description: 'send login result', rawData: responseStruct});
 };
 
 module.exports = gameServerConnectAccountReceive;

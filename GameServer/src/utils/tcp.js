@@ -4,6 +4,9 @@ const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = require('./../packets/gameserver');
 const globalState = require('./state');
 const loginMessage = require('./../enums/loginMessage');
+const {JSAccountLoginSend} = require('./joinserver');
+const sendDataToClient = require('./sendDataToClient');
+const disconnectPlayer = require('./disconnectPlayer');
 const fs = require('fs');
 
 const serverOptions = {
@@ -14,7 +17,7 @@ const serverOptions = {
   ca: [fs.readFileSync('./../ssl/cert.pem')],
 };
 let tcpServer;
-const tcpSockets = new Map();
+const {tcpSockets} = globalState;
 
 /**
  * @typedef {import('net').Socket} Socket
@@ -39,34 +42,31 @@ const startTCPServer = port => {
         packetSub = buffer[4];
       }
 
-      switch (packetType) {
-        case 0xC3:
-          switch (packetHead) {
-            case 0xF1:
-              switch (packetSub) {
-                case 0x01:
-                  handler = MainLoginRequest;
-                  break;
-              }
-              break;
-            case 0x0E:
-              handler = MainHackCheckRequest;
-              break;
+      const packetHandlers = {
+        0xC1: {
+          0xF3: {
+            0x00: MainCharactersListRequest,
           }
-          break;
+        },
+        0xC3: {
+          0xF1: {
+            0x01: MainLoginRequest,
+          },
+          0x0E: MainHackCheckRequest,
+        },
+      };
+      handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
+      if (typeof packetHandlers[packetType]?.[packetHead] === 'function') {
+        handler = packetHandlers[packetType]?.[packetHead];
       }
-
-      onReceive(socket, buffer, handler);
+      onReceive({buffer, handler});
       if (handler) {
-        handler(buffer, socket, sendData);
+        handler({buffer, socket});
       }
     });
 
     socket.on('end', () => {
-      // Remove the socket from the map.
-      tcpSockets.delete(socket.remotePort);
-      // Remove the user object.
-      globalState.users.delete(socket.remotePort);
+      disconnectPlayer(socket.remotePort);
 
       console.log(`[GameServer] Client disconnect for IP ${socket.remoteAddress}`);
     });
@@ -90,31 +90,13 @@ const startTCPServer = port => {
 };
 
 /**
- * Helper function that logs the bytes in HEX format upon sending data.
- * @param {Socket} socket
- * @param {Object} data
- * @param {String} description
- * @param {Object} rawData
- */
-const sendData = (socket, data, description = '', rawData = {}) => {
-  const buffer = Buffer.from(data);
-  socket.write(buffer);
-  if (process.env.DEBUG) {
-    console.log(`[GameServer] Sent [${description}]: ${byteToNiceHex(data)}`);
-  }
-  if (process.env.DEBUG_VERBOSE) {
-    console.log(JSON.stringify(rawData, null, 2));
-  }
-};
-
-/**
  * Helper function that logs the bytes in HEX format upon receive.
- * @param {Socket} socket
- * @param {Object} data
+ * @param {Object} buffer
  * @param {Function | String} handler
+ * @constructor
  */
-const onReceive = (socket, data, handler) => {
-  const hexString = byteToNiceHex(data);
+const onReceive = ({buffer, handler}) => {
+  const hexString = byteToNiceHex(buffer);
   let handlerName = 'Unknown';
   if (typeof handler === 'function') {
     handlerName = handler.name;
@@ -129,10 +111,12 @@ const stopTCPServer = () => {
   tcpServer.close();
 };
 
-const MainLoginRequest = (buffer, socket, sendData) => {
+const MainLoginRequest = ({buffer, socket}) => {
+  const userId = socket.remotePort;
+  const userIP = socket.remoteAddress;
   const data = new packetManager().fromBuffer(buffer).useStruct(structs.RequestLogin).toObject();
-  const {username, password, tickCount, version, serial} = data;
-
+  const {username, password, version, serial} = data;
+  let loginAttempts = 1;
   const messageStruct = {
     header: {
       type: 0xC1,
@@ -147,35 +131,51 @@ const MainLoginRequest = (buffer, socket, sendData) => {
   if (version !== globalState.version || serial !== globalState.serial) {
     messageStruct.result = loginMessage.LOG_IN_FAIL_WRONG_PASSWORD;
     const message = new packetManager().useStruct(structs.LoginResult).toBuffer(messageStruct);
-    sendData(socket, message, 'LoginResult', messageStruct);
+    sendDataToClient({socket, data: message, description: 'LoginResult', rawData: messageStruct});
     return;
   }
 
   // Check if already exists in the global state.
-  if (globalState?.users.has(socket.remotePort)) {
-    const user = globalState.users.get(socket.remotePort);
-    user.loginAttempts++;
+  if (globalState?.users.has(userId)) {
+    const user = globalState.users.get(userId);
+    loginAttempts = user.loginAttempts + 1;
+    user.loginAttempts = loginAttempts;
 
     // Validate the number of login attempts.
     if (user.loginAttempts > 3) {
       messageStruct.result = loginMessage.LOG_IN_FAIL_EXCEED_MAX_ATTEMPTS;
       const message = new packetManager().useStruct(structs.LoginResult).toBuffer(messageStruct);
-      sendData(socket, message, 'LoginResult', messageStruct);
+      sendDataToClient({socket, data: message, description: 'LoginResult', rawData: messageStruct});
+      disconnectPlayer(userId);
       return;
     }
 
-    messageStruct.result = loginMessage.LOG_IN_FAIL_ALREADY_CONNECTED;
-    const message = new packetManager().useStruct(structs.LoginResult).toBuffer(messageStruct);
-    sendData(socket, message, 'LoginResult', messageStruct);
-    return;
+    if (user.connected) {
+      messageStruct.result = loginMessage.LOG_IN_FAIL_ALREADY_CONNECTED;
+      const message = new packetManager().useStruct(structs.LoginResult).toBuffer(messageStruct);
+      sendDataToClient({
+        socket,
+        data: message,
+        description: 'LoginResult',
+        rawData: messageStruct
+      });
+      return;
+    }
   }
-  globalState.users.set(socket.remotePort, {
-    socketId: socket.remotePort,
-    IP: socket.remoteAddress,
-    loginAttempts: 1
+  globalState.users.set(userId, {
+    socketId: userId,
+    IP: userIP,
+    loginAttempts: loginAttempts,
+    mapServerMoveRequest: false,
+    lastServerCode: -1,
+    destMap: -1,
+    destX: 0,
+    destY: 0,
+    connected: false,
   });
 
-  //@TODO: handle the rest.
+  // Send the credentials to JS for validation.
+  JSAccountLoginSend({userId, account: username, password, ipAddress: userIP});
 };
 
 const NewClientConnected = socket => {
@@ -194,17 +194,20 @@ const NewClientConnected = socket => {
   };
   const initMessageBuffer = new packetManager()
     .useStruct(structs.NewClientConnected).toBuffer(messageStruct);
-  sendData(socket, initMessageBuffer, 'NewClientConnected', messageStruct);
+  sendDataToClient({socket, data: initMessageBuffer, description: 'NewClientConnected', rawData: messageStruct});
 };
 
 const MainHackCheckRequest = () => {
   // Potentially can skip this.
 };
 
+const MainCharactersListRequest = () => {
+  //@TODO: implement the handler.
+};
+
 module.exports = {
   startTCPServer,
   tcpSockets,
   stopTCPServer,
-  sendData,
   onReceive
 };

@@ -25,23 +25,23 @@ const CSInfoSend = () => {
 
   const message = new packetManager()
     .useStruct(structs.GSCSInfo).toBuffer(messageStruct);
-  sendData(message, 'CSInfoSend');
+  sendData({data: message, description: 'CSInfoSend'});
 };
 
 /**
  * Helper function that logs the bytes in HEX format upon sending data.
- * @param {Object} data
- * @param {String} description
+ * @param data
+ * @param description
  */
-const sendData = (data, description = '') => {
+const sendData = ({data, description = ''}) => {
   const {connectServerAddress, connectServerPort} = getConfig('common');
   client.send(data, connectServerPort, connectServerAddress, err => {
     if (err) {
       console.log(`[JoinServer] Server is unreachable on ${connectServerAddress}:${connectServerPort}.`);
     }
   });
-  if (process.env.DEBUG) {
-    //console.log(`[ConnectServer] Sending [${description}]: ${byteToNiceHex(data)}`);
+  if (process.env.DEBUG_CS) {
+    console.log(`[ConnectServer] Sending [${description}]: ${byteToNiceHex(data)}`);
   }
 };
 

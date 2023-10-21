@@ -5,10 +5,9 @@ const {addGameServer} = require('../loadGameServersList');
 /**
  * Handles CSGameServerInfoHandler request coming from GS.
  * @param {Buffer} data
- * @param {string} address
- * @param {number} port
+ * @param {Object} remoteInfo
  */
-const CSGameServerInfoHandler = (data, address, port) => {
+const CSGameServerInfoHandler = ({data, remoteInfo: {address, port}}) => {
   const serverInfo = new packetManager().fromBuffer(data)
     .useStruct(structs.CSGameServerInfo)
     .toObject();

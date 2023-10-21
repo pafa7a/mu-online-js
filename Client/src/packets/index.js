@@ -132,6 +132,17 @@ const LoginResult = {
   result: 'byte'
 };
 
+/**
+ * Info: Request the characters list.
+ * When: User login was successful.
+ * Action: After successful login, request the characters list.
+ * C++ struct: SendRequestCharactersList in Main
+ */
+const RequestCharactersList = {
+  ...subCodeHeader,
+  language: 'byte'
+};
+
 const structures = {
   CSGameServerInfo,
   MainCSSendServerListRequest,
@@ -139,7 +150,8 @@ const structures = {
   MainCSServerInfoRequest,
   CSMainCSServerInfoResponse,
   RequestLogin,
-  LoginResult
+  LoginResult,
+  RequestCharactersList,
 };
 
 module.exports = structures;

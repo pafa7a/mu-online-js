@@ -86,7 +86,7 @@ emitter.on('receivePacketFromConnectServer', buffer => {
       },
     },
   };
-  
+
   handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
 
   if (handler) {
@@ -116,7 +116,7 @@ emitter.on('receivePacketFromGameServer', buffer => {
       },
     },
   };
-  
+
   handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
 
   if (handler) {
@@ -165,7 +165,8 @@ const receiveServerListFromConnectServer = async (buffer) => {
     globalStorage.serverList.serverLoadInfo.forEach(server => {
       console.log(`[${server.serverId}] (${server.loadPercentage})`);
     });
-    let selectedServerId = await ask('Enter the server ID that you want to connect with: ');
+    // let selectedServerId = await ask('Enter the server ID that you want to connect with: ');
+    let selectedServerId = 0;
     selectedServerId = parseInt(selectedServerId);
     // Validate input.
     if (!globalStorage.serverList.serverLoadInfo.some((item) => item.serverId === selectedServerId)) {
@@ -233,8 +234,10 @@ const connectToGS = () => {
 };
 
 const loadLoginScreen = async () => {
-  const username = await ask('Username: ');
-  const password = await ask('Password: ', true);
+  // const username = await ask('Username: ');
+  // const password = await ask('Password: ', true);
+  const username = 'pafa7a';
+  const password = '123';
   const messageStruct = {
     header: {
       type: 0xC3,
@@ -254,16 +257,39 @@ const loadLoginScreen = async () => {
   emitter.emit('sendPacketToGameServer', message);
 };
 
-const receiveLoginResponse = buffer => {
+const receiveLoginResponse = async (buffer) => {
   const data = new packetManager().fromBuffer(buffer).useStruct(structs.LoginResult).toObject();
   const {result} = data;
   if (result === loginMessage.LOG_IN_FAIL_VERSION) {
     console.log('Invalid version or serial. Closing the client.');
     process.exit();
   }
-  //@TODO: handle the rest.
+  if (result !== 1) {
+    await loadLoginScreen();
+    console.log('Invalid login. Retrying...');
+  }
+  else {
+    requestCharactersList();
+    console.log('Successful login. Requesting characters list.');
+  }
 };
 
 const receiveOpenLoginScreen = async () => {
   await loadLoginScreen();
+};
+
+const requestCharactersList = () => {
+  const messageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF3,
+      subCode: 0x00,
+    },
+    language: 0,
+  };
+
+  const message = new packetManager()
+    .useStruct(structs.RequestCharactersList).toBuffer(messageStruct);
+  emitter.emit('sendPacketToGameServer', message);
 };

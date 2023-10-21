@@ -9,27 +9,27 @@ const CLIENT_TIMEOUT = 10000;
 let intervalId;
 let udpServer;
 
-const HEAD_CODES = {
-  C1: 0xC1,
-  GS_GAME_SERVER_INFO_HANDLER: 0x01,
-};
-
 const startServer = port => {
   udpServer = createSocket('udp4');
   udpServer.on('message', (data, remoteInfo) => {
     let handler;
-    switch (data[0]) {
-      case HEAD_CODES.C1:
-        switch (data[2]) {
-          case HEAD_CODES.GS_GAME_SERVER_INFO_HANDLER:
-            handler = CSGameServerInfoHandler;
-            break;
-        }
-        break;
+    const packetType = data[0];
+    let packetHead = data[2];
+
+    if (packetType === 0xC2) {
+      packetHead = data[3];
     }
-    onReceive(data, handler);
+
+    const packetHandlers = {
+      0xC1: {
+        0x01: CSGameServerInfoHandler,
+      },
+    };
+
+    handler = packetHandlers[packetType]?.[packetHead];
+    onReceive({data, handler});
     if (handler) {
-      handler(data, remoteInfo.address, remoteInfo.port);
+      handler({data, remoteInfo});
     }
   });
 
@@ -38,7 +38,12 @@ const startServer = port => {
   });
 };
 
-const onReceive = (data, handler) => {
+/**
+ * Helper function triggered when a new data is received.
+ * @param data
+ * @param handler
+ */
+const onReceive = ({data, handler}) => {
   const hexString = byteToNiceHex(data);
   let handlerName = 'Unknown';
   if (typeof handler === 'function') {

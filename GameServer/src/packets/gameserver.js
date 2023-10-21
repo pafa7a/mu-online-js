@@ -59,10 +59,22 @@ const NewClientConnected = {
   version: 'char(5)'
 };
 
+/**
+ * Info: Sends the login result to the client.
+ * When: Receive JS login result and just proxy the outcome to the client.
+ * Action: Lets the client know what is the login result.
+ * C++ struct: PMSG_CONNECT_ACCOUNT_SEND in GS.
+ */
+const LoginResultToClient = {
+  ...subCodeHeader,
+  result: 'byte',
+};
+
 const structures = {
   RequestLogin,
   LoginResult,
-  NewClientConnected
+  NewClientConnected,
+  LoginResultToClient
 };
 
 module.exports = structures;

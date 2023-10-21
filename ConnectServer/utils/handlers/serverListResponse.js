@@ -16,12 +16,11 @@ const getActiveServerList = () => {
 };
 
 /**
- * Handles serverListResponse request.
- * @param {Buffer} data
+ * Handles serverListResponse request.=
  * @param {Socket} socket
- * @param {function} sendData
+ * @param {({socket: Socket, data: Object, description: String}) => void} sendData
  */
-const serverListResponse = (data, socket, sendData) => {
+const serverListResponse = ({socket, sendData}) => {
   // Send the "server list" message to the server
   const list = getActiveServerList();
   const messageStruct = {
@@ -36,7 +35,7 @@ const serverListResponse = (data, socket, sendData) => {
   };
   const message = new packetManager()
     .useStruct(structs.CSServerListResponse).toBuffer(messageStruct);
-  sendData(socket, message, 'serverListResponse');
+  sendData({socket, data: message, description: 'serverListResponse'});
 };
 
 module.exports = serverListResponse;

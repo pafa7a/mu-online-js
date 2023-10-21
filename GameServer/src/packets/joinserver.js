@@ -55,9 +55,40 @@ const GSJSUserInfo = {
   maxUserCount: 'word',
 };
 
+/**
+ * Info: The structure for the SDHP_CONNECT_ACCOUNT_SEND packet from GS.
+ * When: Client submits the login form and GS contacts the JS for validation.
+ * Action: Sends the data to JS for validation of the credentials.
+ */
+const GSJSAccountLogin = {
+  ...standardHeader,
+  index: 'word',
+  account: 'char(11)',
+  password: 'char(11)',
+  ipAddress: 'char(16)',
+};
+
+/**
+ * Info: Receive login result from JS.
+ * When: Client submits the login form, GS proxy that request to JS and receives the result.
+ * Action: Sends the login result to the client.
+ */
+const JSGSConnectAccountReceive = {
+  ...standardHeader,
+  playerIndex: 'word',
+  account: 'char(11)',
+  personalCode: 'char(14)',
+  result: 'byte',
+  blockCode: 'byte',
+  accountLevel: 'word',
+  accountExpireDate: 'char(20)',
+  lock: 'dword',
+};
 
 const structures = {
   GSJSUserInfo,
+  GSJSAccountLogin,
+  JSGSConnectAccountReceive
 };
 
 module.exports = structures;
