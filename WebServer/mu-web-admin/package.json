@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.10.0",
-    "axios": "^1.5.1",
+    "axios": "^1.6.0",
     "console-feed": "^3.5.0",
     "cookies-next": "^4.0.0",
     "eslint": "8.52.0",
