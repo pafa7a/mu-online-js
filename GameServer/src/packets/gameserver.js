@@ -70,11 +70,89 @@ const LoginResultToClient = {
   result: 'byte',
 };
 
+/**
+ * Info: Sends the list with characters to the client.
+ * When: The user is successfully logged, the client requests the list.
+ * Action: Lets the client know the full list of the user characters.
+ * C++ struct: SDHP_CHARACTER_LIST_SEND in DS.
+ */
+const CharacterList = {
+  ...subCodeHeader,
+  maxClass: 'byte',
+  moveCount: 'byte',
+  characterCount: 'byte',
+  isVaultExtended: 'byte',
+  characterList: [{
+    slot: 'byte',
+    name: 'char(10)',
+    level: 'word',
+    ctlCode: 'byte',
+    charSet: 'byte(17)',
+    guildStatus: 'byte',
+    padding: 'arrayPadding',
+  }],
+};
+
+/**
+ * Info: Sends info about what character types are unlocked for creation.
+ * When: Immediately after sending the characters info.
+ * Action: The client unlocks different type of characters for creation.
+ * C++ struct: LPPHEADER_CHARACTERCARD in Client.
+ */
+const CharacterClassCreationUnlock = {
+  ...subCodeHeader,
+  flags: 'byte',
+};
+
+/**
+ * Info: Client sends a request to create a new character.
+ * When: Client creates a new character.
+ * Action: Creates the character and returns the list with characters.
+ * C++ struct: SendRequestCreateCharacter in Client inline.
+ */
+const RequestCreateCharacter = {
+  ...subCodeHeader,
+  name: 'char(10)',
+  class: 'byte'
+};
+
+/**
+ * Info: Sends the result of the character creation to the client.
+ * When: Client requests to create a new character.
+ * Action: Either displays an error message or tells the client to crete the character.
+ * C++ struct: PMSG_CHARACTER_CREATE_SEND in GS.
+ */
+const CreateCharacterSend = {
+  ...subCodeHeader,
+  result: 'byte',
+  name: 'char(10)',
+  slot: 'byte',
+  level: 'word',
+  class: 'byte',
+  equipment: 'byte(124)'
+};
+
+/**
+ * Info: Sends the result of the character creation to the client.
+ * When: Client requests to create a new character.
+ * Action: Either displays an error message or tells the client to crete the character.
+ * C++ struct: PMSG_CHARACTER_CREATE_SEND in GS.
+ */
+const CreateCharacterFailSend = {
+  ...subCodeHeader,
+  result: 'byte',
+};
+
 const structures = {
   RequestLogin,
   LoginResult,
   NewClientConnected,
-  LoginResultToClient
+  LoginResultToClient,
+  CharacterList,
+  CharacterClassCreationUnlock,
+  RequestCreateCharacter,
+  CreateCharacterSend,
+  CreateCharacterFailSend
 };
 
 module.exports = structures;

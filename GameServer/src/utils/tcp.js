@@ -4,10 +4,12 @@ const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = require('./../packets/gameserver');
 const globalState = require('./state');
 const loginMessage = require('./../enums/loginMessage');
+const characterClassesProtocol = require('./../enums/characterClassesProtocol');
 const {JSAccountLoginSend} = require('./joinserver');
 const sendDataToClient = require('./sendDataToClient');
 const disconnectPlayer = require('./disconnectPlayer');
 const fs = require('fs');
+const db = require('@mu-online-js/mu-db');
 
 const serverOptions = {
   key: fs.readFileSync('./../ssl/key.pem'),
@@ -46,6 +48,7 @@ const startTCPServer = port => {
         0xC1: {
           0xF3: {
             0x00: MainCharactersListRequest,
+            0x01: MainCreateNewCharacterRequest,
           }
         },
         0xC3: {
@@ -131,7 +134,12 @@ const MainLoginRequest = ({buffer, socket}) => {
   if (version !== globalState.version || serial !== globalState.serial) {
     messageStruct.result = loginMessage.LOG_IN_FAIL_WRONG_PASSWORD;
     const message = new packetManager().useStruct(structs.LoginResult).toBuffer(messageStruct);
-    sendDataToClient({socket, data: message, description: 'LoginResult', rawData: messageStruct});
+    sendDataToClient({
+      socket,
+      data: message,
+      description: 'LoginResult',
+      rawData: messageStruct
+    });
     return;
   }
 
@@ -145,7 +153,12 @@ const MainLoginRequest = ({buffer, socket}) => {
     if (user.loginAttempts > 3) {
       messageStruct.result = loginMessage.LOG_IN_FAIL_EXCEED_MAX_ATTEMPTS;
       const message = new packetManager().useStruct(structs.LoginResult).toBuffer(messageStruct);
-      sendDataToClient({socket, data: message, description: 'LoginResult', rawData: messageStruct});
+      sendDataToClient({
+        socket,
+        data: message,
+        description: 'LoginResult',
+        rawData: messageStruct
+      });
       disconnectPlayer(userId);
       return;
     }
@@ -172,6 +185,7 @@ const MainLoginRequest = ({buffer, socket}) => {
     destX: 0,
     destY: 0,
     connected: false,
+    username,
   });
 
   // Send the credentials to JS for validation.
@@ -194,15 +208,329 @@ const NewClientConnected = socket => {
   };
   const initMessageBuffer = new packetManager()
     .useStruct(structs.NewClientConnected).toBuffer(messageStruct);
-  sendDataToClient({socket, data: initMessageBuffer, description: 'NewClientConnected', rawData: messageStruct});
+  sendDataToClient({
+    socket,
+    data: initMessageBuffer,
+    description: 'NewClientConnected',
+    rawData: messageStruct
+  });
 };
 
 const MainHackCheckRequest = () => {
   // Potentially can skip this.
 };
 
-const MainCharactersListRequest = () => {
-  //@TODO: implement the handler.
+const MainCharactersListRequest = async ({socket}) => {
+  const userId = socket.remotePort;
+
+  if (!globalState?.users.has(userId)) {
+    return;
+  }
+
+  const user = globalState.users.get(userId);
+  const {username} = user;
+  /**
+   * Results of a database query to retrieve account characters information.
+   * @typedef {Object} DbAccountCharacterInfoResponseItem
+   * @property {string} username
+   * @property {string|null} character1
+   * @property {string|null} character2
+   * @property {string|null} character3
+   * @property {string|null} character4
+   * @property {string|null} character5
+   *
+   * @typedef {DbAccountCharacterInfoResponseItem[]} DbAccountCharacterResponse
+   */
+
+  /**
+   * The result of the database query to retrieve account information.
+   * @type {DbAccountCharacterResponse}
+   */
+  let dbAccountCharacterResult = await db('SELECT * FROM AccountCharacter WHERE username = ?', [
+    username
+  ]);
+  let dbCharacterResult = await db('SELECT * FROM `Character` WHERE username = ?', [
+    username
+  ]);
+
+  // If there is no such data - create it on the fly and retrieve it.
+  if (!dbAccountCharacterResult?.length) {
+    const insertInAccountCharacterQuery = 'INSERT INTO AccountCharacter (username) VALUES ?';
+    await db(insertInAccountCharacterQuery, [username]);
+    dbAccountCharacterResult = await db('SELECT * FROM AccountCharacter WHERE username = ?', [
+      username
+    ]);
+  }
+
+  const {
+    character1,
+    character2,
+    character3,
+    character4,
+    character5
+  } = dbAccountCharacterResult[0];
+  const characters = [character1, character2, character3, character4, character5];
+
+  const messageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF3,
+      subCode: 0x00,
+    },
+    maxClass: 0,
+    moveCount: 0,
+    characterCount: 0,
+    isVaultExtended: 0,
+    characterList: [],
+  };
+  for (let i = 0; i < characters.length; i++) {
+    if (!characters[i]) {
+      continue;
+    }
+    const currentCharacter = dbCharacterResult.find(res => res.name === characters[i]);
+    if (!currentCharacter) {
+      continue;
+    }
+    const TempInventory = new Array(12);
+    const charSet = new Array(17);
+
+    let inventoryHex = 'F'.repeat(3456); // Empty inventory by default.
+
+    // Use inventory from DB if exists.
+    if (currentCharacter['inventory']) {
+      inventoryHex = currentCharacter['inventory'];
+    }
+
+    const hexString = `0x${inventoryHex}`;
+    const dbInventoryParsed = hexString.slice(2).match(/.{2}/g).map(hex => parseInt(hex, 16));
+
+    const numRows = 12;
+    const numCols = 16;
+    const playerInventory = [];
+    const inventoryGrouped = Array.from({length: numRows}, (_, i) =>
+      dbInventoryParsed.slice(i * numCols, (i + 1) * numCols)
+    );
+
+    for (let i = 0; i < numRows; i++) {
+      if (inventoryGrouped[i][0] === 0xFF && (inventoryGrouped[i][7] & 0x80) === 0x80 && (inventoryGrouped[i][9] & 0xF0) === 0xF0) {
+        playerInventory[(i * 5)] = 0xFF;
+        playerInventory[1 + (i * 5)] = 0xFF;
+        playerInventory[2 + (i * 5)] = 0xFF;
+        playerInventory[3 + (i * 5)] = 0xFF;
+        playerInventory[4 + (i * 5)] = 0xFF;
+      } else {
+        playerInventory[(i * 5)] = inventoryGrouped[i][0];
+        playerInventory[1 + (i * 5)] = inventoryGrouped[i][1];
+        playerInventory[2 + (i * 5)] = inventoryGrouped[i][7];
+        playerInventory[3 + (i * 5)] = inventoryGrouped[i][8];
+        playerInventory[4 + (i * 5)] = inventoryGrouped[i][9];
+      }
+    }
+
+    const MAX_ITEM_TYPE = 512;
+
+    charSet[0] = characterClassesProtocol[currentCharacter['class']];
+
+    for (let i = 0; i < 9; i++) {
+      if (i === 0 || i === 1) {
+        if (playerInventory[i * 5] === 0xFF && (playerInventory[2 + i * 5] & 0x80) === 0x80 && (playerInventory[4 + i * 5] & 0xF0) === 0xF0) {
+          TempInventory[i] = 0xFFFF;
+        } else {
+          TempInventory[i] = playerInventory[i * 5] + (playerInventory[2 + i * 5] & 0x80) * 2 + (playerInventory[4 + i * 5] & 0xF0) * 32;
+        }
+      } else {
+        if (playerInventory[i * 5] === 0xFF && (playerInventory[2 + i * 5] & 0x80) === 0x80 && (playerInventory[4 + i * 5] & 0xF0) === 0xF0) {
+          TempInventory[i] = 0x1FF;
+        } else {
+          TempInventory[i] = (playerInventory[i * 5] + (playerInventory[2 + i * 5] & 0x80) * 2 + (playerInventory[4 + i * 5] & 0xF0) * 32) % MAX_ITEM_TYPE;
+        }
+      }
+    }
+
+    charSet[1] = TempInventory[0] % 256;
+    charSet[12] |= (TempInventory[0] / 16) & 0xF0;
+
+    charSet[2] = TempInventory[1] % 256;
+    charSet[13] |= (TempInventory[1] / 16) & 0xF0;
+
+    charSet[3] |= (TempInventory[2] & 0x0F) << 4;
+    charSet[9] |= (TempInventory[2] & 0x10) << 3;
+    charSet[13] |= (TempInventory[2] & 0x1E0) >> 5;
+
+    charSet[3] |= (TempInventory[3] & 0x0F);
+    charSet[9] |= (TempInventory[3] & 0x10) << 2;
+    charSet[14] |= (TempInventory[3] & 0x1E0) >> 1;
+
+    charSet[4] |= (TempInventory[4] & 0x0F) << 4;
+    charSet[9] |= (TempInventory[4] & 0x10) << 1;
+    charSet[14] |= (TempInventory[4] & 0x1E0) >> 5;
+
+    charSet[4] |= (TempInventory[5] & 0x0F);
+    charSet[9] |= (TempInventory[5] & 0x10);
+    charSet[15] |= (TempInventory[5] & 0x1E0) >> 1;
+
+    charSet[5] |= (TempInventory[6] & 0x0F) << 4;
+    charSet[9] |= (TempInventory[6] & 0x10) >> 1;
+    charSet[15] |= (TempInventory[6] & 0x1E0) >> 5;
+
+    let level = 0;
+
+    const table = [1, 0, 6, 5, 4, 3, 2];
+
+    for (let i = 0; i < 7; i++) {
+      if (TempInventory[i] !== 0x1FF && TempInventory[i] !== 0xFFFF) {
+        level |= ((((playerInventory[1 + i * 5] / 8) & 0x0F) - 1) / 2) << (i * 3);
+
+        charSet[10] |= ((playerInventory[2 + i * 5] & 0x3F) ? 2 : 0) << table[i];
+        charSet[11] |= ((playerInventory[3 + i * 5] & 0x03) ? 2 : 0) << table[i];
+      }
+    }
+
+    charSet[6] = level >> 16;
+    charSet[7] = level >> 8;
+    charSet[8] = level;
+
+    if (TempInventory[7] === 0x1FF) {
+      charSet[5] |= 12;
+    } else if (TempInventory[7] >= 0 && TempInventory[7] <= 2) {
+      charSet[5] |= TempInventory[7] << 2;
+    } else if (TempInventory[7] >= 3 && TempInventory[7] <= 6) {
+      charSet[5] |= 12;
+      charSet[9] |= TempInventory[7] - 2;
+    } else if (TempInventory[7] === 30) {
+      charSet[5] |= 12;
+      charSet[9] |= 5;
+    } else if (TempInventory[7] >= 36 && TempInventory[7] <= 40) {
+      charSet[5] |= 12;
+      charSet[16] |= (TempInventory[7] - 35) << 2;
+    } else if (TempInventory[7] === 41) {
+      charSet[5] |= 12;
+      charSet[9] |= 6;
+    } else if (TempInventory[7] === 42) {
+      charSet[5] |= 12;
+      charSet[16] |= 28;
+    } else if (TempInventory[7] === 43) {
+      charSet[5] |= 12;
+      charSet[16] |= 24;
+    } else if (TempInventory[7] >= 130 && TempInventory[7] <= 135) {
+      charSet[5] |= 12;
+      charSet[17] |= (TempInventory[7] - 129) << 5;
+    }
+    // else if(gCustomWing.CheckCustomWingByItem(GET_ITEM(12,TempInventory[7])) != 0) {
+    //   charSet[5] |= 12;
+    //   charSet[17] |= (gCustomWing.GetCustomWingIndex(GET_ITEM(12,TempInventory[7]))+1) << 1;
+    // }
+
+    if (TempInventory[8] === 0x1FF) {
+      charSet[5] |= 3;
+    } else if (TempInventory[8] >= 0 && TempInventory[8] <= 2) {
+      charSet[5] |= TempInventory[8];
+    } else if (TempInventory[8] === 3) {
+      charSet[5] |= 3;
+      charSet[10] |= 1;
+    } else if (TempInventory[8] === 4) {
+      charSet[5] |= 3;
+      charSet[12] |= 1;
+    } else if (TempInventory[8] === 37) {
+      charSet[5] |= 3;
+      charSet[10] &= 0xFE;
+      charSet[12] &= 0xFE;
+      charSet[12] |= 4;
+
+      if ((playerInventory[42] & 1) !== 0) {
+        charSet[16] |= 1;
+      } else if ((playerInventory[42] & 2) !== 0) {
+        charSet[16] |= 2;
+      } else if ((playerInventory[42] & 4) !== 0) {
+        charSet[17] |= 1;
+      }
+    } else if (TempInventory[8] === 64 || TempInventory[8] === 65 || TempInventory[8] === 67) {
+      charSet[16] |= (TempInventory[8] - 63) << 5;
+    } else if (TempInventory[8] === 80) {
+      charSet[16] |= 0xE0;
+    } else if (TempInventory[8] === 106) {
+      charSet[16] |= 0xA0;
+    } else if (TempInventory[8] === 123) {
+      charSet[16] |= 0x60;
+    }
+
+    messageStruct.characterList.push({
+      slot: i,
+      name: characters[i],
+      level: 400,
+      ctlCode: 0,
+      charSet: charSet,
+      guildStatus: 0xFF,
+    });
+  }
+
+  // First send the info about which character types are unlocked for creation.
+  const messageUnlockStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xDE,
+      subCode: 0x00,
+    },
+    flags: 15, // @TODO: This allows all type of characters to be created. Make it configurable based on character level or character card.
+  };
+  user.classFlags = 15;
+  const messageUnlock = new packetManager().useStruct(structs.CharacterClassCreationUnlock).toBuffer(messageUnlockStruct);
+  sendDataToClient({
+    socket,
+    data: messageUnlock,
+    description: 'CharactersUnlockInfo',
+    rawData: messageUnlockStruct
+  });
+
+  // Then send the characters info.
+  messageStruct.characterCount = messageStruct.characterList.length;
+  const message = new packetManager().useStruct(structs.CharacterList).toBuffer(messageStruct);
+  sendDataToClient({
+    socket,
+    data: message,
+    description: 'CharactersList',
+    rawData: messageStruct
+  });
+};
+
+const MainCreateNewCharacterRequest = ({buffer, socket}) => {
+
+  const userId = socket.remotePort;
+
+  if (!globalState?.users.has(userId)) {
+    return;
+  }
+  const {username, classFlags} = globalState.users.get(userId);
+  const data = new packetManager().fromBuffer(buffer).useStruct(structs.RequestCreateCharacter).toObject();
+
+  // Check if this class can be created, based on "user.classFlags".
+
+  // check if username is free in Character table
+
+  // check if there is a record in AccountCharacter for the username. If not - create it on the fly.
+
+  // check if there is a free slot for the account.
+
+  // insert into Character table using predefined defaults per character.
+  console.log(username, classFlags, data);
+  const messageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF3,
+      subCode: 0x01,
+    },
+    result: 0
+  };
+  const message = new packetManager().useStruct(structs.CreateCharacterFailSend).toBuffer(messageStruct);
+  sendDataToClient({
+    socket,
+    data: message,
+    description: 'CharacterCreateResult',
+    rawData: messageStruct
+  });
 };
 
 module.exports = {

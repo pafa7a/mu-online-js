@@ -7,7 +7,7 @@
 
 This project aims to create a full javascript based MuOnline server that can be used across all OS (Windows, Linux, Mac)
 
-An alternative open-source project using TypeScript is currently in development by ycr4zy. Repo link: https://github.com/ycr4zy/emulator-ts 
+Compatible Client source repository: https://github.com/pafa7a/MuMain
 
 ## How to use
 This guide describes two ways of starting the server. Use Docker, if you just want to play around. If you want to develop or debug the server, choose the manual way.

@@ -128,9 +128,17 @@ Packet.prototype.decodeByType = function (type, key, objectToStore) {
   }
 
   // Handle chars.
-  const match = type.match(/^char\((\d+)\)$/);
-  if (match) {
-    const length = parseInt(match[1]);
+  const charsMatch = type.match(/^char\((\d+)\)$/);
+  if (charsMatch) {
+    const length = parseInt(charsMatch[1]);
+    objectToStore[key] = this.buf.toString('utf8', this.currentOffset, this.currentOffset+length).replace(/\x00.*$/g, '');
+    this.currentOffset += length;
+  }
+
+  // Handle predefined bytes length.
+  const byteMatch = type.match(/^byte\((\d+)\)$/);
+  if (byteMatch) {
+    const length = parseInt(byteMatch[1]);
     objectToStore[key] = this.buf.toString('utf8', this.currentOffset, this.currentOffset+length).replace(/\x00.*$/g, '');
     this.currentOffset += length;
   }
@@ -226,10 +234,18 @@ Packet.prototype.encodeByType = function (type, value) {
     // Probably incomplete packet or optional parameters.
   }
   // Handle chars.
-  const match = type.match(/^char\((\d+)\)$/);
-  if (match) {
-    const length = parseInt(match[1]);
+  const charMatch = type.match(/^char\((\d+)\)$/);
+  if (charMatch) {
+    const length = parseInt(charMatch[1]);
     this.buf.write(value, this.currentOffset, length, 'utf8');
+    this.currentOffset += length;
+  }
+
+  // Handle predefined bytes length.
+  const byteMatch = type.match(/^byte\((\d+)\)$/);
+  if (byteMatch) {
+    const length = parseInt(byteMatch[1]);
+    Buffer.from(value).copy(this.buf, this.currentOffset);
     this.currentOffset += length;
   }
 
@@ -286,9 +302,16 @@ Packet.prototype.calculateBufferSize = function(struct, obj) {
           break;
       }
       // Handle chars.
-      const match = type.match(/^char\((\d+)\)$/);
-      if (match) {
-        const length = parseInt(match[1]);
+      const charMatch = type.match(/^char\((\d+)\)$/);
+      if (charMatch) {
+        const length = parseInt(charMatch[1]);
+        size += length;
+      }
+
+      // Handle predefined bytes length.
+      const byteMatch = type.match(/^byte\((\d+)\)$/);
+      if (byteMatch) {
+        const length = parseInt(byteMatch[1]);
         size += length;
       }
 
