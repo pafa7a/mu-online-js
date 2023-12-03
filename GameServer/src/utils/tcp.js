@@ -4,12 +4,14 @@ const packetManager = require('@mu-online-js/mu-packet-manager');
 const structs = require('./../packets/gameserver');
 const globalState = require('./state');
 const loginMessage = require('./../enums/loginMessage');
+const characterClasses = require('./../enums/characterClasses');
 const characterClassesProtocol = require('./../enums/characterClassesProtocol');
 const {JSAccountLoginSend} = require('./joinserver');
 const sendDataToClient = require('./sendDataToClient');
 const disconnectPlayer = require('./disconnectPlayer');
 const fs = require('fs');
 const db = require('@mu-online-js/mu-db');
+const {getConfig} = require('./config');
 
 const serverOptions = {
   key: fs.readFileSync('./../ssl/key.pem'),
@@ -381,9 +383,8 @@ const MainCharactersListRequest = async ({socket}) => {
     for (let i = 0; i < 7; i++) {
       if (TempInventory[i] !== 0x1FF && TempInventory[i] !== 0xFFFF) {
         level |= ((((playerInventory[1 + i * 5] / 8) & 0x0F) - 1) / 2) << (i * 3);
-
-        charSet[10] |= ((playerInventory[2 + i * 5] & 0x3F) ? 2 : 0) << table[i];
-        charSet[11] |= ((playerInventory[3 + i * 5] & 0x03) ? 2 : 0) << table[i];
+        charSet[10] |= (((playerInventory[1 + i * 5] / 1) & 0x3F) ? 2 : 0) << table[i];
+        charSet[11] |= (((playerInventory[3 + i * 5] / 1) & 0x03) ? 2 : 0) << table[i];
       }
     }
 
@@ -457,11 +458,11 @@ const MainCharactersListRequest = async ({socket}) => {
 
     messageStruct.characterList.push({
       slot: i,
-      name: characters[i],
-      level: 400,
-      ctlCode: 0,
+      name: currentCharacter.name,
+      level: currentCharacter.level,
+      ctlCode: currentCharacter.ctlCode,
       charSet: charSet,
-      guildStatus: 0xFF,
+      guildStatus: 0xFF, //@TODO: Get the guild status from db.
     });
   }
 
@@ -495,8 +496,7 @@ const MainCharactersListRequest = async ({socket}) => {
   });
 };
 
-const MainCreateNewCharacterRequest = ({buffer, socket}) => {
-
+const MainCreateNewCharacterRequest = async ({buffer, socket}) => {
   const userId = socket.remotePort;
 
   if (!globalState?.users.has(userId)) {
@@ -504,17 +504,140 @@ const MainCreateNewCharacterRequest = ({buffer, socket}) => {
   }
   const {username, classFlags} = globalState.users.get(userId);
   const data = new packetManager().fromBuffer(buffer).useStruct(structs.RequestCreateCharacter).toObject();
+  const {name, class: classId} = data;
+  let result = 0;
 
-  // Check if this class can be created, based on "user.classFlags".
+  const allowedCharacterClassesToCreate = [
+    characterClasses.DARK_WIZARD,
+    characterClasses.DARK_KNIGHT,
+    characterClasses.FAIRY_ELF,
+  ];
 
-  // check if username is free in Character table
+  // Check can create sum.
+  if ((classFlags & 1) !== 0) {
+    allowedCharacterClassesToCreate.push(characterClasses.SUMMONER);
+  }
 
-  // check if there is a record in AccountCharacter for the username. If not - create it on the fly.
+  // Check can create dl.
+  if ((classFlags & 2) !== 0) {
+    allowedCharacterClassesToCreate.push(characterClasses.DARK_LORD);
+  }
 
-  // check if there is a free slot for the account.
+  // Check can create mg.
+  if ((classFlags & 4) !== 0) {
+    allowedCharacterClassesToCreate.push(characterClasses.MAGIC_GLADIATOR);
+  }
 
-  // insert into Character table using predefined defaults per character.
-  console.log(username, classFlags, data);
+  // Check can create rf.
+  if ((classFlags & 8) !== 0) {
+    allowedCharacterClassesToCreate.push(characterClasses.RAGEFIGHER);
+  }
+
+  if (!allowedCharacterClassesToCreate.includes(classId)) {
+    sendFailCharacterCreateResult({socket, result});
+    return;
+  }
+  const dbAccountCharacterResult = await db('SELECT * FROM AccountCharacter WHERE username = ?', [
+    username
+  ]);
+
+  if (!dbAccountCharacterResult.length) {
+    sendFailCharacterCreateResult({socket, result});
+    return;
+  }
+
+  // No free character slot case.
+  let haveFreeSlot = false;
+  let freeSlotId = -1;
+  for (let i = 1; i < 6; i++) {
+    if (dbAccountCharacterResult[0][`character${i}`] === null) {
+      haveFreeSlot = true;
+      freeSlotId = i;
+      break;
+    }
+  }
+
+  if (!haveFreeSlot || freeSlotId === -1) {
+    result = 2;
+    sendFailCharacterCreateResult({socket, result});
+    return;
+  }
+
+  // Validate already existing character name.
+  const dbCharacterResult = await db('SELECT * FROM `Character` WHERE name = ?', [
+    name
+  ]);
+  if (dbCharacterResult.length) {
+    sendFailCharacterCreateResult({socket, result});
+    return;
+  }
+
+  // Add the character in AccountCharacter.
+  await db(`UPDATE AccountCharacter SET character${freeSlotId} = ? WHERE username = ?`, [
+    name,
+    username,
+  ]);
+
+  const newCharacterDefaultsConfig = getConfig('newCharacterDefaults');
+  const newCharacterDefaults = newCharacterDefaultsConfig.find(characterDefaults => characterDefaults.class === classId);
+
+  // In case the defaults for the selected class are not defined.
+  if (!newCharacterDefaults) {
+    sendFailCharacterCreateResult({socket, result});
+    return;
+  }
+
+  // Add the character in Character.
+  await db(`
+  INSERT INTO \`Character\`
+  SET
+    username = :username,
+    name = :name,
+    level = :level,
+    levelUpPoints = :levelUpPoints,
+    class = :class,
+    strength = :strength,
+    agility = :agility,
+    vitality = :vitality,
+    energy = :energy,
+    command = :command,
+    inventory = :inventory,
+    magicList = :magicList,
+    life = :life,
+    maxLife = :maxLife,
+    mana = :mana,
+    maxMana = :maxMana,
+    mapNumber = :mapNumber,
+    mapPosX = :mapPosX,
+    mapPosY = :mapPosY,
+    quest = :quest,
+    effectList = :effectList
+    `, {
+    username,
+    name,
+    level: newCharacterDefaults.level,
+    levelUpPoints: newCharacterDefaults.levelUpPoints,
+    class: classId,
+    strength: newCharacterDefaults.strength,
+    agility: newCharacterDefaults.agility,
+    vitality: newCharacterDefaults.vitality,
+    energy: newCharacterDefaults.energy,
+    command: newCharacterDefaults.command,
+    inventory: newCharacterDefaults.inventory,
+    magicList: newCharacterDefaults.magicList,
+    life: newCharacterDefaults.life,
+    maxLife: newCharacterDefaults.maxLife,
+    mana: newCharacterDefaults.mana,
+    maxMana: newCharacterDefaults.maxMana,
+    mapNumber: newCharacterDefaults.mapNumber,
+    mapPosX: newCharacterDefaults.mapPosX,
+    mapPosY: newCharacterDefaults.mapPosY,
+    quest: newCharacterDefaults.quest,
+    effectList: newCharacterDefaults.effectList
+  });
+
+  result = 1;
+
   const messageStruct = {
     header: {
       type: 0xC1,
@@ -522,14 +645,37 @@ const MainCreateNewCharacterRequest = ({buffer, socket}) => {
       headCode: 0xF3,
       subCode: 0x01,
     },
-    result: 0
+    result,
+    name,
+    slot: freeSlotId - 1,
+    level: newCharacterDefaults.level,
+    class: characterClassesProtocol[classId]
   };
-  const message = new packetManager().useStruct(structs.CreateCharacterFailSend).toBuffer(messageStruct);
+  const message = new packetManager().useStruct(structs.CreateCharacterSend).toBuffer(messageStruct);
   sendDataToClient({
     socket,
     data: message,
     description: 'CharacterCreateResult',
     rawData: messageStruct
+  });
+};
+
+const sendFailCharacterCreateResult = ({socket, result}) => {
+  const failMessageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF3,
+      subCode: 0x01,
+    },
+    result,
+  };
+  const message = new packetManager().useStruct(structs.CreateCharacterFailSend).toBuffer(failMessageStruct);
+  sendDataToClient({
+    socket,
+    data: message,
+    description: 'CharacterCreateResultFail',
+    rawData: failMessageStruct
   });
 };
 

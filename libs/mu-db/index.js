@@ -7,10 +7,11 @@ const pool = mysql.createPool({
   user: config.user,
   password: config.password,
   database: config.MuOnlineDB,
-  connectionLimit: 10
+  connectionLimit: 10,
+  namedPlaceholders: true,
 });
 
-const query = (sql, values = []) => {
+const query = (sql, values) => {
   return new Promise((resolve, reject) => {
     // Get a connection from the pool.
     pool.getConnection((err, connection) => {

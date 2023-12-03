@@ -27,12 +27,12 @@
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.0.0.tgz#f22824caff3ae506b18207bad4126dbc6ccdb6b8"
   integrity sha512-JUFJad5lv7jxj926GPgymrWQxxjPYuJNiNjNMzqT+HiuP6Vl3dk5xzG+8sTX96np0ZAluvaMzPsjhHZ5rNuNQQ==
 
-"@mu-online-js/mu-db@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-db/-/mu-db-0.0.3.tgz#867b7e8ed3d538fd12873ca40cea218882869a30"
-  integrity sha512-Ok5qDkJAplDUUnlfDHzRDpGxriCluPIMz1crsdPrF2aIgWXIYKfFLjHglIBSP7HJMIjtvyod0U30/JL4Yxq6tg==
+"@mu-online-js/mu-db@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-db/-/mu-db-0.0.4.tgz#1e5fbb51bfaedeb967c7490392b7ea68d4d9a7fa"
+  integrity sha512-KYvCQ+/wK6PNzmBhcIqfUW2aHP4oJfQrpsiQXPlYxQXrhqJc98R1q49f5nhM5e+IlzT6ewPP69O5ciazzF5tFw==
   dependencies:
-    mysql2 "^3.2.0"
+    mysql2 "^3.6.5"
 
 "@mu-online-js/mu-logger@^1.0.0":
   version "1.0.2"
@@ -107,10 +107,10 @@ ms@^2.1.3:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-mysql2@^3.2.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/mysql2/-/mysql2-3.6.0.tgz#d54ef4867655daf2f65ced1dbdb63852314f039f"
-  integrity sha512-EWUGAhv6SphezurlfI2Fpt0uJEWLmirrtQR7SkbTHFC+4/mJBrPiSzHESHKAWKG7ALVD6xaG/NBjjd1DGJGQQQ==
+mysql2@^3.6.5:
+  version "3.6.5"
+  resolved "https://registry.yarnpkg.com/mysql2/-/mysql2-3.6.5.tgz#46bfed7c1c1e4288283f8c8f1c4a5f20669dd3d6"
+  integrity sha512-pS/KqIb0xlXmtmqEuTvBXTmLoQ5LmAz5NW/r8UyQ1ldvnprNEj3P9GbmuQQ2J0A4LO+ynotGi6TbscPa8OUb+w==
   dependencies:
     denque "^2.1.0"
     generate-function "^2.3.1"

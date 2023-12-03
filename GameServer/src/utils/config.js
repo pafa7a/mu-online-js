@@ -36,7 +36,7 @@ const loadAllConfigs = () => {
  *
  * @param {string} name The name of the config file.
  * @param {?string} path Path for the nested config object.
- * @return {object|null}
+ * @return {object|array|null}
  */
 const getConfig = (name, path = '') => {
   if (!path) {

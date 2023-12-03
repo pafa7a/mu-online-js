@@ -18,7 +18,7 @@
     "timeout": 1000
   },
   "dependencies": {
-    "@mu-online-js/mu-db": "^0.0.3",
+    "@mu-online-js/mu-db": "^0.0.4",
     "@mu-online-js/mu-logger": "^1.0.0",
     "@mu-online-js/mu-packet-manager": "^0.0",
     "import-fresh": "^3.3.0",

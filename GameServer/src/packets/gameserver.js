@@ -88,8 +88,8 @@ const CharacterList = {
     level: 'word',
     ctlCode: 'byte',
     charSet: 'byte(17)',
-    guildStatus: 'byte',
     padding: 'arrayPadding',
+    guildStatus: 'byte',
   }],
 };
 
@@ -127,9 +127,8 @@ const CreateCharacterSend = {
   result: 'byte',
   name: 'char(10)',
   slot: 'byte',
-  level: 'word',
-  class: 'byte',
-  equipment: 'byte(124)'
+  level: 'wordLE',
+  class: 'byte'
 };
 
 /**
