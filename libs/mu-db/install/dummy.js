@@ -28,5 +28,21 @@ const db = require('./../index');
                                  VALUES ?`;
   await db(insertInCharacterQuery, [dummyDataForCharacter]);
 
+  const dummyDataForGuild = [
+    ['MuJS', 'pafa7a', 'Test guild notice'],
+  ];
+  const insertInGuildQuery = `INSERT INTO Guild (guildName, guildMaster, guildNotice)
+                                 VALUES ?`;
+  await db(insertInGuildQuery, [dummyDataForGuild]);
+
+  const dummyDataForGuildMember = [
+    ['pafa7a', 'MuJS', 128],
+    ['pafa7aMG', 'MuJS', 0],
+    ['pafa7aDL', 'MuJS', 64],
+  ];
+  const insertInGuildMemberQuery = `INSERT INTO GuildMember (guildPlayerName, guildName, guildStatus)
+                                 VALUES ?`;
+  await db(insertInGuildMemberQuery, [dummyDataForGuildMember]);
+
   process.exit();
 })();

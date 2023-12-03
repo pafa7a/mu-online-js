@@ -51,6 +51,7 @@ const startTCPServer = port => {
           0xF3: {
             0x00: MainCharactersListRequest,
             0x01: MainCreateNewCharacterRequest,
+            0x02: MainDeleteCharacterRequest,
           }
         },
         0xC3: {
@@ -251,7 +252,9 @@ const MainCharactersListRequest = async ({socket}) => {
   let dbAccountCharacterResult = await db('SELECT * FROM AccountCharacter WHERE username = ?', [
     username
   ]);
-  let dbCharacterResult = await db('SELECT * FROM `Character` WHERE username = ?', [
+  let dbCharacterResult = await db(`SELECT * FROM \`Character\` c
+    LEFT JOIN GuildMember gm on c.name = gm.guildPlayerName
+    WHERE c.username = ?`, [
     username
   ]);
 
@@ -462,7 +465,7 @@ const MainCharactersListRequest = async ({socket}) => {
       level: currentCharacter.level,
       ctlCode: currentCharacter.ctlCode,
       charSet: charSet,
-      guildStatus: 0xFF, //@TODO: Get the guild status from db.
+      guildStatus: currentCharacter.guildStatus ?? 0xFF,
     });
   }
 
@@ -676,6 +679,99 @@ const sendFailCharacterCreateResult = ({socket, result}) => {
     data: message,
     description: 'CharacterCreateResultFail',
     rawData: failMessageStruct
+  });
+};
+
+const MainDeleteCharacterRequest = async ({buffer, socket}) => {
+  const userId = socket.remotePort;
+
+  if (!globalState?.users.has(userId)) {
+    return;
+  }
+
+  const user = globalState.users.get(userId);
+  const {username} = user;
+
+  const data = new packetManager().fromBuffer(buffer).useStruct(structs.RequestDeleteCharacter).toObject();
+  const {name, password, } = data;
+
+  /**
+   *   0 - You can't delete the character that belongs to the guild
+   *   1 - Character was deleted successfully.
+   *   2 - The password you have entered is incorrect.
+   *   3 - The character is item blocked
+   */
+  let result = 0;
+
+  // Check if password matches.
+  const dbMembInfoResult = await db('SELECT * FROM MEMB_INFO WHERE memb___id = ? AND memb__pwd = ?', [
+    username,
+    password,
+  ]);
+
+  if (!dbMembInfoResult.length) {
+    result = 2;
+    sendCharacterDeleteResult({socket, result});
+    return;
+  }
+
+  // Check if character in guild.
+  const dbGuildMemberResult = await db('SELECT * FROM GuildMember WHERE guildPlayerName = ?', [
+    name
+  ]);
+  if (dbGuildMemberResult.length) {
+    sendCharacterDeleteResult({socket, result});
+    return;
+  }
+
+  await db('DELETE FROM `Character` WHERE username = ? AND name = ?', [
+    username,
+    name
+  ]);
+
+  const dbAccountCharacterResult = await db('SELECT * FROM AccountCharacter WHERE username = ?', [
+    username
+  ]);
+  if (!dbAccountCharacterResult) {
+    return;
+  }
+  let position = -1;
+  for (let i = 1; i < 6; i++) {
+    if (dbAccountCharacterResult[0][`character${i}`] === name) {
+      position = i;
+      break;
+    }
+  }
+
+  if (position === -1) {
+    sendCharacterDeleteResult({socket, result});
+    return;
+  }
+
+  await db(`UPDATE AccountCharacter SET character${position} = NULL WHERE username = ?`, [
+    username
+  ]);
+
+  result = 1;
+  sendCharacterDeleteResult({socket, result});
+};
+
+const sendCharacterDeleteResult = ({socket, result}) => {
+  const messageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF3,
+      subCode: 0x02,
+    },
+    result,
+  };
+  const message = new packetManager().useStruct(structs.DeleteCharacterSend).toBuffer(messageStruct);
+  sendDataToClient({
+    socket,
+    data: message,
+    description: 'DeleteCharacterSend',
+    rawData: messageStruct
   });
 };
 

@@ -142,6 +142,29 @@ const CreateCharacterFailSend = {
   result: 'byte',
 };
 
+/**
+ * Info: Client sends a request to delete a character.
+ * When: Client deletes a character.
+ * Action: Deletes the character from db and responds back.
+ * C++ struct: SendRequestDeleteCharacter in Client inline.
+ */
+const RequestDeleteCharacter = {
+  ...subCodeHeader,
+  name: 'char(10)',
+  password: 'char(10)'
+};
+
+/**
+ * Info: Sends the result of the character deletion to the client.
+ * When: Client requests to delete a character.
+ * Action: Returns the result of deletion.
+ * C++ struct: PMSG_CHARACTER_DELETE_SEND in GS.
+ */
+const DeleteCharacterSend = {
+  ...subCodeHeader,
+  result: 'byte',
+};
+
 const structures = {
   RequestLogin,
   LoginResult,
@@ -151,7 +174,9 @@ const structures = {
   CharacterClassCreationUnlock,
   RequestCreateCharacter,
   CreateCharacterSend,
-  CreateCharacterFailSend
+  CreateCharacterFailSend,
+  RequestDeleteCharacter,
+  DeleteCharacterSend
 };
 
 module.exports = structures;

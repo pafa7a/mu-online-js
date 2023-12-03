@@ -35,7 +35,6 @@ const config = require('./../config/db');
     OnlineHours INT NULL DEFAULT 0,
     PRIMARY KEY (memb___id)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8`;
-
   await db.query(createMembStatTableQuery);
 
   const createAccountCharacterTableQuery = `CREATE TABLE IF NOT EXISTS AccountCharacter (
@@ -50,7 +49,6 @@ const config = require('./../config/db');
     PRIMARY KEY (id),
     UNIQUE KEY id (id)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8`;
-
   await db.query(createAccountCharacterTableQuery);
 
   const createCharacterTableQuery = `CREATE TABLE IF NOT EXISTS \`Character\` (
@@ -99,8 +97,27 @@ const config = require('./../config/db');
     PRIMARY KEY (\`name\`),
     UNIQUE KEY id (\`name\`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8`;
-
   await db.query(createCharacterTableQuery);
+
+  const createGuildTableQuery = `CREATE TABLE IF NOT EXISTS Guild (
+    guildName VARCHAR(8) NOT NULL,
+    guildMark VARCHAR(64) NULL,
+    guildScore int default 0 NULL,
+    guildMaster VARCHAR(10) NULL,
+    guildNotice VARCHAR(60) NULL,
+    PRIMARY KEY (\`guildName\`),
+    UNIQUE KEY id (\`guildName\`)
+  ) ENGINE = InnoDB DEFAULT CHARSET = utf8`;
+  await db.query(createGuildTableQuery);
+
+  const createGuildMemberTableQuery = `CREATE TABLE IF NOT EXISTS GuildMember (
+    guildPlayerName VARCHAR(10) NOT NULL,
+    guildName VARCHAR(8) NOT NULL,
+    guildStatus int default 0 NULL,
+    PRIMARY KEY (\`guildPlayerName\`),
+    UNIQUE KEY id (\`guildPlayerName\`)
+  ) ENGINE = InnoDB DEFAULT CHARSET = utf8`;
+  await db.query(createGuildMemberTableQuery);
 
   await db.end();
 })();
