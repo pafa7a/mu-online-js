@@ -13,7 +13,7 @@
     "axios": "^1.6.2",
     "console-feed": "^3.5.0",
     "cookies-next": "^4.1.0",
-    "eslint": "8.54.0",
+    "eslint": "8.55.0",
     "eslint-config-next": "14.0.3",
     "jose": "^5.1.1",
     "mitt": "^3.0.1",
