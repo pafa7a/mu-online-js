@@ -12,6 +12,6 @@
     "@mu-online-js/mu-db": "^0.0.4",
     "@mu-online-js/mu-logger": "^1.0.0",
     "@mu-online-js/mu-packet-manager": "^0.0",
-    "ws": "^8.14.2"
+    "ws": "^8.15.0"
   }
 }
