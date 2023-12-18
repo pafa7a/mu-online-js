@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.10.0",
+    "@elastic/elasticsearch": "^8.11.0",
     "axios": "^1.6.2",
     "console-feed": "^3.5.0",
     "cookies-next": "^4.1.0",
