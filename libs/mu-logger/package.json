@@ -7,7 +7,7 @@
     "dev": "node --inspect index.js"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.10.0"
+    "@elastic/elasticsearch": "^8.11.0"
   },
   "repository": "https://github.com/pafa7a/mu-online-js",
   "keywords": [
