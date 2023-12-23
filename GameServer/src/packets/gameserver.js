@@ -165,6 +165,55 @@ const DeleteCharacterSend = {
   result: 'byte',
 };
 
+/**
+ * Info: Client sends a request to get info about character.
+ * When: Client connects with a character in the world.
+ * Action: Returns info about the selected character.
+ * C++ struct: SendRequestJoinMapServer in Client inline.
+ */
+const RequestJoinMapServer = {
+  ...subCodeHeader,
+  name: 'char(10)',
+};
+
+/**
+ * Info: Sends information about the character that enters the world.
+ * When: Client clicks the connect button on character select screen.
+ * Action: Character enters the world.
+ * C++ struct: PMSG_CHARACTER_INFO_SEND in GS.
+ */
+const JoinMapSend = {
+  ...subCodeHeader,
+  x: 'byte',
+  y: 'byte',
+  map: 'byte',
+  dir: 'byte',
+  experience: 'byte(8)',
+  nextExperience: 'byte(8)',
+  levelUpPoints: 'wordLE',
+  str: 'wordLE',
+  agi: 'wordLE',
+  vit: 'wordLE',
+  ene: 'wordLE',
+  life: 'wordLE',
+  maxLife: 'wordLE',
+  mana: 'wordLE',
+  maxMana: 'wordLE',
+  shield: 'wordLE',
+  maxShield: 'wordLE',
+  bp: 'wordLE',
+  maxBp: 'wordLE',
+  money: 'dword',
+  pkLeve: 'byte',
+  ctlCode: 'byte',
+  fruitAddPoint: 'wordLE',
+  fruitMaxAddPoint: 'wordLE',
+  command: 'wordLE',
+  fruitSubPoint: 'wordLE',
+  fruitMaxSubPoint: 'wordLE',
+  extInventory: 'byte'
+};
+
 const structures = {
   RequestLogin,
   LoginResult,
@@ -176,7 +225,9 @@ const structures = {
   CreateCharacterSend,
   CreateCharacterFailSend,
   RequestDeleteCharacter,
-  DeleteCharacterSend
+  DeleteCharacterSend,
+  RequestJoinMapServer,
+  JoinMapSend
 };
 
 module.exports = structures;

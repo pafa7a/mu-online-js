@@ -42,9 +42,9 @@
     "@elastic/elasticsearch" "^8.7.0"
 
 "@mu-online-js/mu-packet-manager@^0.0":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-packet-manager/-/mu-packet-manager-0.0.14.tgz#ae3103f83b9ce410c2225792a9a92bebc581a0ad"
-  integrity sha512-0cdMJf+p0GLiGl3YdF8oFw2tCrq6FfRxeMsLZaUX3Kl+YLUpBm6kI3B+ERs4muTx0Feddz+ipZj+C5K1oQPULA==
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@mu-online-js/mu-packet-manager/-/mu-packet-manager-0.0.15.tgz#82fa348231734763d54624d4c7f392db00d6263c"
+  integrity sha512-fiHCPdbys+c1PQ+MTPmT7TVad/TmlY8wGDrml6qoqzsPFOED7UDcCAc031j2/6R719wuOOlC/Z4BHAK22nxTag==
 
 debug@^4.3.4:
   version "4.3.4"

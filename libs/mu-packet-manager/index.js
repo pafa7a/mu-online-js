@@ -222,6 +222,10 @@ Packet.prototype.encodeByType = function (type, value) {
         this.currentOffset += 2;
         break;
       case 'dword':
+        if (this.lastType !== 'dword') {
+          this.buf.writeUInt16BE(0xCC, this.currentOffset);
+          this.currentOffset += 2;
+        }
         this.buf.writeUInt32LE(value, this.currentOffset);
         this.currentOffset += 4;
         break;

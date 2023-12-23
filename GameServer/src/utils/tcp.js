@@ -52,7 +52,9 @@ const startTCPServer = port => {
             0x00: MainCharactersListRequest,
             0x01: MainCreateNewCharacterRequest,
             0x02: MainDeleteCharacterRequest,
-          }
+            0x03: MainJoinMapServerRequest,
+          },
+          0x31: MainDialogCloseRequest,
         },
         0xC3: {
           0xF1: {
@@ -690,10 +692,15 @@ const MainDeleteCharacterRequest = async ({buffer, socket}) => {
   }
 
   const user = globalState.users.get(userId);
+
+  if (user?.disableDeleteCharacter === true) {
+    return;
+  }
+
   const {username} = user;
 
   const data = new packetManager().fromBuffer(buffer).useStruct(structs.RequestDeleteCharacter).toObject();
-  const {name, password, } = data;
+  const {name, password} = data;
 
   /**
    *   0 - You can't delete the character that belongs to the guild
@@ -771,6 +778,126 @@ const sendCharacterDeleteResult = ({socket, result}) => {
     socket,
     data: message,
     description: 'DeleteCharacterSend',
+    rawData: messageStruct
+  });
+};
+
+
+const MainDialogCloseRequest = async () => {
+  //@TODO: Implement dialog close.
+};
+
+const MainJoinMapServerRequest = async ({buffer, socket}) => {
+
+  const userId = socket.remotePort;
+
+  if (!globalState?.users.has(userId)) {
+    return;
+  }
+
+  const user = globalState.users.get(userId);
+  user.disableDeleteCharacter = true;
+  const {username} = user;
+
+  const data = new packetManager().fromBuffer(buffer).useStruct(structs.RequestJoinMapServer).toObject();
+  const {name} = data;
+
+  const dbCharacterResult = await db('SELECT * FROM `Character` WHERE username = ? AND name = ?', [
+    username,
+    name
+  ]);
+  if (!dbCharacterResult.length) {
+    return;
+  }
+  const [dbCharacter] = dbCharacterResult;
+
+  const experience = [];
+  const nextExperience = [];
+
+  if (false) { // if 3rd level char
+    experience[0] = ((dbCharacter.experience >> 0) & 0xFF);
+    experience[1] = ((dbCharacter.experience >> 24) & 0xFF);
+    experience[2] = ((dbCharacter.experience >> 16) & 0xFF);
+    experience[3] = ((dbCharacter.experience >> 8) & 0xFF);
+    experience[4] = ((dbCharacter.experience >>> 0) & 0xFF);
+    experience[5] = ((dbCharacter.experience >>> 24) & 0xFF);
+    experience[6] = ((dbCharacter.experience >>> 16) & 0xFF);
+    experience[7] = ((dbCharacter.experience >>> 8) & 0xFF);
+  } else {
+    experience[0] = ((dbCharacter.masterExperience >> 0) & 0xFF);
+    experience[1] = ((dbCharacter.masterExperience >> 24) & 0xFF);
+    experience[2] = ((dbCharacter.masterExperience >> 16) & 0xFF);
+    experience[3] = ((dbCharacter.masterExperience >> 8) & 0xFF);
+    experience[4] = ((dbCharacter.masterExperience >>> 0) & 0xFF);
+    experience[5] = ((dbCharacter.masterExperience >>> 24) & 0xFF);
+    experience[6] = ((dbCharacter.masterExperience >>> 16) & 0xFF);
+    experience[7] = ((dbCharacter.masterExperience >>> 8) & 0xFF);
+  }
+
+  //@TODO: use nextExperience and nextMasterExperience.
+  if (false) { // if 3rd level char
+    nextExperience[0] = ((dbCharacter.experience >> 0) & 0xFF);
+    nextExperience[1] = ((dbCharacter.experience >> 24) & 0xFF);
+    nextExperience[2] = ((dbCharacter.experience >> 16) & 0xFF);
+    nextExperience[3] = ((dbCharacter.experience >> 8) & 0xFF);
+    nextExperience[4] = ((dbCharacter.experience >>> 0) & 0xFF);
+    nextExperience[5] = ((dbCharacter.experience >>> 24) & 0xFF);
+    nextExperience[6] = ((dbCharacter.experience >>> 16) & 0xFF);
+    nextExperience[7] = ((dbCharacter.experience >>> 8) & 0xFF);
+  } else {
+    nextExperience[0] = ((dbCharacter.masterExperience >> 0) & 0xFF);
+    nextExperience[1] = ((dbCharacter.masterExperience >> 24) & 0xFF);
+    nextExperience[2] = ((dbCharacter.masterExperience >> 16) & 0xFF);
+    nextExperience[3] = ((dbCharacter.masterExperience >> 8) & 0xFF);
+    nextExperience[4] = ((dbCharacter.masterExperience >>> 0) & 0xFF);
+    nextExperience[5] = ((dbCharacter.masterExperience >>> 24) & 0xFF);
+    nextExperience[6] = ((dbCharacter.masterExperience >>> 16) & 0xFF);
+    nextExperience[7] = ((dbCharacter.masterExperience >>> 8) & 0xFF);
+  }
+
+
+  const messageStruct = {
+    header: {
+      type: 0xC1,
+      size: 'auto',
+      headCode: 0xF3,
+      subCode: 0x03,
+    },
+    x: dbCharacter.mapPosX,
+    y: dbCharacter.mapPosY,
+    map: dbCharacter.mapNumber,
+    dir: dbCharacter.mapDir,
+    experience: experience,
+    nextExperience: nextExperience,
+    levelUpPoints: dbCharacter.levelUpPoints,
+    str: dbCharacter.strength,
+    agi: dbCharacter.agility,
+    vit: dbCharacter.vitality,
+    ene: dbCharacter.energy,
+    life: dbCharacter.life,
+    maxLife: dbCharacter.maxLife,
+    mana: dbCharacter.mana,
+    maxMana: dbCharacter.maxMana,
+    shield: dbCharacter.shield,
+    maxShield: dbCharacter.maxShield,
+    bp: dbCharacter.BP,
+    maxBp: dbCharacter.maxBP,
+    money: dbCharacter.money,
+    pkLeve: dbCharacter.pkLevel,
+    ctlCode: dbCharacter.ctlCode,
+    fruitAddPoint: dbCharacter.fruitAddPoint,
+    fruitMaxAddPoint: dbCharacter.fruitAddPoint,
+    command: dbCharacter.command,
+    fruitSubPoint: dbCharacter.fruitSubPoint,
+    fruitMaxSubPoint: dbCharacter.fruitSubPoint,
+    extInventory: 1, //byte
+  };
+  const message = new packetManager().useStruct(structs.JoinMapSend).toBuffer(messageStruct);
+  console.log(message);
+  sendDataToClient({
+    socket,
+    data: message,
+    description: 'JoinMapSend',
     rawData: messageStruct
   });
 };
