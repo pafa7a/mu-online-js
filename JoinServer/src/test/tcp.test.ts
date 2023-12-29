@@ -1,10 +1,11 @@
-const { connect } = require('net');
-const {startServer, stopServer} = require('../utils/tcp');
-const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = require('./../utils/packets/index');
+import {startServer, stopServer} from '../utils/tcp';
+import structs from './../utils/packets/index';
+// @ts-expect-error Fix on a later stage
+import PacketManager from '@mu-online-js/mu-packet-manager';
+import {connect, Socket} from 'net';
 
 describe('TCP Socket Server', () => {
-  let client;
+  let client: Socket;
 
   before(() => {
   });
@@ -16,6 +17,9 @@ describe('TCP Socket Server', () => {
     // Connect to the server with a client socket
     client = connect({port: 55970}, () => {
       console.log('Client connected');
+    });
+    client.on('data', (data) => {
+      const asd = '';
     });
     done();
   });
@@ -43,7 +47,7 @@ describe('TCP Socket Server', () => {
       serverName: 'MuEMU',
       serverCode: 0
     };
-    const messageBuffer = new packetManager()
+    const messageBuffer = new PacketManager()
       .useStruct(structs.GSJSServerInfoSend).toBuffer(messageStruct);
     client.write(messageBuffer);
     //@TODO: Check if the server info is stored correctly in memory.

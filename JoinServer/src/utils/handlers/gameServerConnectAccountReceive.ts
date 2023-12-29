@@ -1,37 +1,43 @@
-const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = require('./../packets/index');
-const loginMessage = require('../enums/loginMessage');
-const db = require('@mu-online-js/mu-db');
-const logger = require('./../logger');
+// @ts-expect-error Fix on a later stage
+import PacketManager from '@mu-online-js/mu-packet-manager';
+import structs from './../packets';
+import loginMessage from './../enums/loginMessage';
+// @ts-expect-error Fix on a later stage
+import db from '@mu-online-js/mu-db';
+import logger from '../logger';
+import { Socket } from 'net';
+
+interface GameServerConnectAccountReceiveParams {
+  data: Buffer;
+  socket: Socket;
+  sendData: ({ socket, data, description, rawData }: { socket: Socket, data: Buffer, description: string, rawData: object }) => void;
+}
 
 /**
  * Handles GameServerConnectAccountReceive request coming from GS.
- * @param {Buffer} data
- * @param {Socket} socket
- * @param {({socket: Socket, data: Object, description: String, rawData: Object}) => void} sendData
  */
-const gameServerConnectAccountReceive = async ({data, socket, sendData}) => {
-  const accountInfo = new packetManager().fromBuffer(data)
+const gameServerConnectAccountReceive = async ({ data, socket, sendData }: GameServerConnectAccountReceiveParams) => {
+  const accountInfo = new PacketManager().fromBuffer(data)
     .useStruct(structs.GSJSConnectAccountSend).toObject();
   logger.info(accountInfo);
 
   /**
    * Results of a database query to retrieve account information.
-   * @typedef {Object} DbMembInfoResponseItem
-   * @property {number} memb_guid - The unique ID of the account.
-   * @property {string} memb___id - The account username.
-   * @property {string} memb__pwd - The account password.
-   * @property {string} sno__numb - The account personal code.
-   * @property {number} bloc_code - The account block code.
-   *
-   * @typedef {DbMembInfoResponseItem[]} DbMembInfoResponse
    */
+  interface DbMembInfoResponseItem {
+    memb_guid: number;
+    memb___id: string;
+    memb__pwd: string;
+    sno__numb: string;
+    bloc_code: number;
+  }
+
+  type DbMembInfoResponse = DbMembInfoResponseItem[];
 
   /**
    * The result of the database query to retrieve account information.
-   * @type {DbMembInfoResponse}
    */
-  const dbResult = await db('SELECT memb__pwd, sno__numb FROM memb_info WHERE memb___id = ?', [
+  const dbResult: DbMembInfoResponse = await db('SELECT memb__pwd, sno__numb FROM memb_info WHERE memb___id = ?', [
     accountInfo.account
   ]);
 
@@ -69,9 +75,9 @@ const gameServerConnectAccountReceive = async ({data, socket, sendData}) => {
     }
   }
 
-  const responseBuffer = new packetManager()
+  const responseBuffer = new PacketManager()
     .useStruct(structs.JSGSConnectAccountSend).toBuffer(responseStruct);
-  sendData({socket, data: responseBuffer, description: 'send login result', rawData: responseStruct});
+  sendData({ socket, data: responseBuffer, description: 'send login result', rawData: responseStruct });
 };
 
-module.exports = gameServerConnectAccountReceive;
+export = gameServerConnectAccountReceive;

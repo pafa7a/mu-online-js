@@ -1,14 +1,18 @@
 module.exports = {
   'env': {
     'browser': true,
+    'node': true,
     'commonjs': true,
-    'es2021': true,
+    'es2016': true,
     'mocha': true
   },
-  'extends': ['eslint:recommended'],
+  'extends': ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+  'parser': '@typescript-eslint/parser',
+  'plugins': ['@typescript-eslint'],
   'overrides': [],
   'parserOptions': {
-    'ecmaVersion': 'latest'
+    'ecmaVersion': 'latest',
+    'sourceType': 'module',
   },
   'globals': {
     'process': true,

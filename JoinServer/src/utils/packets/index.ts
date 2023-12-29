@@ -1,16 +1,9 @@
-/**
- * @typedef {'byte'|'word'|'wordLE'|'wordBE'|'dword'|'short'|'shortBE'|'shortLE'|'arrayPadding'|'char(??)'|object} PacketType
- */
-
-/**
- * @typedef {Object.<string, PacketType>} PacketStructure
- */
+import {PacketWithStandardHeader, StandardHeader} from './types';
 
 /**
  * The standard packet header structure.
- * @type {{header: {type: string, size: string, headCode: string}}}
  */
-const standardHeader = {
+const standardHeader: StandardHeader = {
   header: {
     type: 'byte',
     size: 'byte',
@@ -20,9 +13,9 @@ const standardHeader = {
 
 /**
  * The structure for the SDHP_JOIN_SERVER_INFO_SEND packet from GS.
- * @type {{serverCode: string, serverType: string, header: {type: string, size: string, headCode: string}, serverName: string, serverPort: string}}
  */
-const GSJSServerInfoSend = {
+
+const GSJSServerInfoSend: PacketWithStandardHeader = {
   ...standardHeader,
   serverType: 'byte',
   serverPort: 'wordLE',
@@ -32,9 +25,8 @@ const GSJSServerInfoSend = {
 
 /**
  * The structure for the SDHP_SERVER_USER_INFO_SEND packet from GS.
- * @type {{header: {type: string, size: string, headCode: string}, currentUserCount: string, maxUserCount: string}}
  */
-const GSJSUserInfoSend = {
+const GSJSUserInfoSend: PacketWithStandardHeader = {
   ...standardHeader,
   currentUserCount: 'word',
   maxUserCount: 'word',
@@ -55,9 +47,8 @@ const GSJSConnectAccountSend = {
 
 /**
  * The structure for the SDHP_CONNECT_ACCOUNT_RECV packet from JS.
- * @type {{personalCode: string, result: string, blockCode: string, accountExpireDate: string, header: {type: string, size: string, headCode: string}, lock: string, accountLevel: string, playerIndex: string, account: string}}
  */
-const JSGSConnectAccountSend = {
+const JSGSConnectAccountSend: PacketWithStandardHeader = {
   ...standardHeader,
   playerIndex: 'word',
   account: 'char(11)',
@@ -69,11 +60,9 @@ const JSGSConnectAccountSend = {
   lock: 'dword',
 };
 
-const structures = {
+export = {
   GSJSServerInfoSend,
   GSJSUserInfoSend,
   GSJSConnectAccountSend,
   JSGSConnectAccountSend
 };
-
-module.exports = structures;

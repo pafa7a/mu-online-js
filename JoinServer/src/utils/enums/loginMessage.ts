@@ -1,5 +1,5 @@
 // CProtocolSend::RecvLoginNew from main source ProtocolSend.cpp.
-module.exports = {
+export = {
   LOG_IN_FAIL_PASSWORD: 0,
   LOG_IN_SUCCESS: 1,
   LOG_IN_FAIL_ID: 2,
