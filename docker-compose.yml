@@ -25,6 +25,7 @@ services:
       - "44405:44405"
       - "55557:55557/udp"
     volumes:
+      - ./ssl:/ssl
       - ./ConnectServer:/app
     networks:
       - mu
@@ -38,8 +39,6 @@ services:
       - mysql
     ports:
       - "55970:55970"
-    volumes:
-      - ./JoinServer:/app
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
@@ -55,8 +54,6 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    volumes:
-      - ./WebServer/mu-web-admin:/app
     networks:
       - mu
 
