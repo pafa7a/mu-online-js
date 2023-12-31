@@ -1,11 +1,9 @@
-# MuOnline Server on JavaScript
+# MuOnline Server on JavaScript (Typescript)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
-[![Unit tests](https://github.com/pafa7a/mu-online-js/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/pafa7a/mu-online-js/actions/workflows/unit-tests.yml)
 
 [![Discord](https://img.shields.io/discord/1091488589923225650?logo=discord)](https://discord.gg/TFEZ7j4MZd)
 
-This project aims to create a full javascript based MuOnline server that can be used across all OS (Windows, Linux, Mac)
+This project aims to create a full javascript (typescript) based MuOnline server that can be used across all OS (Windows, Linux, Mac)
 
 Compatible Client source repository: https://github.com/pafa7a/MuMain
 
