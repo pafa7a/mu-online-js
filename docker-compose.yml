@@ -26,7 +26,6 @@ services:
       - "55557:55557/udp"
     volumes:
       - ./ssl:/ssl
-      - ./ConnectServer:/app
     networks:
       - mu
 

@@ -1,18 +1,18 @@
-const {createSocket} = require('dgram');
-const byteToNiceHex = require('./byteToNiceHex');
-const {gameServersList, removeGameServer} = require('./loadGameServersList');
-const CSGameServerInfoHandler = require('./handlers/CSGameServerInfoHandler');
-const logger = require('./logger');
+import {createSocket, Socket} from 'dgram';
+import byteToNiceHex from './byteToNiceHex';
+import {gameServersList, removeGameServer} from './loadGameServersList';
+import CSGameServerInfoHandler from './handlers/CSGameServerInfoHandler';
+import logger from './logger';
+import {env} from 'node:process';
+import {PacketHandlersUdp} from './types';
 
 const CLIENT_TIMEOUT = 10000;
 
-let intervalId;
-let udpServer;
+let udpServer: Socket;
 
-const startServer = port => {
+const startServer = (port: number) => {
   udpServer = createSocket('udp4');
   udpServer.on('message', (data, remoteInfo) => {
-    let handler;
     const packetType = data[0];
     let packetHead = data[2];
 
@@ -20,13 +20,13 @@ const startServer = port => {
       packetHead = data[3];
     }
 
-    const packetHandlers = {
+    const packetHandlers: PacketHandlersUdp = {
       0xC1: {
         0x01: CSGameServerInfoHandler,
       },
     };
 
-    handler = packetHandlers[packetType]?.[packetHead];
+    const handler = packetHandlers[packetType]?.[packetHead];
     onReceive({data, handler});
     if (handler) {
       handler({data, remoteInfo});
@@ -40,17 +40,15 @@ const startServer = port => {
 
 /**
  * Helper function triggered when a new data is received.
- * @param data
- * @param handler
  */
-const onReceive = ({data, handler}) => {
+const onReceive = ({data, handler}: {data: Buffer, handler: object|string}) => {
   const hexString = byteToNiceHex(data);
   let handlerName = 'Unknown';
   if (typeof handler === 'function') {
     handlerName = handler.name;
   }
 
-  if (process.env.DEBUG_UDP && handlerName === 'Unknown') {
+  if (env.DEBUG_UDP && handlerName === 'Unknown') {
     logger.info(`Received [${handlerName}]: ${hexString}`);
   }
 };
@@ -63,7 +61,7 @@ const stopServer = () => {
 /**
  * Check periodically if the GameServer is still running.
  */
-intervalId = setInterval(() => {
+const intervalId = setInterval(() => {
   const now = Date.now();
   gameServersList.forEach(server => {
     // If the server was ever connected.
@@ -76,7 +74,7 @@ intervalId = setInterval(() => {
   });
 }, 5000);
 
-module.exports = {
+export {
   startServer,
   stopServer
 };

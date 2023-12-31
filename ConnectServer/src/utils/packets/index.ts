@@ -1,16 +1,8 @@
-/**
- * @typedef {'byte'|'word'|'wordLE'|'wordBE'|'dword'|'short'|'shortBE'|'shortLE'|'arrayPadding'|'char(??)'|object} PacketType
- */
-
-/**
- * @typedef {Object.<string, PacketType>} PacketStructure
- */
-
+import {PacketWithSubcodeHeader, PacketWithStandardHeader, StandardHeader, SubcodeHeader} from './types';
 /**
  * The standard packet header structure.
- * @type {{header: {type: string, size: string, headCode: string}}}
  */
-const standardHeader = {
+const standardHeader: StandardHeader = {
   header: {
     type: 'byte',
     size: 'byte',
@@ -20,9 +12,8 @@ const standardHeader = {
 
 /**
  * The extended packet header structure with subCode.
- * @type {{header: {type: string, size: string, headCode: string, subCode: string}}}
  */
-const subCodeHeader = {
+const subCodeHeader: SubcodeHeader = {
   header: {
     type: 'byte',
     size: 'byte',
@@ -33,9 +24,8 @@ const subCodeHeader = {
 
 /**
  * The extended packet header structure with 2 bytes of length.
- * @type {{header: {type: string, size: string, headCode: string, subCode: string}}}
  */
-const subCodeHeaderWithShortLength = {
+const subCodeHeaderWithShortLength: SubcodeHeader = {
   header: {
     type: 'byte',
     size: 'short',
@@ -46,26 +36,23 @@ const subCodeHeaderWithShortLength = {
 
 /**
  * The structure for the PMSG_SERVER_INIT_SEND packet in CS.
- * @type {PacketStructure}
  */
-const CSMainSendInitPacket = {
+const CSMainSendInitPacket: PacketWithStandardHeader = {
   ...standardHeader,
   result: 'byte'
 };
 
 /**
  * The structure for the PMSG_SERVER_LIST_RECV packet in CS.
- * @type {PacketStructure}
  */
-const MainCSSendServerListRequest = {
+const MainCSSendServerListRequest: PacketWithSubcodeHeader = {
   ...subCodeHeader,
 };
 
 /**
  * The structure for the SDHP_GAME_SERVER_LIVE_SEND packet in GS.
- * @type {PacketStructure}
  */
-const CSGameServerInfo = {
+const CSGameServerInfo: PacketWithStandardHeader = {
   ...standardHeader,
   serverCode: 'word',
   userTotal: 'byte',
@@ -77,9 +64,8 @@ const CSGameServerInfo = {
 
 /**
  * The struct for packet that CS will respond to PMSG_SERVER_LIST_RECV.
- * @type {PacketStructure}
  */
-const CSServerListResponse = {
+const CSServerListResponse: PacketWithSubcodeHeader = {
   ...subCodeHeaderWithShortLength,
   serverCount: 'shortBE',
   serverLoadInfo: [{
@@ -91,25 +77,22 @@ const CSServerListResponse = {
 
 /**
  * The struct for packet that Main will send when click on a server.
- * @type {PacketStructure}
  */
-const MainCSServerInfoRequest = {
+const MainCSServerInfoRequest: PacketWithSubcodeHeader = {
   ...subCodeHeader,
   serverId: 'shortLE'
 };
 
 /**
  * The structure for the PMSG_SERVER_INFO_SEND packet in CS.
- * @type {PacketStructure}
  */
-const CSMainCSServerInfoResponse = {
+const CSMainCSServerInfoResponse: PacketWithSubcodeHeader = {
   ...subCodeHeader,
   serverAddress: 'char(16)',
   serverPort: 'wordLE',
 };
 
-
-const structures = {
+export = {
   CSGameServerInfo,
   CSMainSendInitPacket,
   MainCSSendServerListRequest,
@@ -117,5 +100,3 @@ const structures = {
   MainCSServerInfoRequest,
   CSMainCSServerInfoResponse,
 };
-
-module.exports = structures;

@@ -1,11 +1,14 @@
-const { createServer } = require('tls');
-const fs = require('fs');
-const byteToNiceHex = require('./byteToNiceHex');
-const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = require('./packets/index');
-const serverInfoResponse = require('./handlers/serverInfoResponse');
-const serverListResponse = require('./handlers/serverListResponse');
-const logger = require('./logger');
+import {createServer, Server} from 'tls';
+import fs from 'fs';
+import byteToNiceHex from './byteToNiceHex';
+// @ts-expect-error Fix on a later stage
+import PacketManager from '@mu-online-js/mu-packet-manager';
+import structs from './packets/index';
+import serverInfoResponse from './handlers/serverInfoResponse';
+import serverListResponse from './handlers/serverListResponse';
+import logger from './logger';
+import {env} from 'node:process';
+import {PacketHandlersTcp, SendData} from './types';
 
 const serverOptions = {
   key: fs.readFileSync('./../ssl/key.pem'),
@@ -15,18 +18,15 @@ const serverOptions = {
   ca: [fs.readFileSync('./../ssl/cert.pem')],
 };
 
-let tcpServer;
+let tcpServer: Server;
 const tcpSockets = new Map();
 
-/**
- * @typedef {import('net').Socket} Socket
- */
-const startServer = port => {
+const startServer = (port: number) => {
   tcpServer = createServer(serverOptions, (socket) => {
     // Store the socket in map.
     tcpSockets.set(socket, true);
 
-    if (process.env.DEBUG) {
+    if (env.DEBUG) {
       logger.info(`New client connected. IP: ${socket.remoteAddress}`);
     }
 
@@ -39,12 +39,11 @@ const startServer = port => {
       },
       result: 1,
     };
-    const initMessageBuffer = new packetManager()
+    const initMessageBuffer = new PacketManager()
       .useStruct(structs.CSMainSendInitPacket).toBuffer(messageStruct);
     sendData({socket, data: initMessageBuffer, description: 'CSMainSendInitPacket'});
 
     socket.on('data', (data) => {
-      let handler;
       const packetType = data[0];
       let packetHead = data[2];
       let packetSub = data[3];
@@ -54,7 +53,7 @@ const startServer = port => {
         packetSub = data[4];
       }
 
-      const packetHandlers = {
+      const packetHandlers: PacketHandlersTcp = {
         0xC1: {
           0xF4: {
             0x03: serverInfoResponse,
@@ -63,7 +62,7 @@ const startServer = port => {
         },
       };
 
-      handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
+      const handler = packetHandlers[packetType]?.[packetHead]?.[packetSub];
       onReceive({data, handler});
       if (handler) {
         handler({data, socket, sendData});
@@ -96,32 +95,26 @@ const startServer = port => {
 
 /**
  * Helper function that logs the bytes in HEX format upon sending data.
- * @param {Socket} socket
- * @param {Object} data
- * @param {String} description
  */
-const sendData = ({socket, data, description = ''}) => {
+const sendData = ({socket, data, description = ''}: SendData) => {
   const buffer = Buffer.from(data);
   socket.write(buffer);
-  if (process.env.DEBUG) {
+  if (env.DEBUG) {
     logger.info(`Sent [${description}]: ${byteToNiceHex(data)}`);
   }
 };
 
 /**
  * Helper function that logs the bytes in HEX format upon receive.
- * @param socket
- * @param data
- * @param handler
  */
-const onReceive = ({data, handler}) => {
+const onReceive = ({data, handler}: {data: Buffer, handler: object|string}) => {
   const hexString = byteToNiceHex(data);
   let handlerName = 'Unknown';
   if (typeof handler === 'function') {
     handlerName = handler.name;
   }
 
-  if (process.env.DEBUG) {
+  if (env.DEBUG) {
     logger.info(`Received [${handlerName}]: ${hexString}`);
   }
 };
@@ -130,7 +123,7 @@ const stopServer = () => {
   tcpServer.close();
 };
 
-module.exports = {
+export {
   startServer,
   tcpSockets,
   serverListResponse,

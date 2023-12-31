@@ -1,20 +1,24 @@
-const importFresh = require('import-fresh');
-const logger = require('./logger');
-const {tcpSockets, serverListResponse, sendData} = require('./tcp');
-let gameServersList = [];
+import logger from './logger';
+import {sendData, tcpSockets} from './tcp';
+import serverListResponse from './handlers/serverListResponse';
+import {Socket} from 'net';
+import {GameServer} from './types';
+import ServerList from '../config/ServerList.json';
+
+const gameServersList: GameServer[] = [];
 
 const loadGameServersList = () => {
-  const serverList = importFresh('../config/ServerList.json');
+  const serverList: GameServer[] = ServerList;
   gameServersList.splice(0, gameServersList.length, ...serverList);
 };
 
-const addGameServer = (data, address, port) => {
+const addGameServer = (data: GameServer, address: string, port: number) => {
   gameServersList.forEach(server => {
     if (server.id === data.serverCode) {
       if (!server.address || !server.internalPort || !server.state) {
         server.address = address;
         server.internalPort = port;
-        server.state = 1;
+        server.state = true;
         logger.info(`GameServer connected. Name: "${server.name}"; ServerCode: "${server.id}; InternalAddress: ${server.address}; InternalPort: ${server.internalPort}"`);
         reloadGameServersList();
       }
@@ -25,8 +29,8 @@ const addGameServer = (data, address, port) => {
   });
 };
 
-const removeGameServer = server => {
-  server.state = 0;
+const removeGameServer = (server: GameServer) => {
+  server.state = false;
   server.address = server.internalPort = server.lastMessageTime = undefined;
   logger.info(`GameServer disconnected. Name: "${server.name}"; ServerCode: "${server.id}`);
   reloadGameServersList();
@@ -34,12 +38,12 @@ const removeGameServer = server => {
 
 const reloadGameServersList = () => {
   // send a message to all connected clients
-  tcpSockets.forEach((value, socket) => {
+  tcpSockets.forEach((_, socket: Socket) => {
     serverListResponse({socket, sendData});
   });
 };
 
-module.exports = {
+export {
   loadGameServersList,
   gameServersList,
   addGameServer,

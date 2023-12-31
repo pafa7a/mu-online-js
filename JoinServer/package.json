@@ -8,17 +8,13 @@
     "prebuild": "rimraf dist",
     "build": "tsc",
     "start": "node ./dist/index.js",
-    "dev": "ts-node .",
-    "test": "ts-mocha src/**/*.test.ts"
+    "dev": "ts-node ."
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.5",
     "@types/ws": "^8.5.10",
-    "concurrently": "^8.2.2",
-    "mocha": "^10.2.0",
     "rimraf": "^5.0.5",
-    "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },

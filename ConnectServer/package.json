@@ -1,27 +1,30 @@
 {
   "name": "mu-online-js-cs",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "src/index.ts",
   "license": "MIT",
   "repository": "https://github.com/pafa7a/mu-online-js",
   "scripts": {
-    "start": "node index.js",
-    "debug": "set DEBUG=true && node --inspect index.js",
-    "test": "mocha test",
-    "coverage": "nyc yarn test"
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "start": "node ./dist/index.js",
+    "dev": "ts-node ."
   },
   "devDependencies": {
-    "mocha": "^10.2.0",
-    "mock-fs": "^5.2.0",
-    "nyc": "^15.1.0"
+    "@types/mocha": "^10.0.6",
+    "@types/mock-fs": "^4.13.4",
+    "@types/node": "^20.10.5",
+    "@types/ws": "^8.5.10",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "mocha": {
-    "timeout": 1000000
+    "timeout": 1000
   },
   "dependencies": {
     "@mu-online-js/mu-logger": "^1.0.0",
     "@mu-online-js/mu-packet-manager": "^0.0",
-    "import-fresh": "^3.3.0",
     "ws": "^8.15.1"
   }
 }

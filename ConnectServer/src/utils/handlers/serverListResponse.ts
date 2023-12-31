@@ -1,10 +1,13 @@
-const packetManager = require('@mu-online-js/mu-packet-manager');
-const structs = require('./../packets/index');
+// @ts-expect-error Fix on a later stage
+import PacketManager from '@mu-online-js/mu-packet-manager';
+import structs from './../packets/index';
+import {gameServersList} from '../loadGameServersList';
+import {GameServer, SendDataType} from '../types';
+import {Socket} from 'net';
 
 const getActiveServerList = () => {
-  const {gameServersList} = require('../loadGameServersList');
-  const list = [];
-  gameServersList?.forEach(gameServer => {
+  const list: GameServer[] = [];
+  gameServersList?.forEach((gameServer: GameServer) => {
     if (gameServer.show && gameServer.state) {
       list.push({
         serverId: gameServer.id,
@@ -17,10 +20,8 @@ const getActiveServerList = () => {
 
 /**
  * Handles serverListResponse request.=
- * @param {Socket} socket
- * @param {({socket: Socket, data: Object, description: String}) => void} sendData
  */
-const serverListResponse = ({socket, sendData}) => {
+const serverListResponse = ({socket, sendData}: {socket: Socket, sendData: SendDataType}) => {
   // Send the "server list" message to the server
   const list = getActiveServerList();
   const messageStruct = {
@@ -33,9 +34,9 @@ const serverListResponse = ({socket, sendData}) => {
     serverCount: list.length,
     serverLoadInfo: list
   };
-  const message = new packetManager()
+  const message = new PacketManager()
     .useStruct(structs.CSServerListResponse).toBuffer(messageStruct);
   sendData({socket, data: message, description: 'serverListResponse'});
 };
 
-module.exports = serverListResponse;
+export default serverListResponse;
